@@ -23,7 +23,7 @@ DROP TABLE IF EXISTS artworks;
 CREATE TABLE artworks (
     id integer NOT NULL CONSTRAINT artworks_pk PRIMARY KEY,
     artist_id integer NOT NULL,
-    name varchar(200) NOT NULL,
+    art_name varchar(200) NOT NULL,
     description text,
     photo text NOT NULL,
     CONSTRAINT artworks_users FOREIGN KEY (artist_id)
@@ -54,7 +54,7 @@ CREATE TABLE messages (
 DROP TABLE IF EXISTS places;
 CREATE TABLE places (
     id integer NOT NULL CONSTRAINT places_pk PRIMARY KEY,
-    name varchar(100) NOT NULL,
+    place_name varchar(100) NOT NULL,
     owner_id integer NOT NULL,
     loc_lon double NOT NULL,
     loc_lat double NOT NULL,
@@ -91,7 +91,7 @@ DROP TABLE IF EXISTS venues;
 CREATE TABLE venues (
     id integer NOT NULL CONSTRAINT venues_pk PRIMARY KEY,
     place_id integer NOT NULL,
-    name varchar(500) NOT NULL,
+    venue_name varchar(500) NOT NULL,
     description text,
     start_date datetime NOT NULL,
     end_date datetime,
