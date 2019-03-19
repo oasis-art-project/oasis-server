@@ -69,7 +69,7 @@ CREATE TABLE users (
     first_name varchar(50) NOT NULL,
     last_name varchar(50) NOT NULL,
     email varchar(50) NOT NULL,
-    password varchar(64) NOT NULL,
+    user_password varchar(64) NOT NULL,
     user_role tinyint NOT NULL
 );
 
@@ -100,7 +100,7 @@ CREATE TABLE venues (
     REFERENCES places (id)
 );
 
-INSERT INTO users (`id`, `first_name`, `email`, `password`, `user_role`) VALUES ('1', 'Admin', 'Admin', 'admin@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '1');
+INSERT INTO users (`id`, `first_name`, `last_name`, `email`, `user_password`, `user_role`) VALUES ('1', 'Admin', 'Admin', 'admin@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '1');
 
 -- End of file.
 
