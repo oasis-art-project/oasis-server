@@ -7,13 +7,13 @@ DROP TABLE IF EXISTS applications;
 CREATE TABLE applications (
     id integer NOT NULL CONSTRAINT applications_pk PRIMARY KEY,
     artist_id integer NOT NULL,
-    venue_id integer NOT NULL,
+    event_id integer NOT NULL,
     host_id integer NOT NULL,
     notes text,
     CONSTRAINT users_artist FOREIGN KEY (artist_id)
     REFERENCES users (id),
-    CONSTRAINT venues_applications FOREIGN KEY (venue_id)
-    REFERENCES venues (id),
+    CONSTRAINT events_applications FOREIGN KEY (event_id)
+    REFERENCES events (id),
     CONSTRAINT users_host FOREIGN KEY (host_id)
     REFERENCES users (id)
 );
@@ -86,17 +86,17 @@ CREATE TABLE users_favorites (
     REFERENCES favorites_types (id)
 );
 
--- Table: venues
-DROP TABLE IF EXISTS venues;
-CREATE TABLE venues (
-    id integer NOT NULL CONSTRAINT venues_pk PRIMARY KEY,
+-- Table: events
+DROP TABLE IF EXISTS events;
+CREATE TABLE events (
+    id integer NOT NULL CONSTRAINT events_pk PRIMARY KEY,
     place_id integer NOT NULL,
-    venue_name varchar(500) NOT NULL,
+    event_name varchar(500) NOT NULL,
     description text,
     start_date datetime NOT NULL,
     end_date datetime,
     photo text,
-    CONSTRAINT venues_places FOREIGN KEY (place_id)
+    CONSTRAINT events_places FOREIGN KEY (place_id)
     REFERENCES places (id)
 );
 
