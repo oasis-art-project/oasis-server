@@ -33,15 +33,15 @@ def get_place():
 	place = get_db().execute(
 		'SELECT id, place_name, owner_id, loc_lon, loc_lat'
 		'WHERE id = ?',
-		(id,)
+		(place_id,)
 	).fetchone()
 	
 	if place is None:
 		# abort(404, "Place ID {0} doesn't exist.".format(id)) code to handle failure
 	return place
 
-def edit_place(id):
-	place = get_place(id)
+def edit_place(place_id):
+	place = get_place(plalce_id)
 	
 	if request.method == 'POST':
 		place_name = request.form['place_name']
@@ -70,10 +70,10 @@ def edit_place(id):
 			# return redirect(url_for()) some url to take the user to after editing
 	# return render_template()
 
-def delete_place(id):
-	get_place(id)
+def delete_place(place_id):
+	get_place(place_id)
 	db = get_db()
-	db.execute('DELETE FROM places WHERE id = ?', (id,))
+	db.execute('DELETE FROM places WHERE id = ?', (placeid,))
 	db.commit()
 	# return redirect(url_for()) some url to take the user back to the relevant page 		
 		

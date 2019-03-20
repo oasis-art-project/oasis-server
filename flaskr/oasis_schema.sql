@@ -1,5 +1,5 @@
 -- Created by Vertabelo (http://vertabelo.com)
--- Last modification date: 2019-03-05 00:22:24.313
+
 
 -- tables
 -- Table: applications

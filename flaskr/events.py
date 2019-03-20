@@ -27,11 +27,11 @@ def create_event():
 			# return redirect(url_for()) some url to take the user to after submitting 				# an event
 	# return render_template()
 
-def get_event(id):
+def get_event(event_id):
 	event = get_db().execute(
 		'SELECT id, place_id, event_name, description, start_date, end_date, photo'
 		'WHERE id = ?',
-		(id,)
+		(event_id,)
 	).fetchone()
 	
 	if event is None:
@@ -39,8 +39,8 @@ def get_event(id):
 	
 	return event
 
-def edit_event(id):
-	event = get_event(id)
+def edit_event(event_id):
+	event = get_event(event_id)
 
 	if request.method == 'POST':
 		event_name = request.form['event_name']
@@ -66,11 +66,11 @@ def edit_event(id):
 			# return redirect(url_for()) some url to take the user to after editing 			# an event
 	# return render_template()
 
-def delete_event(id):
-	get_event(id)
+def delete_event(event_id):
+	get_event(event_id)
 	db = get_db()
 	db.execute('DELETE FROM events WHERE id = ?', (id,))
 	db.commit()
-	# return redirect(url_for()) some url to take the user back to the home page
+	# return redirect(url_for()) some url to take the user back to the relevant page
 	
 

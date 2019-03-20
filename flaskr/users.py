@@ -35,19 +35,19 @@ def create_user():
 			# return redirect(url_for()) some url to take the user to the homepage
 	# return render_template()
 
-def get_user(id):
+def get_user(user_id):
 	user = get_db().execute(
 		'SELECT id, first_name, last_name, email, user_password, user_role'
 		'WHERE id = ?',
-		(id,)
+		(user_id,)
 	).fetchone()
 	
 	if user is None:
 		# abort(404, "User ID {0} doesn't exist.".format(id)) code to handle failure
 	return user
 
-def edit_user(id):
-	user = get_user(id)
+def edit_user(user_id):
+	user = get_user(user_id)
 	
 	if request.method == 'POST':
 		first_name = request.form['first_name']
@@ -81,10 +81,10 @@ def edit_user(id):
 			# return redirect(url_for()) some url to take the user to after editing 
 		# return render_template()
 
-def delete_user(id):
-	get_user(id)
+def delete_user(user_id):
+	get_user(user_id)
 	db = get_db()
-	db.execute('DELETE FROM users WHERE id = ?', (id,))
+	db.execute('DELETE FROM users WHERE id = ?', (user_id,))
 	db.commit()
 	# return redirect(url_for()) some url to take the user back to the guest home page
 			
