@@ -69,7 +69,7 @@ CREATE TABLE users (
     first_name varchar(50) NOT NULL,
     last_name varchar(50) NOT NULL,
     email varchar(50) NOT NULL,
-    password varchar(64) NOT NULL,
+    user_password varchar(64) NOT NULL,
     user_role tinyint NOT NULL
 );
 
