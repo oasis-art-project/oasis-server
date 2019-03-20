@@ -12,7 +12,7 @@ class App extends Component {
           <Navbar fluid collapseOnSelect>
             <Navbar.Header>
               <Navbar.Brand>
-                <Link to="/">Scratch</Link>
+                <Link to="/"><img src={require('./containers/assets/oasis_logo.png')} weight="40" height="40"/></Link>
               </Navbar.Brand>
               <Navbar.Toggle />
             </Navbar.Header>
