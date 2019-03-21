@@ -1,3 +1,3 @@
 1. npm install
-2. npm run watch
+2. npm run build
 3. python3 run.py
