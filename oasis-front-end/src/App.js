@@ -5,6 +5,7 @@ import "./App.css";
 import Routes from "./Routes";
 import { LinkContainer } from "react-router-bootstrap";
 
+
 class App extends Component {
   render() {
     return (
@@ -12,7 +13,7 @@ class App extends Component {
           <Navbar fluid collapseOnSelect>
             <Navbar.Header>
               <Navbar.Brand>
-                <Link to="/"><img src={require('./containers/assets/oasis_logo.png')} weight="40" height="40"/></Link>
+                <Link to="/"><img src={require('./containers/assets/oasis_logo.png')} weight="40" height="40" alt="OasisLogo"/></Link>
               </Navbar.Brand>
               <Navbar.Toggle />
             </Navbar.Header>
@@ -28,7 +29,10 @@ class App extends Component {
             </Navbar.Collapse>
           </Navbar>
           <Routes />
+
         </div>
+
+
     );
   }
 }
