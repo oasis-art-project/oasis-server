@@ -4,6 +4,7 @@ import { Nav, Navbar, NavItem } from "react-bootstrap";
 import "./App.css";
 import Routes from "./Routes";
 import { LinkContainer } from "react-router-bootstrap";
+import {Button} from "react-bootstrap";
 
 
 class App extends Component {
@@ -20,10 +21,10 @@ class App extends Component {
             <Navbar.Collapse>
               <Nav pullRight>
                 <LinkContainer to="/signup">
-                  <NavItem>Signup</NavItem>
+                  <NavItem><Button href="/signup">Sign Up</Button></NavItem>
                 </LinkContainer>
                 <LinkContainer to="/login">
-                  <NavItem>Login</NavItem>
+                  <NavItem><Button href="/login">Login</Button></NavItem>
                 </LinkContainer>
               </Nav>
             </Navbar.Collapse>
