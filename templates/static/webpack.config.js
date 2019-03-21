@@ -1,11 +1,13 @@
 const webpack = require('webpack');
+const resolve = require('path').resolve;
+
 const config = {
         devtool: 'eval-source-map',
  entry: __dirname + '/js/index.jsx',
  output:{
-      path: resolve('../public'),
+      path: resolve('../templates/public'),
       filename: 'bundle.js',
-      publicPath: resolve('../public')
+      publicPath: resolve('../templates/public')
  },
  resolve: {
   extensions: ['.js','.jsx','.css']
