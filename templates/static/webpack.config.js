@@ -18,7 +18,21 @@ const config = {
    query:{
      presets: ['@babel/react','@babel/env']
    }
-  }]
+  },
+	{
+  	test: /\.css$/,
+    loader: 'style-loader!css-loader?modules'
+  },
+	{
+        test: /\.(png|jpg|gif)$/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {},
+          },
+        ],
+	}
+	]
  }
 };
 module.exports = config;
