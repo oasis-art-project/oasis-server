@@ -20,9 +20,9 @@
     "webpack": "^4.19.1"
   },
   "scripts": {
-    "build": "webpack -p --progress --config static/webpack.config.js",
-    "dev-build": "webpack --progress -d --config static/webpack.config.js",
-    "watch": "webpack --progress -d --config static/webpack.config.js --watch",
+    "build": "webpack -p --progress --config webpack.config.js",
+    "dev-build": "webpack --progress -d --config webpack.config.js",
+    "watch": "webpack --progress -d --config webpack.config.js --watch",
     "start": "react-scripts start",
     "_build": "react-scripts build",
     "test": "react-scripts test",
