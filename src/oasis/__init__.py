@@ -1,3 +1,11 @@
+from src import app
+from flask import render_template
+@app.route('/')
+@app.route('/home')
+def index():
+ return render_template("index.html")
+
+"""
 import os
 
 from flask import Flask
@@ -28,4 +36,4 @@ def create_app(test_config=None):
     db.init_app(app)
 
     return app
-    
+"""
