@@ -5,6 +5,7 @@ import "./App.css";
 import Routes from "./Routes";
 import { LinkContainer } from "react-router-bootstrap";
 import {Button} from "react-bootstrap";
+import EventPage from "./containers/EventPage";
 
 
 class App extends Component {
@@ -20,6 +21,9 @@ class App extends Component {
             </Navbar.Header>
             <Navbar.Collapse>
               <Nav pullRight>
+                <LinkContainer to="/containers/EventPage">
+                  <NavItem><Button href="./containers/EventPage.js">Event Page</Button></NavItem>
+                </LinkContainer>
                 <LinkContainer to="/signup">
                   <NavItem><Button href="/signup">Sign Up</Button></NavItem>
                 </LinkContainer>

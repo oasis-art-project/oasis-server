@@ -1,9 +1,7 @@
 import React, { Component } from "react";
 import "./Home.css";
 import EventCard from './EventCard';
-import {Container} from "reactstrap";
-import {Row} from "react-bootstrap";
-import {Col} from "react-bootstrap";
+import {Container, Row, Col} from "reactstrap";
 
 
 
@@ -35,6 +33,12 @@ class Home extends Component {
                     eventDate: "01/01/2023",
                     eventDetails: "The party just keeps going!"
 
+                },
+                {
+                    eventTitle: "Art New Years Party 5",
+                    eventDate: "01/01/2024",
+                    eventDetails: "Phew, it never ends!"
+
                 }
 
             ]
@@ -43,13 +47,13 @@ class Home extends Component {
     render() {
         let EventCards = this.state.events.map(event => {
             return(
-                <Col sm="3">
-                    <EventCard event={event.eventTitle}/>
+                <Col sm="4">
+                    <EventCard event={event.eventTitle} />
                 </Col>
             )
         });
         return (
-            <Container>
+            <Container fluid>
                 <Row>
                     {EventCards}
                 </Row>
