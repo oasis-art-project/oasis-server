@@ -10,9 +10,17 @@
     "react-router-dom": "^4.3.1",
     "react-scripts": "2.1.5"
   },
+	"devDependencies": {
+    "webpack": "^4.19.1",
+    "webpack-cli": "^3.1.0"
+  },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "webpack -p --progress --config webpack.config.js",
+    "dev-build": "webpack --progress -d --config webpack.config.js",
+    "watch": "webpack --progress -d --config webpack.config.js --watch",
+    
+		"start": "react-scripts start",
+    "_build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
