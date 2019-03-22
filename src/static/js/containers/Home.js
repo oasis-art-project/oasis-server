@@ -1,10 +1,12 @@
 import React, { Component } from "react";
 import "./Home.css";
-// DOESN'T EXIST YET
-//import EventCard from './EventCard';
+/* 
+ * EventCard doesn't exist in containers
+
+import EventCard from './EventCard';
+
+*/
 import {Container, Row, Col} from "reactstrap";
-
-
 
 class Home extends Component {
     constructor(){
@@ -46,17 +48,25 @@ class Home extends Component {
         }
     }
     render() {
-        let EventCards = this.state.events.map(event => {
+        /* EventCard doesn't exist in containers/
+				
+				let EventCards = this.state.events.map(event => {
             return(
                 <Col sm="4">
-                    <EventCard event={event.eventTitle} />
+										<EventCard event={event.eventTitle} />
                 </Col>
             )
-        });
+        }); 
+				
+			*/
         return (
             <Container fluid>
                 <Row>
-                    {EventCards}
+										{/* EventCard doesn't exist in containers/
+								
+											{EventCards}
+										
+										*/}
                 </Row>
             </Container>
         );
