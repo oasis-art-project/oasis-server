@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import "./Home.css";
-import EventCard from './EventCard';
+// DOESN'T EXIST YET
+//import EventCard from './EventCard';
 import {Container, Row, Col} from "reactstrap";
 
 
