@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 app = Flask(__name__,
  static_folder = './public',
@@ -6,3 +7,17 @@ from src.oasis.views import home_blueprint
 
 # register the blueprints
 app.register_blueprint(home_blueprint)
+
+app.config.from_mapping(
+    SECRET_KEY='dev',
+    DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
+)
+
+# ensure the instance folder exists
+try:
+    os.makedirs(app.instance_path)
+except OSError:
+    pass
+
+from src.oasis import db
+db.init_app(app)
