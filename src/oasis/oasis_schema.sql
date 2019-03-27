@@ -101,29 +101,29 @@ CREATE TABLE events (
 );
 
 /* Exaple DB entries for users */
-INSERT INTO users (`id`, `first_name`, `email`, `password`, `user_role`) VALUES ('1', 'Admin', 'Admin', 'admin@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '1');
-INSERT INTO users (`id`, `first_name`, `email`, `password`, `user_role`) VALUES ('2', 'Maggie', 'M', 'maggiem@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '2');
-INSERT INTO users (`id`, `first_name`, `email`, `password`, `user_role`) VALUES ('3', 'Sian', 'K', 'siank@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '2');
-INSERT INTO users (`id`, `first_name`, `email`, `password`, `user_role`) VALUES ('4', 'Aliza', 'R', 'alizar@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '2');
-INSERT INTO users (`id`, `first_name`, `email`, `password`, `user_role`) VALUES ('5', 'Peter', 'P', 'peterp@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '2');
-INSERT INTO users (`id`, `first_name`, `email`, `password`, `user_role`) VALUES ('6', 'Gina', 'R', 'ginar@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '2');
-INSERT INTO users (`id`, `first_name`, `email`, `password`, `user_role`) VALUES ('7', 'Brandon', 'L', 'brandonl@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '2');
-INSERT INTO users (`id`, `first_name`, `email`, `password`, `user_role`) VALUES ('8', 'Rob', 'K', 'robk@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '3');
-INSERT INTO users (`id`, `first_name`, `email`, `password`, `user_role`) VALUES ('9', 'Melissa', 'T', 'melissat@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '3');
-INSERT INTO users (`id`, `first_name`, `email`, `password`, `user_role`) VALUES ('10', 'Lia', 'L', 'lial@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '3');
-INSERT INTO users (`id`, `first_name`, `email`, `password`, `user_role`) VALUES ('11', 'Ronie', 'B', 'ronieb@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '3');
-INSERT INTO users (`id`, `first_name`, `email`, `password`, `user_role`) VALUES ('12', 'Brenda', 'M', 'brendam@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '3');
-INSERT INTO users (`id`, `first_name`, `email`, `password`, `user_role`) VALUES ('13', 'Jane', 'H', 'janeh@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '3');
-INSERT INTO users (`id`, `first_name`, `email`, `password`, `user_role`) VALUES ('14', 'John', 'D', 'johnd@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '3');
-INSERT INTO users (`id`, `first_name`, `email`, `password`, `user_role`) VALUES ('15', 'StreetGrit', 'StreetGrit', 'streetgrit@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '3');
-INSERT INTO users (`id`, `first_name`, `email`, `password`, `user_role`) VALUES ('16', 'Mary Lynn', 'D', 'marylynnd@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '3');
-INSERT INTO users (`id`, `first_name`, `email`, `password`, `user_role`) VALUES ('17', 'Marcus', 'B', 'marcusb@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '3');
-INSERT INTO users (`id`, `first_name`, `email`, `password`, `user_role`) VALUES ('18', 'JJK', 'JJK', 'jjk@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '3');
-INSERT INTO users (`id`, `first_name`, `email`, `password`, `user_role`) VALUES ('19', 'Tanit', 'F', 'tanitf@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '3');
-INSERT INTO users (`id`, `first_name`, `email`, `password`, `user_role`) VALUES ('20', 'Colin', 'S', 'colins@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '3');
-INSERT INTO users (`id`, `first_name`, `email`, `password`, `user_role`) VALUES ('21', 'Alina', 'V', 'alinav@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '3');
-INSERT INTO users (`id`, `first_name`, `email`, `password`, `user_role`) VALUES ('22', 'Patrick', 'B', 'patrickb@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '3');
-INSERT INTO users (`id`, `first_name`, `email`, `password`, `user_role`) VALUES ('23', 'Lindsey', 'unkown', 'lindsey@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '3');
+INSERT INTO users (`id`, `first_name`, `last_name`, `email`, `user_password`, `user_role`) VALUES ('1', 'Admin', 'Admin', 'admin@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '1');
+INSERT INTO users (`id`, `first_name`, `last_name`, `email`, `user_password`, `user_role`) VALUES ('2', 'Maggie', 'M', 'maggiem@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '2');
+INSERT INTO users (`id`, `first_name`, `last_name`, `email`, `user_password`, `user_role`) VALUES ('3', 'Sian', 'K', 'siank@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '2');
+INSERT INTO users (`id`, `first_name`, `last_name`, `email`, `user_password`, `user_role`) VALUES ('4', 'Aliza', 'R', 'alizar@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '2');
+INSERT INTO users (`id`, `first_name`, `last_name`, `email`, `user_password`, `user_role`) VALUES ('5', 'Peter', 'P', 'peterp@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '2');
+INSERT INTO users (`id`, `first_name`, `last_name`, `email`, `user_password`, `user_role`) VALUES ('6', 'Gina', 'R', 'ginar@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '2');
+INSERT INTO users (`id`, `first_name`, `last_name`, `email`, `user_password`, `user_role`) VALUES ('7', 'Brandon', 'L', 'brandonl@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '2');
+INSERT INTO users (`id`, `first_name`, `last_name`, `email`, `user_password`, `user_role`) VALUES ('8', 'Rob', 'K', 'robk@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '3');
+INSERT INTO users (`id`, `first_name`, `last_name`, `email`, `user_password`, `user_role`) VALUES ('9', 'Melissa', 'T', 'melissat@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '3');
+INSERT INTO users (`id`, `first_name`, `last_name`, `email`, `user_password`, `user_role`) VALUES ('10', 'Lia', 'L', 'lial@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '3');
+INSERT INTO users (`id`, `first_name`, `last_name`, `email`, `user_password`, `user_role`) VALUES ('11', 'Ronie', 'B', 'ronieb@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '3');
+INSERT INTO users (`id`, `first_name`, `last_name`, `email`, `user_password`, `user_role`) VALUES ('12', 'Brenda', 'M', 'brendam@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '3');
+INSERT INTO users (`id`, `first_name`, `last_name`, `email`, `user_password`, `user_role`) VALUES ('13', 'Jane', 'H', 'janeh@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '3');
+INSERT INTO users (`id`, `first_name`, `last_name`, `email`, `user_password`, `user_role`) VALUES ('14', 'John', 'D', 'johnd@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '3');
+INSERT INTO users (`id`, `first_name`, `last_name`, `email`, `user_password`, `user_role`) VALUES ('15', 'StreetGrit', 'StreetGrit', 'streetgrit@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '3');
+INSERT INTO users (`id`, `first_name`, `last_name`, `email`, `user_password`, `user_role`) VALUES ('16', 'Mary Lynn', 'D', 'marylynnd@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '3');
+INSERT INTO users (`id`, `first_name`, `last_name`, `email`, `user_password`, `user_role`) VALUES ('17', 'Marcus', 'B', 'marcusb@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '3');
+INSERT INTO users (`id`, `first_name`, `last_name`, `email`, `user_password`, `user_role`) VALUES ('18', 'JJK', 'JJK', 'jjk@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '3');
+INSERT INTO users (`id`, `first_name`, `last_name`, `email`, `user_password`, `user_role`) VALUES ('19', 'Tanit', 'F', 'tanitf@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '3');
+INSERT INTO users (`id`, `first_name`, `last_name`, `email`, `user_password`, `user_role`) VALUES ('20', 'Colin', 'S', 'colins@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '3');
+INSERT INTO users (`id`, `first_name`, `last_name`, `email`, `user_password`, `user_role`) VALUES ('21', 'Alina', 'V', 'alinav@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '3');
+INSERT INTO users (`id`, `first_name`, `last_name`, `email`, `user_password`, `user_role`) VALUES ('22', 'Patrick', 'B', 'patrickb@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '3');
+INSERT INTO users (`id`, `first_name`, `last_name`, `email`, `user_password`, `user_role`) VALUES ('23', 'Lindsey', 'unkown', 'lindsey@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '3');
 
 /* Example DB entries for places */
 

@@ -5,3 +5,8 @@
 .App .navbar-brand {
   font-weight: bold;
 }
+
+.navbar-default {
+  background-color: #C5DDDB;
+  border-color: #81BCB8;
+}
