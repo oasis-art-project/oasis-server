@@ -91,13 +91,13 @@ DROP TABLE IF EXISTS events;
 CREATE TABLE events (
     id integer NOT NULL CONSTRAINT events_pk PRIMARY KEY,
     place_id integer NOT NULL,
-    event_name varchar(500) NOT NULL,
+    artist_id integer NOT NULL,
     description text,
     start_date datetime NOT NULL,
     end_date datetime,
     photo text,
-    CONSTRAINT events_places FOREIGN KEY (place_id)
-    REFERENCES places (id)
+    FOREIGN KEY place_id REFERENCES places(id)
+    FOREIGN KEY artist_id REFERENCES users(id)
 );
 
 /* Exaple DB entries for users */
@@ -127,12 +127,12 @@ INSERT INTO users (`id`, `first_name`, `email`, `password`, `user_role`) VALUES 
 
 /* Example DB entries for places */
 
-INSERT INTO places (`id`, `place_name`, `owner_id`, `loc_lon`, `loc_lat`) VALUES ('100', 'CREATE', '3', '10.0', '10.0');
-INSERT INTO places (`id`, `place_name`, `owner_id`, `loc_lon`, `loc_lat`) VALUES ('101', 'Nuclear Bean', '2', '15.0', '15.0');
-INSERT INTO places (`id`, `place_name`, `owner_id`, `loc_lon`, `loc_lat`) VALUES ('102', 'Runners Paradise', '4', '20.0', '20.0');
-INSERT INTO places (`id`, `place_name`, `owner_id`, `loc_lon`, `loc_lat`) VALUES ('103', 'Purple Turtle', '7', '25.0', '25.0');
-INSERT INTO places (`id`, `place_name`, `owner_id`, `loc_lon`, `loc_lat`) VALUES ('104', 'Garden', '2', '30.0', '30.0');
-INSERT INTO places (`id`, `place_name`, `owner_id`, `loc_lon`, `loc_lat`) VALUES ('105', 'Wall on Mass', '5', '35.0', '35.0');
+INSERT INTO places (`id`, `place_name`, `owner_id`, `loc_lon`, `loc_lat`) VALUES ('100', 'CREATE', '3', '42.388228', '-71.099655');
+INSERT INTO places (`id`, `place_name`, `owner_id`, `loc_lon`, `loc_lat`) VALUES ('101', 'Nuclear Bean', '2', '42.360574', '-71.105250');
+INSERT INTO places (`id`, `place_name`, `owner_id`, `loc_lon`, `loc_lat`) VALUES ('102', 'Runners Paradise', '4', '42.341653', '-71.076217');
+INSERT INTO places (`id`, `place_name`, `owner_id`, `loc_lon`, `loc_lat`) VALUES ('103', 'Purple Turtle', '7', '42.380412', '-71.095088');
+INSERT INTO places (`id`, `place_name`, `owner_id`, `loc_lon`, `loc_lat`) VALUES ('104', 'Garden', '2', '42.360087', '-71.065992');
+INSERT INTO places (`id`, `place_name`, `owner_id`, `loc_lon`, `loc_lat`) VALUES ('105', 'Wall on Mass', '5', '42.367756', '-71.107348');
 
 /* Example DB entries for events */
 
