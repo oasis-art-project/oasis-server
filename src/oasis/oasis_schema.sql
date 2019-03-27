@@ -70,7 +70,7 @@ CREATE TABLE users (
     last_name varchar(50) NOT NULL,
     email varchar(50) NOT NULL,
     user_password varchar(64) NOT NULL,
-    user_role tinyint NOT NULL /* an integer of 1 represents Admin, 2 is 								Host, 3 is Artist, 4 is Visitor */
+    user_role tinyint NOT NULL, /* an integer of 1 represents Admin, 2 is 								Host, 3 is Artist, 4 is Visitor */
 );
 
 -- Table: users_favorites
@@ -100,7 +100,7 @@ CREATE TABLE events (
     REFERENCES places (id)
 );
 
-/* Exaple DB entries for midterm presentation */
+/* Exaple DB entries for users */
 INSERT INTO users (`id`, `first_name`, `email`, `password`, `user_role`) VALUES ('1', 'Admin', 'Admin', 'admin@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '1');
 INSERT INTO users (`id`, `first_name`, `email`, `password`, `user_role`) VALUES ('2', 'Maggie', 'M', 'maggiem@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '2');
 INSERT INTO users (`id`, `first_name`, `email`, `password`, `user_role`) VALUES ('3', 'Sian', 'K', 'siank@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '2');
@@ -124,6 +124,17 @@ INSERT INTO users (`id`, `first_name`, `email`, `password`, `user_role`) VALUES 
 INSERT INTO users (`id`, `first_name`, `email`, `password`, `user_role`) VALUES ('21', 'Alina', 'V', 'alinav@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '3');
 INSERT INTO users (`id`, `first_name`, `email`, `password`, `user_role`) VALUES ('22', 'Patrick', 'B', 'patrickb@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '3');
 INSERT INTO users (`id`, `first_name`, `email`, `password`, `user_role`) VALUES ('23', 'Lindsey', 'unkown', 'lindsey@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '3');
+
+/* Example DB entries for places */
+
+INSERT INTO places (`id`, `place_name`, `owner_id`, `loc_lon`, `loc_lat`) VALUES ('100', 'CREATE', '3', '10.0', '10.0');
+INSERT INTO places (`id`, `place_name`, `owner_id`, `loc_lon`, `loc_lat`) VALUES ('101', 'Nuclear Bean', '2', '15.0', '15.0');
+INSERT INTO places (`id`, `place_name`, `owner_id`, `loc_lon`, `loc_lat`) VALUES ('102', 'Runners Paradise', '4', '20.0', '20.0');
+INSERT INTO places (`id`, `place_name`, `owner_id`, `loc_lon`, `loc_lat`) VALUES ('103', 'Purple Turtle', '7', '25.0', '25.0');
+INSERT INTO places (`id`, `place_name`, `owner_id`, `loc_lon`, `loc_lat`) VALUES ('104', 'Garden', '2', '30.0', '30.0');
+INSERT INTO places (`id`, `place_name`, `owner_id`, `loc_lon`, `loc_lat`) VALUES ('105', 'Wall on Mass', '5', '35.0', '35.0');
+
+/* Example DB entries for events */
 
 -- End of file.
 
