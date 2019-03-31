@@ -4,7 +4,7 @@
 -- tables
 -- Table: applications
 DROP TABLE IF EXISTS applications;
-CREATE TABLE applications (
+/* CREATE TABLE applications (
     id integer NOT NULL CONSTRAINT applications_pk PRIMARY KEY,
     artist_id integer NOT NULL,
     event_id integer NOT NULL,
@@ -16,7 +16,7 @@ CREATE TABLE applications (
     REFERENCES events (id),
     CONSTRAINT users_host FOREIGN KEY (host_id)
     REFERENCES users (id)
-);
+); */ -- Applications was intended to allow someone to apply to be a host or admin
 
 -- Table: artworks
 DROP TABLE IF EXISTS artworks;
@@ -37,27 +37,15 @@ CREATE TABLE favorites_types (
     type varchar(100) NOT NULL
 );
 
--- Table: messages
-DROP TABLE IF EXISTS messages;
-CREATE TABLE messages (
-    id integer NOT NULL CONSTRAINT messages_pk PRIMARY KEY,
-    sender_id integer NOT NULL,
-    recipient_id integer NOT NULL,
-    message text NOT NULL,
-    CONSTRAINT users_recipient FOREIGN KEY (recipient_id)
-    REFERENCES users (id),
-    CONSTRAINT users_sender FOREIGN KEY (sender_id)
-    REFERENCES users (id)
-);
 
--- Table: places
+-- Table: places represents the physical location 
 DROP TABLE IF EXISTS places;
 CREATE TABLE places (
     id integer NOT NULL CONSTRAINT places_pk PRIMARY KEY,
     place_name varchar(100) NOT NULL,
     owner_id integer NOT NULL,
-    loc_lon double NOT NULL,
-    loc_lat double NOT NULL,
+    loc_lon double NOT NULL, -- location longitude
+    loc_lat double NOT NULL, -- location latitude
     CONSTRAINT places_users FOREIGN KEY (owner_id)
     REFERENCES users (id)
 );
@@ -78,7 +66,7 @@ DROP TABLE IF EXISTS users_favorites;
 CREATE TABLE users_favorites (
     id integer NOT NULL CONSTRAINT users_favorites_pk PRIMARY KEY,
     user_id integer NOT NULL,
-    type_id integer NOT NULL,
+    type_id integer NOT NULL, -- 1 represents a role of Admin, 2 represents a role of Host, 3 represents a role of Artist, 4 represents a role of Visitor (someone logged in but none of the above roles)
     item integer NOT NULL,
     CONSTRAINT users_users_favorites FOREIGN KEY (user_id)
     REFERENCES users (id),
@@ -86,7 +74,7 @@ CREATE TABLE users_favorites (
     REFERENCES favorites_types (id)
 );
 
--- Table: events
+-- Table: events represents an artwork being hosted at a specific location during a particular time period
 DROP TABLE IF EXISTS events;
 CREATE TABLE events (
     id integer NOT NULL CONSTRAINT events_pk PRIMARY KEY,
