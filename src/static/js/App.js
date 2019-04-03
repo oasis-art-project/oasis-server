@@ -60,6 +60,7 @@ class App extends Component {
                 <LinkContainer to="/login">
                   <NavItem><Button href="/login">Login</Button></NavItem>
                 </LinkContainer>
+
               </Nav>
             </Navbar.Collapse>
           </Navbar>
