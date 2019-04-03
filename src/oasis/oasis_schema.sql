@@ -70,7 +70,7 @@ CREATE TABLE users (
     last_name varchar(50) NOT NULL,
     email varchar(50) NOT NULL,
     user_password varchar(64) NOT NULL,
-    user_role tinyint NOT NULL, /* an integer of 1 represents Admin, 2 is 								Host, 3 is Artist, 4 is Visitor */
+    user_role tinyint NOT NULL /* an integer of 1 represents Admin, 2 is 								Host, 3 is Artist, 4 is Visitor */
 );
 
 -- Table: users_favorites
@@ -96,8 +96,10 @@ CREATE TABLE events (
     start_date datetime NOT NULL,
     end_date datetime,
     photo text,
-    FOREIGN KEY place_id REFERENCES places(id)
-    FOREIGN KEY artist_id REFERENCES users(id)
+    CONSTRAINT events_places FOREIGN KEY (place_id)
+		REFERENCES places(id),
+    CONSTRAINT events_artists FOREIGN KEY (artist_id) 
+		REFERENCES users(id)
 );
 
 /* Exaple DB entries for users */
