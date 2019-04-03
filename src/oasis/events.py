@@ -8,9 +8,10 @@ def create_event():
 		description = request.form['description']
 		start_date = request.form['start_date']
 		end_date = request.form['end_date']
-		photo = request.form['photo']
+		photo = "/events_uploads/" + event_id # each event gets one photo for now which will be named after the event ID
+                # does upload_file() need to be called here?
 		error = None
-		# event_id = some logic to generate an event id
+		event_id = None # some logic to generate an event id or will None cause sql to auto generate an ID? 
 		# place_id = the place id
 		
 		if not event_name:
@@ -20,9 +21,9 @@ def create_event():
 		else:
 			db = get_db()
 			db.execute(
-				'INSERT INTO events (id, place_id, event_name, description, 					start_date, end_date, photo)'	
+				'INSERT INTO events (id, place_id, event_name, description, start_date, end_date, photo)'	
 				' Values (?, ?, ?, ?, ?, ?, ?)',
-				(event_id, place_id, event_name, description, start_date, 					end_date, photo)
+				(event_id, place_id, event_name, description, start_date, end_date, photo)
 			)
 			db.commit()
 			# return redirect(url_for()) some url to take the user to after submitting 				# an event
@@ -112,5 +113,6 @@ def upload_file():
 @app.route('/uploads/<filename>')
 def uploaded_file():
         return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
 
         
