@@ -1,9 +1,7 @@
 from flask import render_template, Blueprint, request
-from src import app
 from .auth import auth
-home_blueprint = Blueprint('home',__name__)
 
-app.register_blueprint(home_blueprint)
+home_blueprint = Blueprint('home', __name__)
 
 @home_blueprint.route('/')
 def index():
