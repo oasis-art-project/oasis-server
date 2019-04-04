@@ -10,3 +10,7 @@ def index():
 @home_blueprint.route('/api/auth', methods=['POST'])
 def auth_user():
  return auth(request.get_json(force=True))
+
+@home_blueprint.route('/api/register', methods=['POST'])
+def register():
+ return register(request.get_json(force=True))
