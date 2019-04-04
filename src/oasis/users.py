@@ -1,8 +1,10 @@
 from flask import request
 from .db import get_db
 
-def create_user():
-	if request.method == 'POST':
+def create_user(data):
+        return None
+        """
+        if request.method == 'POST':
 		first_name = request.form['first_name']
 		last_name = request.form['last_name']
 		email = request.form['email']
@@ -34,7 +36,7 @@ def create_user():
 			db.commit()
 			# return redirect(url_for()) some url to take the user to the homepage
 	# return render_template()
-
+        """
 def get_user(user_id):
 	user = get_db().execute(
 		'SELECT id, first_name, last_name, email, user_password, user_role'
