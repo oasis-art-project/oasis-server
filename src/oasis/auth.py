@@ -3,19 +3,17 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import (create_access_token, create_refresh_token,
                                 jwt_required, jwt_refresh_token_required, get_jwt_identity)
 from .schemas import validate_user
-from .users import find_user
-from src import flask_bcrypt
+from .users import create_user, find_user
+from src import flask_bcrypt, jwt
 
 auth_blueprint = Blueprint('auth', __name__)
 
-#@jwt.unauthorized_loader
-#def unauthorized_response(callback):
-#    return jsonify({
-#        'ok': False,
-#        'message': 'Missing Authorization Header'
-#    }), 401
-
-from src import flask_bcrypt
+@jwt.unauthorized_loader
+def unauthorized_response(callback):
+    return jsonify({
+        'ok': False,
+        'message': 'Missing Authorization Header'
+    }), 401
 
 @auth_blueprint.route('/api/auth', methods=['POST'])
 def user_auth():
@@ -42,8 +40,18 @@ def user_register():
     if data['ok']:
         data = data['data']
         data['password'] = flask_bcrypt.generate_password_hash(data['password'])
-        print(data['password'])
-        # Insert
+        
+        user = create_user(data)
+
         return jsonify({'ok': True, 'message': 'User created successfully!'}), 200
     else:
         return jsonify({'ok': False, 'message': 'Bad request parameters: {}'.format(data['message'])}), 400
+
+@auth_blueprint.route('/refresh', methods=['POST'])
+@jwt_refresh_token_required
+def refresh():
+    current_user = get_jwt_identity()
+    ret = {
+        'token': create_access_token(identity=current_user)
+    }
+    return jsonify({'ok': True, 'data': ret}), 200
