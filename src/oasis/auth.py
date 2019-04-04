@@ -30,3 +30,13 @@ def auth(req):
                 return jsonify({'ok': False, 'message': 'invalid username or password'}), 401
     else:
         return jsonify({'ok': False, 'message': 'Bad request parameters: {}'.format(data['message'])}), 400
+
+def register(req):
+    data = validate_user(req)
+    if data['ok']:
+        data = data['data']
+        data['password'] = flask_bcrypt.generate_password_hash(data['password'])
+        # Insert
+        return jsonify({'ok': True, 'message': 'User created successfully!'}), 200
+    else:
+        return jsonify({'ok': False, 'message': 'Bad request parameters: {}'.format(data['message'])}), 400
