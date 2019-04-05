@@ -33,8 +33,11 @@ export default class Login extends Component {
       		method: 'POST',
      			body: JSON.stringify({email: this.state.email, password: this.state.password}),
     		})
-					.then((response) => {
-						alert("Response: " + reponse)
+					.then(function(res) {
+						return res.json();
+					})
+					.then(function(result) {
+						alert(JSON.stringify(result))
 					});
     }
 
