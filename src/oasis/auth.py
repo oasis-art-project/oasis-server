@@ -21,9 +21,9 @@ def user_auth():
     if data['ok']:
             data = data['data']
             user = find_user(data['email'])
-            
-            if user and flask_bcrypt.check_password_hash(user['password'], data['password']):
-                del user['password']
+
+            if user and flask_bcrypt.check_password_hash(user['user_password'], data['password']):
+                del user['user_password']
                 access_token = create_access_token(identity=data)
                 refresh_token = create_refresh_token(identity=data)
                 user['token'] = access_token
