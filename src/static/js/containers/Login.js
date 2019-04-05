@@ -28,11 +28,10 @@ export default class Login extends Component {
     handleSubmit(event) {
 				
 				event.preventDefault();
-				const data = new FormData(event.target);
-
+				//const data = new FormData(event.target);
 				fetch('/api/auth', {
       		method: 'POST',
-     			body: this.state.email,
+     			body: JSON.stringify({email: this.state.email, password: this.state.password}),
     		})
 					.then((response) => {
 						alert("Response: " + reponse)
@@ -47,6 +46,7 @@ export default class Login extends Component {
                         <ControlLabel>Email</ControlLabel>
                         <FormControl
                             autoFocus
+														name="email"
                             type="email"
                             value={this.state.email}
                             onChange={this.handleChange}
@@ -57,7 +57,8 @@ export default class Login extends Component {
                         <FormControl
                             value={this.state.password}
                             onChange={this.handleChange}
-                            type="password"
+                            name="password"
+														type="password"
                         />
                     </FormGroup>
                     <Button
