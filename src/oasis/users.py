@@ -2,7 +2,18 @@ from flask import request
 from .db import get_db
 
 def create_user(data):
-        return None
+        user = get_db().execute(
+                'SELECT id FROM users WHERE email = ?',
+                (data['email'],)
+        ).fetchone()
+
+        # Return None if a user exists
+        if user is not None:
+            return None 
+
+        return user
+
+        
         """
         if request.method == 'POST':
 		first_name = request.form['first_name']
@@ -39,8 +50,7 @@ def create_user(data):
         """
 def get_user(user_id):
 	user = get_db().execute(
-		'SELECT id, first_name, last_name, email, user_password, user_role'
-		'WHERE id = ?',
+		'SELECT id, first_name, last_name, email, user_password, user_role FROM users WHERE id = ?',
 		(user_id,)
 	).fetchone()
 	
