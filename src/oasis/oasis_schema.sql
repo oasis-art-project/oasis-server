@@ -68,7 +68,7 @@ CREATE TABLE users (
     id integer NOT NULL CONSTRAINT users_pk PRIMARY KEY,
     first_name varchar(50) NOT NULL,
     last_name varchar(50) NOT NULL,
-    email varchar(50) NOT NULL,
+    email varchar(50) NOT NULL UNIQUE,
     user_password varchar(64) NOT NULL,
     user_role tinyint NOT NULL /* an integer of 1 represents Admin, 2 is 								Host, 3 is Artist, 4 is Visitor */
 );
