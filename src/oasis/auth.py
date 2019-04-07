@@ -3,7 +3,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import (create_access_token, create_refresh_token,
                                 jwt_required, jwt_refresh_token_required, get_jwt_identity)
 from .schemas import validate_auth_user, validate_user
-from .users import create_user, edit_user, find_user_by_email
+from .users import create_user, edit_user, delete_user_by_email, find_user_by_email
 from src import flask_bcrypt, jwt
 
 auth_blueprint = Blueprint('auth', __name__)
@@ -25,7 +25,7 @@ def user_auth():
     user = find_user_by_email(data['email'])
 
     if not user and not flask_bcrypt.check_password_hash(user['user_password'], data['password']):
-         return jsonify({'ok': False, 'message': 'invalid username or password'}), 401
+         return jsonify({'ok': False, 'message': 'Invalid username or password'}), 401
 
     del user['user_password']
     access_token = create_access_token(identity=data)
@@ -43,9 +43,10 @@ def user_register():
         return jsonify({'ok': False, 'message': 'Bad request parameters: {}'.format(data['message'])}), 400
 
     data = data['data']
-        
+       
+    # Check if the user exists
     if find_user_by_email(data['email']) is not None:
-        return jsonify({'ok' : False, 'message': 'User already exists'}), 401
+        return jsonify({'ok' : False, 'message': 'User already exists'}), 400
 
     data['password'] = flask_bcrypt.generate_password_hash(data['password'])
     user = create_user(data)
@@ -65,31 +66,52 @@ def user_edit():
     # Check if the current user has priviliges to make changes
     jwt_user = find_user_by_email(get_jwt_identity()['email'])    
     if jwt_user['user_role'] != 1 and jwt_user['email'] != data['email']:
-        return jsonify({'ok': False, 'message': 'No privileges for editing this user'})
-    
+        return jsonify({'ok': False, 'message': 'No privileges for editing this user'}), 401
+ 
+    # Check if the user for edit exists
+    if find_user_by_email(data['email']) is None:
+        return jsonify({'ok' : False, 'message': 'User doesn\'t exist'}), 400
+
     # Prepare data for changes
     user_id_for_edit = find_user_by_email(data['email'])
     data['id'] = user_id_for_edit['id']
     data['password'] = flask_bcrypt.generate_password_hash(data['password'])
+   
+    # Perform editing
     user = edit_user(data)
+    if user is None:
+        return jsonify({'ok':False, 'message': 'Something went wrong'}), 400
 
     return jsonify({'ok': True, 'message': 'User has been edited successfully!'}), 200
 
 @auth_blueprint.route('/api/user/delete', methods=['DELETE'])
 @jwt_required
 def user_del():
-    user_email_for_delete = request.get_json(force=True) 
-    print(user_email_for_delete)
+    user_email_for_delete = request.get_json(force=True)['email'] 
+    
     # Check if the current user has priviliges to make changes
     jwt_user = find_user_by_email(get_jwt_identity()['email'])
     if jwt_user['user_role'] != 1:
-        pass
+        return jsonify({'ok': False, 'message': 'No privileges for editing this user'}), 401
+
+    # Check if the user for edit exists
+    if find_user_by_email(user_email_for_delete) is None:
+        return jsonify({'ok' : False, 'message': 'User doesn\'t exist'}), 400
+
+    # Perform delete
+    user = delete_user_by_email(user_email_for_delete) 
+    if user is None:
+        return jsonify({'ok': False, 'message': 'Something went wrong'}), 400
+
+    return jsonify({'ok': True, 'message': 'User has been deleted successfully!'}), 200
 
 @auth_blueprint.route('/api/user/refresh', methods=['POST'])
 @jwt_refresh_token_required
 def refresh():
     current_user = get_jwt_identity()
+    
     ret = {
         'token': create_access_token(identity=current_user)
     }
+
     return jsonify({'ok': True, 'data': ret}), 200
