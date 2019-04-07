@@ -27,8 +27,9 @@ def edit_user(user):
     
     return data
 
-def delete_user_by_id(user_id):
-    get_user(user_id)
+def delete_user_by_email(email):
     db = get_db()
-    db.execute('DELETE FROM users WHERE id = ?', (user_id,))
+    data = db.execute('DELETE FROM users WHERE email = ?', (email,))
     db.commit()
+
+    return data
