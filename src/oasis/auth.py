@@ -17,7 +17,7 @@ def unauthorized_response(callback):
 
 @auth_blueprint.route('/api/auth', methods=['POST'])
 def user_auth():
-    data = validate_user(request.get_json(force=True))
+    data = validate_auth_user(request.get_json(force=True))
     if data['ok']:
             data = data['data']
             user = find_user(data['email'])
