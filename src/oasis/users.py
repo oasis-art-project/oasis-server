@@ -2,11 +2,11 @@ from flask import request
 from .db import get_db
 
 def create_user(user):
-        get_db().execute('INSERT INTO users (first_name, last_name, email, user_password, user_role) Values (?, ?, ?, ?, ?)',
-			(user["firstName"], user["lastName"], user["email"], user["password"], user["role"]))
-	db.commit() 
-        
-        return user
+    db = get_db()
+    user = db.execute('INSERT INTO users (first_name, last_name, email, user_password, user_role) Values (?, ?, ?, ?, ?)', (user["firstName"], user["lastName"], user["email"], user["password"], user["role"]))
+    db.commit()
+    
+    return user
 
 def get_user(user_id):
 	user = get_db().execute(
@@ -67,7 +67,3 @@ def delete_user(user_id):
 	# return redirect(url_for()) some url to take the user back to the guest home page
 			
 		
-
-
-
-
