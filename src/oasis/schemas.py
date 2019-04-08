@@ -43,7 +43,7 @@ user_schema = {
             "maximum": 4
         }
     },
-    "required": ["firstName", "lastName", "email", "password", "role"],
+    "required": ["firstName", "lastName", "email", "role"],
     "additionalProperties": False
 }
 
