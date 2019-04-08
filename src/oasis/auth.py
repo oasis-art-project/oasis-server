@@ -55,6 +55,8 @@ def user_register():
 
     data['password'] = flask_bcrypt.generate_password_hash(data['password'])
     user = create_user(data)
+    if user is None:
+        return jsonify({'ok':False, 'message': 'Something went wrong'}), 400   
     
     return jsonify({'ok': True, 'message': 'User created successfully!'}), 200
 
@@ -72,6 +74,9 @@ def user_edit():
     jwt_user = find_user_by_email(get_jwt_identity()['email'])    
     if jwt_user['user_role'] != 1 and jwt_user['email'] != data['email']:
         return jsonify({'ok': False, 'message': 'No privileges for editing this user'}), 401
+    
+    if jwt_user['user_role'] != 1 and data['role'] == 1:
+        return jsonify({'ok': False, 'message': 'No privileges to make this user an admin'}), 401
  
     # Check if the user for edit exists
     if find_user_by_email(data['email']) is None:
@@ -99,7 +104,7 @@ def user_del():
     # Check if the current user has priviliges to make changes
     jwt_user = find_user_by_email(get_jwt_identity()['email'])
     if jwt_user['user_role'] != 1:
-        return jsonify({'ok': False, 'message': 'No privileges for editing this user'}), 401
+        return jsonify({'ok': False, 'message': 'No privileges to delete this user'}), 401
 
     # Check if the user for edit exists
     if find_user_by_email(user_email_for_delete) is None:
