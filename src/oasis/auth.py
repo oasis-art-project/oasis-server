@@ -60,7 +60,7 @@ def user_edit():
 
     if not data['ok']:
         return jsonify({'ok': False, 'message': 'Bad request parameters: {}'.format(data['message'])}), 400
-
+    
     data = data['data']
 
     # Check if the current user has priviliges to make changes
@@ -75,7 +75,9 @@ def user_edit():
     # Prepare data for changes
     user_id_for_edit = find_user_by_email(data['email'])
     data['id'] = user_id_for_edit['id']
-    data['password'] = flask_bcrypt.generate_password_hash(data['password'])
+    
+    if 'password' in data:
+        data['password'] = flask_bcrypt.generate_password_hash(data['password'])
    
     # Perform editing
     user = edit_user(data)
