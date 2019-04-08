@@ -43,7 +43,12 @@ def user_register():
         return jsonify({'ok': False, 'message': 'Bad request parameters: {}'.format(data['message'])}), 400
 
     data = data['data']
-       
+
+    # Check if the current user has priviliges to make changes
+    if data['role'] == 1:
+        if get_jwt_identity() is None or find_user_by_email(get_jwt_identity()['email'])['user_role'] != 1:
+            return jsonify({'ok': False, 'message': 'No privileges for creating an admin'}), 401
+
     # Check if the user exists
     if find_user_by_email(data['email']) is not None:
         return jsonify({'ok' : False, 'message': 'User already exists'}), 400
