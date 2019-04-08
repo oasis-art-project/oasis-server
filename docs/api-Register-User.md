@@ -9,7 +9,7 @@
 "firstName": [string] // Required. minLength: 1  
 "lastName": [string] // Required. minLength: 1  
 "password": [string] // Required. minLength: 5  
-"role": [string] // Required. From 1 to 4 where 1 - Admin, 2 - Host, 3 - Artist, 4 - Visitor. Role 1 can create only a user with the same role  
+"role": [numeric] // Required. From 1 to 4 where 1 - Admin, 2 - Host, 3 - Artist, 4 - Visitor. Role 1 can create only a user with the same role  
 }  
 
 * **Success response**:  
