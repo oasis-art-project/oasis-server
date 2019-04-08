@@ -22,7 +22,7 @@ def create_user(user):
 
 def edit_user(user):
     db = get_db()
-    data = db.execute('UPDATE users SET first_name = ?, last_name = ?, email = ?, user_password = ?, user_role = ? WHERE id = ?', (user['firstName'], user['lastName'],user['email'], user['password'], user['role'], user['id']))
+    data = db.execute('UPDATE users SET first_name = ?, last_name = ?, email = ?, user_password = coalesce(?, user_password), user_role = ? WHERE id = ?', (user['firstName'], user['lastName'],user['email'], user.get('password',None), user['role'], user['id']))
     db.commit()
     
     return data
