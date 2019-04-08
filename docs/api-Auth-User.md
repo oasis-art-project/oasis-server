@@ -26,7 +26,7 @@
 		"password": "Oasis"  
 	}
 
-* **Sample return**:
+* **Sample return**:  
       "data": {  
         "email": "admin@oasis.com",  
         "first_name": "Admin",  
