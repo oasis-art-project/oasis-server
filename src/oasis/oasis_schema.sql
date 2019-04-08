@@ -56,7 +56,7 @@ CREATE TABLE users (
     id integer NOT NULL CONSTRAINT users_pk PRIMARY KEY,
     first_name varchar(50) NOT NULL,
     last_name varchar(50) NOT NULL,
-    email varchar(50) NOT NULL,
+    email varchar(50) NOT NULL UNIQUE,
     user_password varchar(64) NOT NULL,
     user_role tinyint NOT NULL /* an integer of 1 represents Admin, 2 is 								Host, 3 is Artist, 4 is Visitor */
 );
@@ -91,7 +91,7 @@ CREATE TABLE events (
 );
 
 /* Exaple DB entries for users */
-INSERT INTO users (`id`, `first_name`, `last_name`, `email`, `user_password`, `user_role`) VALUES ('1', 'Admin', 'Admin', 'admin@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '1');
+INSERT INTO users (`id`, `first_name`, `last_name`, `email`, `user_password`, `user_role`) VALUES ('1', 'Admin', 'Admin', 'admin@oasis.com', '$2b$12$7H.fwqmU0hh.2Gdi0K6OJun/wJu7DbmY0vquWV0cg3wM5m6RtusX.', '1');
 INSERT INTO users (`id`, `first_name`, `last_name`, `email`, `user_password`, `user_role`) VALUES ('2', 'Maggie', 'M', 'maggiem@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '2');
 INSERT INTO users (`id`, `first_name`, `last_name`, `email`, `user_password`, `user_role`) VALUES ('3', 'Sian', 'K', 'siank@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '2');
 INSERT INTO users (`id`, `first_name`, `last_name`, `email`, `user_password`, `user_role`) VALUES ('4', 'Aliza', 'R', 'alizar@oasis.com', '8E424DB8E5664ADE76226356BCF5EF6AD9D0879BDAD6377DB835868B17C443BA', '2');

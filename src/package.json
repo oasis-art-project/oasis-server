@@ -1,6 +1,7 @@
 {
-  "name": "oasis-test3",
+  "name": "OASIS",
   "version": "0.1.0",
+  "description": "OASIS is a web platform for to promotion of the local arts",
   "private": true,
   "dependencies": {
     "@babel/core": "^7.0.1",
