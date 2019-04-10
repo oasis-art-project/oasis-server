@@ -62,24 +62,11 @@ class Home extends Component {
         }
     }
 
-    GetEvents() {
-        fetch('/api/events', {
-            method: 'GET'
-        })
-        .then(function(res) {
-            alert(res);
-        })
-        .then(function(res){
-            alert('Fetch Fails');
-        })
-    }
-
     render() {
         let EventCards = this.state.events.map(event => {
             return(
                 <Col sm="4">
                     <EventCard key={event.id} event={event} />
-                    GetEvents();
                 </Col>
             )
         });
