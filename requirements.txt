@@ -1,0 +1,5 @@
+requests==2.21.0
+Flask==1.0.2
+Flask_JWT_Extended==3.18.0
+Flask_Bcrypt==0.7.1
+jsonschema==3.0.1

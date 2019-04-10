@@ -1,6 +1,7 @@
 {
-  "name": "oasis-test3",
+  "name": "OASIS",
   "version": "0.1.0",
+  "description": "OASIS is a web platform for to promotion of the local arts",
   "private": true,
   "dependencies": {
     "@babel/core": "^7.0.1",
@@ -17,8 +18,7 @@
     "react-router-dom": "^4.3.1",
     "react-scripts": "^2.1.8",
     "reactstrap": "^7.1.0",
-    "style-loader": "^0.23.1",
-    "webpack": "^4.19.1"
+    "style-loader": "^0.23.1"
   },
   "scripts": {
     "build": "webpack -p --progress --config webpack.config.js",
