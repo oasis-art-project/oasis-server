@@ -61,7 +61,7 @@ class App extends Component {
           </Navbar>
           <Routes />
           <Footer>
-            <p>&copy; OASIS 2019</p>
+            <p>&copy; OASIS 2020</p>
           </Footer>
 
         </div>

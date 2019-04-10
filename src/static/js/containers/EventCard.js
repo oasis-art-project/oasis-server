@@ -21,7 +21,7 @@ class EventCard extends Component {
                         <CardTitle>{eventTitle}</CardTitle>
                         <CardSubtitle>{eventDate}</CardSubtitle>
                         <CardText>{eventDetails}</CardText>
-                        <Button color="primary" size="sm" href="#">Details</Button>
+                        <Button color="primary" size="sm" href="/events">Details</Button>
                     </CardBody>
                 </Card>
             </div>
