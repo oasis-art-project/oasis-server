@@ -1,3 +1,5 @@
-from src import app
-#Load this config object for development mode
-app.config.from_object('configurations.DevelopmentConfig')
+from src.app import create_app
+
+if __name__ == "__main__":
+    app = create_app()
+    app.run()

@@ -1,5 +1,15 @@
-requests==2.21.0
+apispec
+click
+pytest
+sqlalchemy
 Flask==1.0.2
+Flask_restplus
 Flask_JWT_Extended==3.18.0
 Flask_Bcrypt==0.7.1
-jsonschema==3.0.1
+Flask_sqlalchemy==2.3.2
+Flask_marshmallow==0.8.0
+Flask_script==2.0.6
+Flask_migrate==2.1.1
+Flask-apispec
+marshmallow==2.14.0
+marshmallow-sqlalchemy==0.16.2
