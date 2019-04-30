@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask, render_template
 from flask_migrate import MigrateCommand
 
@@ -37,5 +39,16 @@ def create_app(conf=ProductionConfig):
     @app.route('/')
     def index():
         return render_template("index.html")
+
+    # Ensure the instance and upload folder exists
+    try:
+        os.makedirs(app.instance_path)
+    except OSError:
+        pass
+
+    try:
+        os.makedirs(os.path.join('src', app.config['UPLOAD_FOLDER']))
+    except OSError:
+        pass
 
     return app
