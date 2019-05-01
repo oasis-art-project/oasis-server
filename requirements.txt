@@ -1,6 +1,7 @@
 apispec
 click
 pytest
+pytest-flask
 sqlalchemy
 Flask==1.0.2
 Flask_restplus
