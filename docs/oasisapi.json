@@ -1,0 +1,2335 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "title": "OASIS API",
+    "description": "Backend API for OASIS. <br> <br>Author: Maxim Tsybanov. Boston University. Spring 2019.<br> <br>All body requests has to be in <b>multiform/form-data</b> with two keys: <br><b>files</b>: a list of files to upload <br><b>request</b>: json for a request as in examples",
+    "contact": {
+      "email": "oasis@tsybanov.com"
+    },
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://127.0.0.1:5000"
+    }
+  ],
+  "tags": [
+    {
+      "name": "User",
+      "description": "CRUD operations about user profiles"
+    },
+    {
+      "name": "Artwork",
+      "description": "CRUD operations about artists' artworks"
+    },
+    {
+      "name": "Place",
+      "description": "CRUD operations about hosts' places"
+    },
+    {
+      "name": "Event",
+      "description": "CRUD operations about place's events"
+    },
+    {
+      "name": "Login",
+      "description": "Login and logout operations"
+    }
+  ],
+  "paths": {
+    "/user/{user_id}": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Get a user by ID",
+        "description": "Returns a specific user. User's email is visible only for admin (role 1)",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "description": "ID of user to return",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "User does not exist"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/{user_email}": {
+      "get": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "User"
+        ],
+        "summary": "Get a user by email",
+        "description": "Returns a specific user. Available only for admin (role 1)",
+        "parameters": [
+          {
+            "name": "user_email",
+            "in": "path",
+            "description": "email of user to return",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "User does not exist"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Only admins can get a user by email",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Not enough privileges"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Get a list of all users",
+        "description": "Returns a list of users",
+        "responses": {
+          "200": {
+            "description": "successful operation. Users emails are visible only for admin (role 1)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "user": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/User"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "User"
+        ],
+        "summary": "Create a new user",
+        "description": "Only admin can create a new admin",
+        "parameters": [
+          {
+            "name": "files",
+            "in": "query",
+            "description": "a binary file upload (avatar)",
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          {
+            "name": "request",
+            "in": "query",
+            "required": true,
+            "description": "JSON Request in the request body",
+            "schema": {
+              "type": "string",
+              "format": "json"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "token": {
+                      "type": "string",
+                      "example": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1NTY1ODMxOTUsIm5iZiI6MTU1NjU4MzE5NSwianRpIjoiZmIxZWRjN2QtMjEyMy00MzgzLWJkYWUtODkyMmI3Yzg5NjRhIiwiZXhwIjoxNTU2NTg0OTk1LCJpZGVudGl0eSI6MSwiZnJlc2giOmZhbHNlLCJ0eXBlIjoiYWNjZXNzIn0.cdyhk1EeK7i-GUITrwj1CwXfZDVl_CtMBsFjXxJu9wY"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Body of the request field has to be json or user with such email already exists.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "No request"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Only admin can create a new admin",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Not enough privileges"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation of the model has not been passed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": {
+                        "email": [
+                          "Missing data for required field."
+                        ],
+                        "password": [
+                          "Missing data for required field."
+                        ],
+                        "firstName": [
+                          "Missing data for required field."
+                        ],
+                        "lastName": [
+                          "Missing data for required field."
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "User"
+        ],
+        "summary": "Edit a user",
+        "description": "Edits could be partial but ID has to be in the request",
+        "parameters": [
+          {
+            "name": "files",
+            "in": "query",
+            "description": "a binary file upload (avatar)",
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          {
+            "name": "request",
+            "in": "query",
+            "required": true,
+            "description": "JSON Request in the request body",
+            "schema": {
+              "type": "string",
+              "format": "json"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserEdit"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "token": {
+                      "type": "string",
+                      "example": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1NTY1ODMxOTUsIm5iZiI6MTU1NjU4MzE5NSwianRpIjoiZmIxZWRjN2QtMjEyMy00MzgzLWJkYWUtODkyMmI3Yzg5NjRhIiwiZXhwIjoxNTU2NTg0OTk1LCJpZGVudGl0eSI6MSwiZnJlc2giOmZhbHNlLCJ0eXBlIjoiYWNjZXNzIn0.cdyhk1EeK7i-GUITrwj1CwXfZDVl_CtMBsFjXxJu9wY"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Body of the request field has to be json, or user with such email already exists, or Id is missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "No request"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Users can edit only themselves. Admins can edit anyone",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Not enough privileges"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation of the model has not been passed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": {
+                        "email": [
+                          "Not a valid email address."
+                        ],
+                        "password": [
+                          "Shorter than minimum length 6."
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "User"
+        ],
+        "summary": "Delete a user",
+        "description": "Deleting of a user available only for admins. However, if parameter avatar is active, then avatar of the user will be deleted",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "ID of the user to delete",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          },
+          {
+            "name": "avatar",
+            "in": "query",
+            "description": "If this parameter passed, user's avatar will be deleted. USER WILL NOT BE DELETED. Available for a user himself and for admins",
+            "schema": {
+              "type": "boolean",
+              "example": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "User not found or No input data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "User does not exist"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Only admins can delete users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Not enough privileges"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/artwork/{artwork_id}": {
+      "get": {
+        "tags": [
+          "Artwork"
+        ],
+        "summary": "Get an artwork by ID",
+        "description": "Returns a specific artwork",
+        "parameters": [
+          {
+            "name": "artwork_id",
+            "in": "path",
+            "description": "ID of an artwork to return",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "user": {
+                      "$ref": "#/components/schemas/Artwork"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Artwork not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Artwork does not exist"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/artwork/artist/{artist_id}": {
+      "get": {
+        "tags": [
+          "Artwork"
+        ],
+        "summary": "Get all artworks of an artist with a specific ID",
+        "description": "Returns a list of places of a specific host",
+        "parameters": [
+          {
+            "name": "artist_id",
+            "in": "path",
+            "description": "ID of an artist to return all artworks",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "user": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Artwork"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/artwork/": {
+      "get": {
+        "tags": [
+          "Artwork"
+        ],
+        "summary": "Get a list of all artworks",
+        "description": "Returns a list of artworks",
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "user": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Artwork"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Artwork"
+        ],
+        "summary": "Create a new artwork",
+        "description": "Only artists and admins can create a new artwork",
+        "parameters": [
+          {
+            "name": "files",
+            "in": "query",
+            "description": "a binary file upload (photos). Maximum 10",
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          {
+            "name": "request",
+            "in": "query",
+            "required": true,
+            "description": "JSON Request in the request body",
+            "schema": {
+              "type": "string",
+              "format": "json"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Artwork"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Body of the request field has to be json. If ID is not set, current artist automatically become an author",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Request is not valid json"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "If artist ID is not equals to the current user ID, or current user is either not artist or not admin",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Not enough privileges"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation of the model has not been passed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": {
+                        "name": [
+                          "Missing data for required field."
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Artwork"
+        ],
+        "summary": "Edit an artwork",
+        "description": "Edits could be partial but ID has to be in the request",
+        "parameters": [
+          {
+            "name": "files",
+            "in": "query",
+            "description": "a binary file upload (photos). Maximum 10",
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          {
+            "name": "request",
+            "in": "query",
+            "required": true,
+            "description": "JSON Request in the request body",
+            "schema": {
+              "type": "string",
+              "format": "json"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ArtworkEdit"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Body of the request field has to be json, or id is missing, or artwork with such id does not exists,",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "No request"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Artists can edit only their artworks. Admins can edit anyone",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Not enough privileges"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation of the model has not been passed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": {
+                        "name": [
+                          "Longer than maximum length"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Artwork"
+        ],
+        "summary": "Delete an artwork",
+        "description": "Delete an artwork can only an owner or an admin",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "ID of the artwork to delete",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          },
+          {
+            "name": "photo",
+            "in": "query",
+            "description": "If this parameter passed, artwork's photo will be deleted. ARTWORK WILL NOT BE DELETED",
+            "schema": {
+              "type": "string",
+              "example": "734d896f-8ce9-4330-b73c-5d6325c21f64.png"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Artwork not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Artwork does not exist"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Only owners or admins can delete an artwork",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Not enough privileges"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/place/{place_id}": {
+      "get": {
+        "tags": [
+          "Place"
+        ],
+        "summary": "Get a place by ID",
+        "description": "Returns a specific place",
+        "parameters": [
+          {
+            "name": "place_id",
+            "in": "path",
+            "description": "ID of a place to return",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "user": {
+                      "$ref": "#/components/schemas/Place"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Place not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Place does not exist"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/place/host/{host_id}": {
+      "get": {
+        "tags": [
+          "Place"
+        ],
+        "summary": "Get all places of a host with a specific ID",
+        "description": "Returns a list of places of a specific host",
+        "parameters": [
+          {
+            "name": "host_id",
+            "in": "path",
+            "description": "ID of a host to return all places",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "user": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Place"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/place/": {
+      "get": {
+        "tags": [
+          "Place"
+        ],
+        "summary": "Get a list of all places",
+        "description": "Returns a list of places",
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "user": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Place"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Artwork"
+        ],
+        "summary": "Create a new place",
+        "description": "Only hosts and admins can create a new place",
+        "parameters": [
+          {
+            "name": "files",
+            "in": "query",
+            "description": "a binary file upload (photos). Maximum 10",
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          {
+            "name": "request",
+            "in": "query",
+            "required": true,
+            "description": "JSON Request in the request body",
+            "schema": {
+              "type": "string",
+              "format": "json"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Place"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Body of the request field has to be json. If ID is not set, current host automatically become an owner",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Request is not valid json"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "If host ID is not equals to the current user ID, or current user is either not host or not admin",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Not enough privileges"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation of the model has not been passed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": {
+                        "name": [
+                          "Missing data for required field."
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Place"
+        ],
+        "summary": "Edit a place",
+        "description": "Edits could be partial but ID has to be in the request",
+        "parameters": [
+          {
+            "name": "files",
+            "in": "query",
+            "description": "a binary file upload (photos). Maximum 10",
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          {
+            "name": "request",
+            "in": "query",
+            "required": true,
+            "description": "JSON Request in the request body",
+            "schema": {
+              "type": "string",
+              "format": "json"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlaceEdit"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Body of the request field has to be json, or id is missing, or place with such id does not exists,",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "No request"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Hosts can edit only their places. Admins can edit anyone",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Not enough privileges"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation of the model has not been passed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": {
+                        "name": [
+                          "Longer than maximum length"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Place"
+        ],
+        "summary": "Delete a place",
+        "description": "Delete a place can only an owner or an admin",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "ID of the place to delete",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          },
+          {
+            "name": "photo",
+            "in": "query",
+            "description": "If this parameter passed, place's photo will be deleted. PLACE WILL NOT BE DELETED",
+            "schema": {
+              "type": "string",
+              "example": "734d896f-8ce9-4330-b73c-5d6325c21f64.png"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Place not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Place does not exist"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Only owners or admins can delete a place",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Not enough privileges"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/event/{event_id}": {
+      "get": {
+        "tags": [
+          "Event"
+        ],
+        "summary": "Get an event by ID",
+        "description": "Returns a specific event",
+        "parameters": [
+          {
+            "name": "event_id",
+            "in": "path",
+            "description": "ID of an event to return",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "user": {
+                      "$ref": "#/components/schemas/Event"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Place not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Place does not exist"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/event/place/{place_id}": {
+      "get": {
+        "tags": [
+          "Place"
+        ],
+        "summary": "Get all events of a place with a specific ID",
+        "description": "Returns a list of event of a specific place",
+        "parameters": [
+          {
+            "name": "place_id",
+            "in": "path",
+            "description": "ID of a place to return all events",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "user": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Event"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/event/": {
+      "get": {
+        "tags": [
+          "Event"
+        ],
+        "summary": "Get a list of all events",
+        "description": "Returns a list of events",
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "user": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Event"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Event"
+        ],
+        "summary": "Create a new event",
+        "description": "Only hosts and admins can create a new events",
+        "parameters": [
+          {
+            "name": "files",
+            "in": "query",
+            "description": "a binary file upload (photos). Maximum 10",
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          {
+            "name": "request",
+            "in": "query",
+            "required": true,
+            "description": "JSON Request in the request body",
+            "schema": {
+              "type": "string",
+              "format": "json"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Event"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Body of the request field has to be json or if ID is not set",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Request is not valid json"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "If host ID is not equals to the current user ID, or current user is either not an owner of the place or not admin",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Not enough privileges"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation of the model has not been passed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": {
+                        "name": [
+                          "Missing data for required field."
+                        ],
+                        "startTime": [
+                          "Wrong format time"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Event"
+        ],
+        "summary": "Edit an event",
+        "description": "Edits could be partial but ID has to be in the request",
+        "parameters": [
+          {
+            "name": "files",
+            "in": "query",
+            "description": "a binary file upload (photos). Maximum 10",
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          {
+            "name": "request",
+            "in": "query",
+            "required": true,
+            "description": "JSON Request in the request body",
+            "schema": {
+              "type": "string",
+              "format": "json"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventEdit"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Body of the request field has to be json, or id is missing, or event with such id does not exists,",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "No request"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Hosts can edit only their events. Admins can edit anyone",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Not enough privileges"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation of the model has not been passed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": {
+                        "name": [
+                          "Longer than maximum length"
+                        ],
+                        "startTime": [
+                          "Wrong format time"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Event"
+        ],
+        "summary": "Delete an event",
+        "description": "Delete an event can only an owner of the place or an admin",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "ID of the event to delete",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          },
+          {
+            "name": "photo",
+            "in": "query",
+            "description": "If this parameter passed, event's photo will be deleted. EVENT WILL NOT BE DELETED",
+            "schema": {
+              "type": "string",
+              "example": "734d896f-8ce9-4330-b73c-5d6325c21f64.png"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Event not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Event does not exist"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Only owners of the place or admins can delete an event",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Not enough privileges"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/login/": {
+      "post": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Login operation",
+        "tags": [
+          "Login"
+        ],
+        "parameters": [
+          {
+            "name": "email",
+            "in": "query",
+            "description": "email of the user",
+            "schema": {
+              "type": "string",
+              "example": "foo@bar.com"
+            },
+            "required": true
+          },
+          {
+            "name": "password",
+            "in": "query",
+            "description": "password of the user",
+            "schema": {
+              "type": "string",
+              "example": "secret"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "token": {
+                      "type": "string",
+                      "example": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1NTY1ODMxOTUsIm5iZiI6MTU1NjU4MzE5NSwianRpIjoiZmIxZWRjN2QtMjEyMy00MzgzLWJkYWUtODkyMmI3Yzg5NjRhIiwiZXhwIjoxNTU2NTg0OTk1LCJpZGVudGl0eSI6MSwiZnJlc2giOmZhbHNlLCJ0eXBlIjoiYWNjZXNzIn0.cdyhk1EeK7i-GUITrwj1CwXfZDVl_CtMBsFjXxJu9wY"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Logout operation",
+        "tags": [
+          "Login"
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "User": {
+        "type": "object",
+        "required": [
+          "email",
+          "password",
+          "firstName",
+          "lastName",
+          "role"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1,
+            "readOnly": true
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "foo@bar.com"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 6,
+            "writeOnly": true,
+            "example": "secret"
+          },
+          "firstName": {
+            "type": "string",
+            "maxLength": 50,
+            "example": "Foo",
+            "pattern": "^[a-zA-Z]+$"
+          },
+          "lastName": {
+            "type": "string",
+            "maxLength": 50,
+            "example": "Bar",
+            "pattern": "^[a-zA-Z]+$"
+          },
+          "bio": {
+            "type": "string",
+            "maxLength": 1000,
+            "example": "Biography information about user"
+          },
+          "role": {
+            "description": "User role. 1 - Admin. 2 - Host, 3 - Artist, 4 - Visitor",
+            "type": "integer",
+            "example": 2,
+            "minimum": 1,
+            "maximum": 4
+          },
+          "avatar": {
+            "description": "File name in /public/uploads/",
+            "type": "string",
+            "example": "8568e570-a1e4-4c5f-8396-8e88e5458c00.jpg",
+            "readOnly": true
+          },
+          "twitter": {
+            "type": "string",
+            "maxLength": 30,
+            "pattern": "^[a-zA-Z0-9_]+$",
+            "example": "TwitterLogin"
+          },
+          "flickr": {
+            "type": "string",
+            "maxLength": 30,
+            "pattern": "^[a-zA-Z0-9@]+$",
+            "example": "FlickrLogin"
+          },
+          "instagram": {
+            "type": "string",
+            "maxLength": 30,
+            "pattern": "^[a-zA-Z0-9._]+$",
+            "example": "InstagramLogin"
+          }
+        }
+      },
+      "UserEdit": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "foo@bar.com"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 6,
+            "writeOnly": true,
+            "example": "secret"
+          },
+          "firstName": {
+            "type": "string",
+            "maxLength": 50,
+            "example": "Foo",
+            "pattern": "^[a-zA-Z]+$"
+          },
+          "lastName": {
+            "type": "string",
+            "maxLength": 50,
+            "example": "Bar",
+            "pattern": "^[a-zA-Z]+$"
+          },
+          "bio": {
+            "type": "string",
+            "maxLength": 1000,
+            "example": "Biography information about user"
+          },
+          "role": {
+            "description": "User role. 1 - Admin. 2 - Host, 3 - Artist, 4 - Visitor",
+            "type": "integer",
+            "example": 2,
+            "minimum": 1,
+            "maximum": 4
+          },
+          "twitter": {
+            "type": "string",
+            "maxLength": 30,
+            "pattern": "^[a-zA-Z0-9_]+$",
+            "example": "TwitterLogin"
+          },
+          "flickr": {
+            "type": "string",
+            "maxLength": 30,
+            "pattern": "^[a-zA-Z0-9@]+$",
+            "example": "FlickrLogin"
+          },
+          "instagram": {
+            "type": "string",
+            "maxLength": 30,
+            "pattern": "^[a-zA-Z0-9._]+$",
+            "example": "InstagramLogin"
+          }
+        }
+      },
+      "UserDump": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1,
+            "readOnly": true
+          },
+          "firstName": {
+            "type": "string",
+            "maxLength": 50,
+            "example": "Foo",
+            "pattern": "^[a-zA-Z]+$"
+          },
+          "lastName": {
+            "type": "string",
+            "maxLength": 50,
+            "example": "Bar",
+            "pattern": "^[a-zA-Z]+$"
+          },
+          "bio": {
+            "type": "string",
+            "maxLength": 1000,
+            "example": "Biography information about user"
+          },
+          "avatar": {
+            "description": "File name in /public/uploads/",
+            "type": "string",
+            "example": "8568e570-a1e4-4c5f-8396-8e88e5458c00.jpg",
+            "readOnly": true
+          },
+          "twitter": {
+            "type": "string",
+            "maxLength": 30,
+            "pattern": "^[a-zA-Z0-9_]+$",
+            "example": "TwitterLogin"
+          },
+          "flickr": {
+            "type": "string",
+            "maxLength": 30,
+            "pattern": "^[a-zA-Z0-9@]+$",
+            "example": "FlickrLogin"
+          },
+          "instagram": {
+            "type": "string",
+            "maxLength": 30,
+            "pattern": "^[a-zA-Z0-9._]+$",
+            "example": "InstagramLogin"
+          }
+        }
+      },
+      "Artwork": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Great artwork"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 1000,
+            "example": "A long artwork description"
+          },
+          "photo": {
+            "type": "string",
+            "format": "json",
+            "description": "JSON array of photos",
+            "example": [
+              "68293f77-fb78-49a7-866b-e1fad5c3a4b5.jpg",
+              "734d896f-8ce9-4330-b73c-5d6325c21f64.png"
+            ]
+          },
+          "artist": {
+            "$ref": "#/components/schemas/UserDump"
+          }
+        }
+      },
+      "ArtworkEdit": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Great artwork"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 1000,
+            "example": "A long artwork description"
+          },
+          "artist": {
+            "type": "string",
+            "format": "json",
+            "example": {
+              "id": 1
+            }
+          }
+        }
+      },
+      "Place": {
+        "type": "object",
+        "required": [
+          "name",
+          "address"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1,
+            "readOnly": true
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Great place"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 1000,
+            "example": "A long place description"
+          },
+          "address": {
+            "type": "string",
+            "maxLength": 300,
+            "example": "Place's address"
+          },
+          "photo": {
+            "type": "string",
+            "format": "json",
+            "description": "JSON array of photos",
+            "example": [
+              "68293f77-fb78-49a7-866b-e1fad5c3a4b5.jpg",
+              "734d896f-8ce9-4330-b73c-5d6325c21f64.png"
+            ]
+          },
+          "host": {
+            "$ref": "#/components/schemas/UserDump"
+          }
+        }
+      },
+      "PlaceEdit": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Great place"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 1000,
+            "example": "A long place description"
+          },
+          "address": {
+            "type": "string",
+            "maxLength": 300,
+            "example": "Place's address"
+          },
+          "host": {
+            "type": "string",
+            "format": "json",
+            "example": {
+              "id": 1
+            }
+          }
+        }
+      },
+      "Event": {
+        "type": "object",
+        "required": [
+          "name",
+          "startTime",
+          "place"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1,
+            "readOnly": true
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Great event"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 1000,
+            "example": "A long event description"
+          },
+          "startTime": {
+            "type": "string",
+            "format": "dateTime",
+            "example": "2019-01-30T20:00:00.000Z"
+          },
+          "endTime": {
+            "type": "string",
+            "format": "dateTime",
+            "example": "2019-02-25T16:00:00.000Z"
+          },
+          "photo": {
+            "type": "string",
+            "format": "json",
+            "description": "JSON array of photos",
+            "example": [
+              "68293f77-fb78-49a7-866b-e1fad5c3a4b5.jpg",
+              "734d896f-8ce9-4330-b73c-5d6325c21f64.png"
+            ]
+          },
+          "place": {
+            "$ref": "#/components/schemas/Place"
+          },
+          "artists": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserDump"
+            }
+          }
+        }
+      },
+      "EventEdit": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Great event"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 1000,
+            "example": "A long event description"
+          },
+          "startTime": {
+            "type": "string",
+            "format": "dateTime",
+            "example": "2019-01-30T20:00:00.000Z"
+          },
+          "endTime": {
+            "type": "string",
+            "format": "dateTime",
+            "example": "2019-02-25T16:00:00.000Z"
+          },
+          "place": {
+            "type": "string",
+            "format": "json",
+            "example": {
+              "id": 1
+            }
+          },
+          "artists": {
+            "type": "string",
+            "format": "json",
+            "example": [
+              {
+                "id": 1
+              },
+              {
+                "id": 2
+              }
+            ]
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}
