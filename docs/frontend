@@ -6,12 +6,13 @@ EventDetails:
 ArtistDetails:
 Artist details is currently non functional. The next step would be to query the backend for the different data and fill it in on the artist card format. 
 I was getting errors when it was talking to the backend. Verifying that the componetnDidMount function works as intended and correctly fills the information into the cards would be the next thing to do.
-
+Attempting to access ArtistDetails staticly without it talkling to the backend is causing routing errors at the moment. 
 
 
 Place Details:
 Place details is currently non functional. The next step would be to query the backend for the data and fill it in on the place details card. 
 The place details page should be very similar to the artist details page in terms of what to do next. It was getting the same types of errors with the backend. 
+Attempting to access PlaceDetails even without the backend currently causes routing errors. 
 
 ArtistCard and PlaceCard: These cards I wrote are largely based off of Gahouray's work on the EventCard but with some changes that make it more relevant 
 to places and artists as defined in wireframes and the schema. 
