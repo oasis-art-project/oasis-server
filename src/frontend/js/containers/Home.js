@@ -62,6 +62,13 @@ class Home extends Component {
         }
     }
 
+    componentDidMount() {
+        console.log("HEY HOME PAGE DID MOUNT")
+        fetch('http://127.0.0.1:5000/api/event/') 
+            .then(result=>result.json()) 
+            .then(items=>console.log({items}))
+    }    
+
     render() {
         let EventCards = this.state.events.map(event => {
             return(
