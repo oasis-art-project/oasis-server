@@ -13,6 +13,8 @@ Place Details:
 Place details is currently non functional. The next step would be to query the backend for the data and fill it in on the place details card. 
 The place details page should be very similar to the artist details page in terms of what to do next. It was getting the same types of errors with the backend. 
 
+ArtistCard and PlaceCard: These cards I wrote are largely based off of Gahouray's work on the EventCard but with some changes that make it more relevant 
+to places and artists as defined in wireframes and the schema. 
 
 
 
