@@ -1,6 +1,9 @@
-Home:
-SignUp:
-Login:
+Home: Current home page displays information from hardcoded data in frontend file. The next step would be enable it to display data stored in database
+
+SignUp: There are two signup forms, one is in frontend-yang and one is in frontend-cedric. We are currently use the one from cedric, which is functional. The next step could be adding drop down menu at the page for different types of users.
+
+Login: Current login form is function. Possible next step could be using backend API from the API document to authenticate user between  their input and the user information in database. 
+
 EventDetails:
 
 ArtistDetails:
@@ -22,3 +25,4 @@ to places and artists as defined in wireframes and the schema.
 
 General things that are broken:
 - it is possible to access certain pages via buttons (i.e. the login page) but not by url
+- it is possible that run npm build gives a blank page, or changes made are not properly displayed on pages
