@@ -12,5 +12,5 @@ Flask_marshmallow==0.8.0
 Flask_script==2.0.6
 Flask_migrate==2.1.1
 Flask-apispec
-marshmallow==2.14.0
+marshmallow
 marshmallow-sqlalchemy==0.16.2

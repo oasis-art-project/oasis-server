@@ -10,7 +10,7 @@ info:
     email: oasis@tsybanov.com
   version: 1.0.0
 servers:
-  - url: 'https://127.0.0.1:5000'
+  - url: 'https://127.0.0.1:5000/api'
 tags:
   - name: User
     description: CRUD operations about user profiles

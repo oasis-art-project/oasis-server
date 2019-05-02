@@ -19,7 +19,7 @@ from src.backend.tests.helpers import \
     event_json as _event_json, \
     create_place as _create_place
 
-_url = '/api/event'
+_url = '/api/event/'
 
 
 class TestEvent:
@@ -37,7 +37,7 @@ class TestEvent:
         artist2, _, artist2_dump = _create_user(email='bar2@foo.com')
         event = _create_event({"id": place.id}, [{"id": 2}, {"id": 3}])
 
-        r = client.get("{}/{}".format(_url, event.id))
+        r = client.get("{}{}".format(_url, event.id))
 
         assert r.status_code == 200
         assert r.json['status'] == 'success'
@@ -58,7 +58,7 @@ class TestEvent:
         assert r.json['event']['photo'] == event.photo
 
     def test_get_not_exists_event(self, client):
-        r = client.get("{}/{}".format(_url, 1))
+        r = client.get("{}{}".format(_url, 1))
 
         assert r.status_code == 400
         assert r.json['message'] == "Event does not exist"
@@ -149,7 +149,7 @@ class TestEvent:
                                endTime="2019-04-01T18:00:00",
                                photo="event2photo.jpg")
 
-        r = client.get(_url + "/place/{}".format(place.id))
+        r = client.get(_url + "place/{}".format(place.id))
 
         assert r.status_code == 200
         assert r.json['events'][0]['id'] == event1.id

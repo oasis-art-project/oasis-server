@@ -9,7 +9,7 @@ from src.backend.tests.helpers import \
     auth_header as _auth_header, \
     user_json as _user_json
 
-_url = '/api/login'
+_url = '/api/login/'
 _user_schema = UserSchema()
 
 

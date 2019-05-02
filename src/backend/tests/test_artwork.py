@@ -18,7 +18,7 @@ from src.backend.tests.helpers import \
     create_artwork as _create_artwork, \
     artwork_json as _artwork_json
 
-_url = '/api/artwork'
+_url = '/api/artwork/'
 
 
 class TestArtwork:
@@ -33,7 +33,7 @@ class TestArtwork:
         artist, _, artist_dump = _create_user(role=3)
         artwork = _create_artwork(artist_dump)
 
-        r = client.get("{}/{}".format(_url, artwork.id))
+        r = client.get("{}{}".format(_url, artwork.id))
 
         assert r.status_code == 200
         assert r.json['status'] == 'success'
@@ -45,7 +45,7 @@ class TestArtwork:
         assert r.json['artwork']['photo'] == artwork.photo
 
     def test_get_not_exists_artwork(self, client):
-        r = client.get("{}/{}".format(_url, 1))
+        r = client.get("{}{}".format(_url, 1))
 
         assert r.status_code == 400
         assert r.json['message'] == "Artwork does not exist"
@@ -109,7 +109,7 @@ class TestArtwork:
                                    description="artwork2Description",
                                    photo="artwork2photo.jpg")
 
-        r = client.get(_url + "/artist/{}".format(artist.id))
+        r = client.get(_url + "artist/{}".format(artist.id))
 
         assert r.status_code == 200
         assert r.json['artworks'][0]['id'] == artwork1.id

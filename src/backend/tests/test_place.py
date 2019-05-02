@@ -17,7 +17,7 @@ from src.backend.tests.helpers import \
     create_place as _create_place, \
     place_json as _place_json
 
-_url = '/api/place'
+_url = '/api/place/'
 
 
 class TestPlace:
@@ -32,7 +32,7 @@ class TestPlace:
         host, _, host_dump = _create_user(role=2)
         place = _create_place(host_dump)
 
-        r = client.get("{}/{}".format(_url, place.id))
+        r = client.get("{}{}".format(_url, place.id))
 
         assert r.status_code == 200
         assert r.json['status'] == 'success'
@@ -45,7 +45,7 @@ class TestPlace:
         assert r.json['place']['photo'] == place.photo
 
     def test_get_not_exists_place(self, client):
-        r = client.get("{}/{}".format(_url, 1))
+        r = client.get("{}{}".format(_url, 1))
 
         assert r.status_code == 400
         assert r.json['message'] == "Place does not exist"
@@ -115,7 +115,7 @@ class TestPlace:
                                address="place2Address",
                                photo="place2photo.jpg")
 
-        r = client.get(_url + "/host/{}".format(host.id))
+        r = client.get(_url + "host/{}".format(host.id))
 
         assert r.status_code == 200
         assert r.json['places'][0]['id'] == place1.id

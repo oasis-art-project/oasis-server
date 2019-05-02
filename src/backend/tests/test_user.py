@@ -19,7 +19,7 @@ from src.backend.tests.helpers import \
     auth_header as _auth_header
 
 
-_url = '/api/user'
+_url = '/api/user/'
 
 # TODO: add more ASSERT NOT fields
 # TODO: read r.json for more ASSERTS
@@ -34,7 +34,7 @@ class TestUser:
     def test_get_user(self, client):
         user, _, user_dump = _create_user()
 
-        r = client.get("{}/{}".format(_url, user.id))
+        r = client.get("{}{}".format(_url, user.id))
 
         assert r.status_code == 200
         assert r.json['status'] == 'success'
@@ -51,7 +51,7 @@ class TestUser:
         assert 'password' not in r.json['user']
 
     def test_get_user_not_exists_user(self, client):
-        r = client.get("{}/{}".format(_url, 1))
+        r = client.get("{}{}".format(_url, 1))
 
         assert r.status_code == 400
         assert r.json['message'] == 'User does not exist'
@@ -60,7 +60,7 @@ class TestUser:
         _, admin_token, _ = _create_user(email='bar@foo.com', role=1)
         user, _, user_dump = _create_user()
 
-        r = client.get("{}/{}".format(_url, user.id), headers=_auth_header(admin_token))
+        r = client.get("{}{}".format(_url, user.id), headers=_auth_header(admin_token))
 
         assert r.status_code == 200
         assert r.json['status'] == 'success'
@@ -80,7 +80,7 @@ class TestUser:
         _, admin_token, _ = _create_user(email='bar@foo.com', role=1)
         user, _, user_dump = _create_user()
 
-        r = client.get("{}/{}".format(_url, user.id), headers=_auth_header(admin_token))
+        r = client.get("{}{}".format(_url, user.id), headers=_auth_header(admin_token))
 
         assert r.status_code == 200
         assert r.json['status'] == 'success'
@@ -99,7 +99,7 @@ class TestUser:
     def test_get_not_exists_user_with_email(self, client):
         _, admin_token, _ = _create_user(role=1)
 
-        r = client.get("{}/{}".format(_url, 'bar@foo.com'), headers=_auth_header(admin_token))
+        r = client.get("{}{}".format(_url, 'bar@foo.com'), headers=_auth_header(admin_token))
 
         assert r.status_code == 400
         assert r.json['message'] == 'User does not exist'
@@ -108,7 +108,7 @@ class TestUser:
         _, user_token, _ = _create_user(email='bar@foo.com')
         user, _, _ = _create_user()
 
-        r = client.get("{}/{}".format(_url, user.email), headers=_auth_header(user_token))
+        r = client.get("{}{}".format(_url, user.email), headers=_auth_header(user_token))
 
         assert r.status_code == 401
         assert r.json['message'] == 'Not enough privileges'
