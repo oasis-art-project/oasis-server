@@ -15,9 +15,9 @@ def params(request, num_files=0):
     # Prepare files for sending
     if num_files > 0:
         if num_files == 1:
-            files = ("test1.png", )
+            files = ("profile1.jpg", )
         elif num_files == 2:
-            files = ("test1.png", "test2.png")
+            files = ("profile1.jpg", "profile2.jpg")
         else:
             raise ValueError("Can be only 1 or 2")
 
@@ -43,9 +43,10 @@ def user_json():
     }
 
 data = user_json()
-print(params(data))
+p = params(data, 1)
+print(p)
 
-r = requests.post('http://127.0.0.1:5000/api/user/', data = params(data))
+r = requests.post('http://127.0.0.1:5000/api/user/', data = p)
 
 print(r.status_code)
 
