@@ -1,3 +1,11 @@
+# -*- coding: utf-8 -*-
+
+"""
+Part of the OASIS project - https://github.com/oasis-art
+Copyright (c) 2019 DUOpoly
+License Artistic-2.0
+"""
+
 import os
 
 from flask import Flask, render_template
@@ -13,7 +21,7 @@ from src.config import ProductionConfig
 def create_app(conf=ProductionConfig):
     app = Flask(__name__,
                 static_folder='./public',
-                template_folder="./frontend")
+                template_folder="../../oasis-webapp")
 
     # Load config
     app.config.from_object(conf)

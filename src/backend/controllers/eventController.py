@@ -1,6 +1,7 @@
 """
-Boston University. Spring 2019
-@author: Maxim Tsybanov (oasis@tsybanov.com)
+Part of the OASIS project - https://github.com/oasis-art
+Copyright (c) 2019 DUOpoly
+License Artistic-2.0
 """
 
 import json

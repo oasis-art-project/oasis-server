@@ -1,4 +1,6 @@
-Please, read documentation in _docs_ folder.
+## OASIS server
+
+This is the server backend of the OASIS platform. Please, read REST API reference in _docs_ folder, and general documentation in the _wiki_.
 
 ### Installing:
 
@@ -38,3 +40,7 @@ Please, read documentation in _docs_ folder.
 
 2. Start server <br>
 `flask run`
+
+### Contributors
+
+* The initial version of the OASIS server was developed by Maxim Tsybanov (oasis@tsybanov.com) during the X-Lab Spark practicum class at Boston University in Summer 2019.
