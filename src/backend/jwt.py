@@ -6,6 +6,10 @@ Copyright (c) 2019 DUOpoly
 License Artistic-2.0
 """
 
+from src.backend.extensions import jwt
+from src.backend.models.userModel import User
+
+
 # JWT Callbacks
 def jwt_identity(payload):
     return User.query.filter_by(id=payload).first()
