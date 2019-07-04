@@ -1,11 +1,10 @@
-"""
-Boston University. Spring 2019
-@author: Maxim Tsybanov (oasis@tsybanov.com)
-"""
+# -*- coding: utf-8 -*-
 
-from src.backend.extensions import jwt
-from src.backend.models.userModel import User
-
+"""
+Part of the OASIS project - https://github.com/oasis-local-art
+Copyright (c) 2019 DUOpoly
+License Artistic-2.0
+"""
 
 # JWT Callbacks
 def jwt_identity(payload):
