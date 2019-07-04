@@ -15,9 +15,9 @@ def params(request, num_files=0):
     # Prepare files for sending
     if num_files > 0:
         if num_files == 1:
-            files = ("profile1.jpg", )
+            files = ("test1.png", )
         elif num_files == 2:
-            files = ("profile1.jpg", "profile2.jpg")
+            files = ("test1.png", "test2.png")
         else:
             raise ValueError("Can be only 1 or 2")
 
