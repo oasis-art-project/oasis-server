@@ -1,3 +1,11 @@
+# -*- coding: utf-8 -*-
+
+"""
+Part of the OASIS project - https://github.com/oasis-local-art
+Copyright (c) 2019 DUOpoly
+License Artistic-2.0
+"""
+
 import os
 from datetime import timedelta
 
