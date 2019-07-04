@@ -21,7 +21,7 @@ from src.config import ProductionConfig
 def create_app(conf=ProductionConfig):
     app = Flask(__name__,
                 static_folder='./public',
-                template_folder="../../oasis-webapp")
+                template_folder="../../webapp")
 
     # Load config
     app.config.from_object(conf)
@@ -43,7 +43,7 @@ def create_app(conf=ProductionConfig):
     app.cli.add_command(test)
     app.cli.add_command(seed)
 
-    # Load index.html with react.js
+    # Load index.html from template folder
     @app.route('/')
     def index():
         return render_template("index.html")
