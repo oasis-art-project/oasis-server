@@ -1,6 +1,6 @@
 import requests
 
-resp = requests.get('http://127.0.0.1:5000/api/user')
+resp = requests.get('http://127.0.0.1:5000/api/user/')
 
 if resp.status_code != 200:
     # This means something went wrong.
