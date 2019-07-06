@@ -2,28 +2,14 @@ import requests
 import json
 import os
 
-def params(request, num_files=0):
-    """
-    Prepares request
-
-    :param request: string request
-    :param num_files: how many files to send simultaneously (0-2)
-    :return: processed json
-    """
+def params(request, filenames=None):
     parameters = {"request": json.dumps(request)}
 
     # Prepare files for sending
-    if num_files > 0:
-        if num_files == 1:
-            files = ("./dummy_data/test1.png", )
-        elif num_files == 2:
-            files = ("./dummy_data/test1.png", "./dummy_data/test2.png")
-        else:
-            raise ValueError("Can be only 1 or 2")
-
+    if filenames:
         # Read files from the disk, open into File instances...
         dir_path = os.path.dirname(os.path.realpath(__file__))
-        files = {"files": [open(os.path.join(dir_path, file), 'rb') for file in files]}
+        files = {"files": [open(os.path.join(dir_path, fn), 'rb') for fn in filenames]}
 
         # ... and save it in parameters json
         parameters.update(files)
@@ -43,7 +29,7 @@ def user_json():
     }
 
 data = user_json()
-p = params(data, 1)
+p = params(data, ["./dummy_data/profile.jpg"])
 print(p)
 
 r = requests.post('http://127.0.0.1:5000/api/user/', data = p)

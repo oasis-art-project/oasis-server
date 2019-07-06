@@ -8,5 +8,6 @@ if resp.status_code != 200:
 
 print("Request was succesful!")
 print("Got the following:")
-for item in resp.json():
-    print(item)
+json = resp.json()
+for item in json:
+    print(json[item])

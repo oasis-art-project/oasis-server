@@ -3,8 +3,6 @@ import json
 import os
 import csv
 
-
-
 def params(request, filenames=None):
     parameters = {"request": json.dumps(request)}
 
@@ -62,7 +60,7 @@ def host_json(id, user):
     }
 
 data_dir = "./dummy_data/"
-load_users = False
+load_users = True
 load_places = True
 load_events = False
 load_artworks = False
@@ -84,6 +82,10 @@ for row in reader:
         print(p)
         
         r = requests.post('http://127.0.0.1:5000/api/user/', data=p)
+        if r.status_code == 400: 
+            print("User already exists")
+            continue
+        
         if r.status_code != 201:
             # This means something went wrong.
             raise Exception(r.status_code, r.content)
@@ -93,10 +95,12 @@ for row in reader:
             print(r.json()[item])
 
 if load_places:
+    # Data and authorization headers not working... maybe the following are relevant:
     # https://stackoverflow.com/questions/20759981/python-trying-to-post-form-using-requests
     # https://github.com/kennethreitz/requests/issues/910
 
-    session = requests.Session()
+    # Use session instead of requests object
+    # session = requests.Session()
 
     print("Loading places...")
     in_csv = os.path.join(data_dir, "place_list.csv")
@@ -109,7 +113,7 @@ if load_places:
         print("Login user", user)
         d = params({'email': user['email'], 'password': user['password']})
         print("LOGIN DATA", d)
-        r = session.post('http://127.0.0.1:5000/api/login/', data=d)
+        r = requests.post('http://127.0.0.1:5000/api/login/', data=d)
         if r.status_code != 200:
             # This means something went wrong.
             raise Exception(r.status_code, r.content)
@@ -119,11 +123,12 @@ if load_places:
         data = place_json(row, host_json(row[0], user))    
         pics = [os.path.join(data_dir, fn) for fn in row[3].split(";")]    
         p = params(data)
-        print("PLACE DATA", p)
-        print("PLACE HEAD", h)
+        print("PAYLOAD", p)
+        print("HEADER", h)
 
-        r = session.post('http://127.0.0.1:5000/api/place/', data=p, headers=h)
+        r = requests.post('http://127.0.0.1:5000/api/place/', data=p, headers=h)
 
+        # Setting the header in the global session?
         # with requests.Session() as s:
         #     s.headers.update(h)
         #     r = requests.post('http://127.0.0.1:5000/api/place/', data=p)
@@ -137,11 +142,15 @@ if load_places:
             print(r.json()[item])
 
         # Logout
-        r = session.delete('http://127.0.0.1:5000/api/login/', headers=h)
+        r = requests.delete('http://127.0.0.1:5000/api/login/', headers=h)
         if r.status_code != 200:
             # This means something went wrong.
             raise Exception(r.status_code, r.content)    
         
         print("Logged out")
 
-# print("Loading events...")
+if load_events:
+    print("Loading events...")
+
+if load_artworks:
+    print("Loading artworks...")
