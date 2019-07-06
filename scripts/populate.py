@@ -46,17 +46,13 @@ def place_json(row, host):
 
 def host_json(id, user):
     return {
-        "id": int(id),
-        # "email": user["email"],
-        # "password": user["password"],
-        # "firstName": user["firstName"],
-        # "lastName": user["lastName"],
-        # "twitter": user["twitter"],
-        # "flickr": user["flickr"],
-        # "instagram": user["instagram"],
-        # "avatar": None,
-        # "role": int(user["role"]),
-        # "bio": user["bio"]
+        # "id": int(id),
+        "firstName": user["firstName"],
+        "lastName": user["lastName"],
+        "bio": user["bio"],        
+        "twitter": user["twitter"],
+        "flickr": user["flickr"],
+        "instagram": user["instagram"],
     }
 
 data_dir = "./dummy_data/"
