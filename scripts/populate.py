@@ -3,23 +3,31 @@ import json
 import os
 import csv
 
-def params(request, filenames=None):
-    parameters = {"request": json.dumps(request)}
+def data(dat, filenames=None):
+    parameters = {"request": json.dumps(dat)}
+    
+    # # Prepare files for sending
+    # if filenames:
+    #     # Read files from the disk, open into File instances...
+    #     dir_path = os.path.dirname(os.path.realpath(__file__))
+    #     files = {"files": [open(os.path.join(dir_path, fn), 'rb') for fn in filenames]}
 
-    # Prepare files for sending
-    if filenames:
-        # Read files from the disk, open into File instances...
-        dir_path = os.path.dirname(os.path.realpath(__file__))
-        files = {"files": [open(os.path.join(dir_path, fn), 'rb') for fn in filenames]}
-
-        # ... and save it in parameters json
-        parameters.update(files)
+    #     # ... and save it in parameters json
+    #     parameters.update(files)
 
     return parameters
 
+def files(filenames):
+    # https://2.python-requests.org//en/latest/user/advanced/#post-multiple-multipart-encoded-files
+    res = []
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    for fn in filenames:
+        ext = os.path.splitext(fn)[1][1:]
+        res += [('images', (os.path.split(fn)[1], open(os.path.join(dir_path, fn), 'rb'), 'image/' + ext))]
+    return res
+
 def auth_header(token):
     return {
-        'Content-type': 'multipart/form-data',
         'Authorization': 'Bearer {}'.format(token)
     }
 
@@ -69,15 +77,15 @@ user_dict = {}
 id = 1
 for row in reader:
     id += 1
-    data = user_json(row)
-    user_dict[str(id)] = data
+    raw_user_data = user_json(row)
+    user_dict[str(id)] = raw_user_data
     
-    if load_users:
-        in_img = os.path.join(data_dir,row[9])
-        p = params(data, [in_img])
-        print(p)
+    if load_users:        
+        in_img = os.path.join(data_dir, row[9])
+        d = data(raw_user_data, [in_img])
+        f = files([in_img])        
         
-        r = requests.post('http://127.0.0.1:5000/api/user/', data=p)
+        r = requests.post('http://127.0.0.1:5000/api/user/', data=d, files=f)
         if r.status_code == 400: 
             print("User already exists")
             continue
@@ -86,18 +94,11 @@ for row in reader:
             # This means something went wrong.
             raise Exception(r.status_code, r.content)
 
-        print("Created user! Got the following response from server:")
+        print("Created user", row[2], row[3], "! Got the following response from server:")
         for item in r.json():
-            print(r.json()[item])
+            print(item, r.json()[item])
 
 if load_places:
-    # Data and authorization headers not working... maybe the following are relevant:
-    # https://stackoverflow.com/questions/20759981/python-trying-to-post-form-using-requests
-    # https://github.com/kennethreitz/requests/issues/910
-
-    # Use session instead of requests object
-    # session = requests.Session()
-
     print("Loading places...")
     in_csv = os.path.join(data_dir, "place_list.csv")
     reader = csv.reader(open(in_csv, 'r'), dialect='excel')
@@ -106,9 +107,7 @@ if load_places:
         user = user_dict[row[0]]
 
         # First the host user needs to login so we have the token to use in place creation
-        print("Login user", user)
-        d = params({'email': user['email'], 'password': user['password']})
-        print("LOGIN DATA", d)
+        d = data({'email': user['email'], 'password': user['password']})
         r = requests.post('http://127.0.0.1:5000/api/login/', data=d)
         if r.status_code != 200:
             # This means something went wrong.
@@ -116,26 +115,18 @@ if load_places:
         host_token = r.json()['token']
         h = auth_header(host_token)
 
-        data = place_json(row, host_json(row[0], user))    
-        pics = [os.path.join(data_dir, fn) for fn in row[3].split(";")]    
-        p = params(data)
-        print("PAYLOAD", p)
-        print("HEADER", h)
-
-        r = requests.post('http://127.0.0.1:5000/api/place/', data=p, headers=h)
-
-        # Setting the header in the global session?
-        # with requests.Session() as s:
-        #     s.headers.update(h)
-        #     r = requests.post('http://127.0.0.1:5000/api/place/', data=p)
+        raw_place_data = place_json(row, host_json(row[0], user))
+        p = data(raw_place_data)
+        f = files([os.path.join(data_dir, fn) for fn in row[3].split(";")])
+        r = requests.post('http://127.0.0.1:5000/api/place/', data=p, files=f, headers=h)
 
         if r.status_code != 201:
             # This means something went wrong.
             raise Exception(r.status_code, r.content)
 
-        print("Created place! Got the following response from server:")
+        print("Created place", row[1], "! Got the following response from server:")
         for item in r.json():
-            print(r.json()[item])
+            print(item, r.json()[item])
 
         # Logout
         r = requests.delete('http://127.0.0.1:5000/api/login/', headers=h)
