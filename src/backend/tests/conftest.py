@@ -1,3 +1,11 @@
+# -*- coding: utf-8 -*-
+
+"""
+Part of the OASIS project - https://github.com/oasis-local-art
+Copyright (c) 2019 DUOpoly
+License Artistic-2.0
+"""
+
 import pytest
 from src.app import create_app, db as _db
 from src.config import TestConfig
