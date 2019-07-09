@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: populate script",
+            "name": "OASIS populate script",
             "type": "python",
             "request": "launch",
             "cwd": "${workspaceFolder}/scripts",
@@ -14,7 +14,7 @@
             "justMyCode": false
         },
         {
-            "name": "Python: Flask",
+            "name": "OASIS server",
             "type": "python",
             "request": "launch",
             "module": "flask",
