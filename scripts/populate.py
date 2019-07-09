@@ -44,14 +44,6 @@ def user_json(row):
         "bio": row[10]
     }
 
-def place_json(row, host):
-    return {
-        "host": host,
-        "name": row[1],
-        "address": row[2],
-        "description": row[4]
-    }
-
 def host_json(id, user):
     return {
         # "id": int(id),
@@ -63,10 +55,28 @@ def host_json(id, user):
         "instagram": user["instagram"],
     }
 
+def place_json(row, host):
+    return {
+        "host": host,
+        "name": row[1],
+        "address": row[2],
+        "description": row[4]
+    }
+
+def event_json(place, artists):
+    return {
+        "place": place,
+        "artists": artists,
+        "name": "City Landscapes",
+        "description": "Landscape paintings from Rob Krishna",
+        "startTime": "2019-09-01T20:00:00",
+        "endTime": "2019-09-10T18:00:00"
+    }    
+
 data_dir = "./dummy_data/"
 load_users = True
 load_places = True
-load_events = False
+load_events = True
 load_artworks = False
 
 if load_users: print("Loading users...")
@@ -138,6 +148,34 @@ if load_places:
 
 if load_events:
     print("Loading events...")
+
+    # First the host user needs to login so we have the token to use in event creation
+    d = data({'email': 'ksian@oasis.art', 'password': '123456'})
+    r = requests.post('http://127.0.0.1:5000/api/login/', data=d)
+    if r.status_code != 200:
+        # This means something went wrong.
+        raise Exception(r.status_code, r.content)
+    host_token = r.json()['token']
+    h = auth_header(host_token)
+
+    raw_event_data = event_json({"id": 1}, [{"id": 3}, {"id": 8}])
+    d=data(raw_event_data)
+
+    r = requests.post('http://127.0.0.1:5000/api/event/', data=d, headers=h)
+
+    if r.status_code != 201:
+        # This means something went wrong.
+        raise Exception(r.status_code, r.content)
+
+    print("Created dummy event! Got the following response from server:")
+    for item in r.json():
+        print(item, r.json()[item])
+
+    # Logout
+    r = requests.delete('http://127.0.0.1:5000/api/login/', headers=h)
+    if r.status_code != 200:
+        # This means something went wrong.
+        raise Exception(r.status_code, r.content)   
 
 if load_artworks:
     print("Loading artworks...")
