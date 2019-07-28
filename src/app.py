@@ -10,6 +10,7 @@ import os
 
 from flask import Flask, render_template
 from flask_migrate import MigrateCommand
+from flask_cors import CORS
 
 from src.backend.commands import test, seed
 from src.backend.extensions import db, migrate, jwt, ma, manager, api_bp, api
@@ -25,6 +26,8 @@ def create_app(conf=ProductionConfig):
 
     # Load config
     app.config.from_object(conf)
+    # Enabled cors
+    CORS(app)
 
     # Initializers
     db.init_app(app)

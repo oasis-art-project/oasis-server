@@ -4,6 +4,7 @@ pytest
 pytest-flask
 sqlalchemy
 Flask==1.0.2
+flask-cors
 Flask_restplus
 Flask_JWT_Extended==3.18.0
 Flask_Bcrypt==0.7.1
