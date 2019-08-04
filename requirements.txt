@@ -3,6 +3,7 @@ click
 pytest
 pytest-flask
 sqlalchemy
+gunicorn
 Flask==1.0.2
 flask-cors
 Flask_restplus
