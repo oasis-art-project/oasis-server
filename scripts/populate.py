@@ -73,6 +73,18 @@ def event_json(place, artists):
         "endTime": "2019-09-10T18:00:00"
     }    
 
+def send_request(meth, url, data, headers=None, files=None, print_prep=True):
+    # Print raw request
+    # https://stackoverflow.com/a/23816211
+    prepped = requests.Request(meth, url, data=data, headers=headers, files=files).prepare()
+    if print_prep:
+        print("*****************")
+        print(prepped)
+        print("*****************")
+    s = requests.Session()
+    resp = s.send(prepped)
+    return resp
+
 data_dir = "./dummy_data/"
 load_users = True
 load_places = True
@@ -95,7 +107,9 @@ for row in reader:
         d = data(raw_user_data, [in_img])
         f = files([in_img])        
         
+        # r = send_request('POST', 'http://127.0.0.1:5000/api/user/', data=d, files=f)                  
         r = requests.post('http://127.0.0.1:5000/api/user/', data=d, files=f)
+        print(d)
         if r.status_code == 400: 
             print("User already exists")
             continue
