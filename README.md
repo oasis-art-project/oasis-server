@@ -29,11 +29,18 @@ This is the server backend of the OASIS platform. Please, read REST API referenc
 `flask run`
 
 ### Starting:
+
 1. Add environmental _FLASK_ variable <br>
 `export FLASK_APP=run`
 
 2. Start server <br>
 `flask run`
+
+### Stand-alone WSGI server
+
+The OASIS server can be run as a stand-alone WSGI application using a Python WSGI HTTP Serve like Gunicorn (listed in the requirements):
+
+`gunicorn --bind 127.0.0.1:5000  "run:create_app()"`
 
 ### Contributors
 
