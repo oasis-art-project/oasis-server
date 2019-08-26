@@ -102,15 +102,15 @@ for row in reader:
     raw_user_data = user_json(row)
     user_dict[str(id)] = raw_user_data
     
-    if load_users:        
+    if load_users:
         in_img = os.path.join(data_dir, row[9])
         d = data(raw_user_data, [in_img])
-        f = files([in_img])        
+        f = files([in_img])
         
-        # r = send_request('POST', 'http://127.0.0.1:5000/api/user/', data=d, files=f)                  
+        # r = send_request('POST', 'http://127.0.0.1:5000/api/user/', data=d, files=f)
         r = requests.post('http://127.0.0.1:5000/api/user/', data=d, files=f)
         print(d)
-        if r.status_code == 400: 
+        if r.status_code == 400:
             print("User already exists")
             continue
         
