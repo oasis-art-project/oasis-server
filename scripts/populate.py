@@ -83,6 +83,12 @@ def send_request(meth, url, data, headers=None, files=None, print_prep=True):
     resp = s.send(prepped)
     return resp
 
+# Local server
+url = 'http://127.0.0.1:5000'
+
+# Staging server
+#url = 'https://server-oasis.herokuapp.com/'
+
 data_dir = "./dummy_data/"
 load_users = False
 load_places = False
@@ -106,7 +112,7 @@ for row in reader:
         f = files([in_img])
 
         # r = send_request('POST', 'http://127.0.0.1:5000/api/user/', data=d, files=f)
-        r = requests.post('http://127.0.0.1:5000/api/user/', data=d, files=f)
+        r = requests.post(url + '/api/user/', data=d, files=f)
         if r.status_code == 400:
             print("User already exists")
             continue
@@ -120,7 +126,7 @@ for row in reader:
 
 # Retrieving all users
 user_dict = {}
-resp = requests.get('http://127.0.0.1:5000/api/user/')
+resp = requests.get(url + '/api/user/')
 if resp.status_code != 200:
     raise Exception(resp.status_code)
 users = resp.json()['users']
@@ -142,7 +148,7 @@ if load_places:
 
         # First the host user needs to login so we have the token to use in place creation
         d = data({'email': user['email'], 'password': user['password']})
-        r = requests.post('http://127.0.0.1:5000/api/login/', data=d)
+        r = requests.post(url + '/api/login/', data=d)
         if r.status_code != 200:
             raise Exception(r.status_code, r.content)
         host_token = r.json()['token']
@@ -151,7 +157,7 @@ if load_places:
         raw_place_data = place_json(row, host_json(row[0], user))
         p = data(raw_place_data)
         f = files([os.path.join(data_dir, fn) for fn in row[3].split(";")])
-        r = requests.post('http://127.0.0.1:5000/api/place/', data=p, files=f, headers=h)
+        r = requests.post(url + '/api/place/', data=p, files=f, headers=h)
 
         if r.status_code != 201:
             raise Exception(r.status_code, r.content)
@@ -161,7 +167,7 @@ if load_places:
             print(item, r.json()[item])
 
         # Logout
-        r = requests.delete('http://127.0.0.1:5000/api/login/', headers=h)
+        r = requests.delete(url + '/api/login/', headers=h)
         if r.status_code != 200:
             raise Exception(r.status_code, r.content)    
         
@@ -169,7 +175,7 @@ if load_places:
 
 # Retrieving all placess
 place_dict = {}
-resp = requests.get('http://127.0.0.1:5000/api/place/')
+resp = requests.get(url + '/api/place/')
 if resp.status_code != 200:
     raise Exception(resp.status_code)
 places = resp.json()['places']
@@ -196,7 +202,7 @@ if load_events:
         
         # First the host user needs to login so we have the token to use in place creation
         d = data({'email': hostEmail, 'password': hostPassword})
-        r = requests.post('http://127.0.0.1:5000/api/login/', data=d)
+        r = requests.post(url + '/api/login/', data=d)
         if r.status_code != 200:
             raise Exception(r.status_code, r.content)
         host_token = r.json()['token']
@@ -205,7 +211,7 @@ if load_events:
         raw_event_data = event_json(place, artists, row[2], row[3], row[4], row[5])
         d=data(raw_event_data)
 
-        r = requests.post('http://127.0.0.1:5000/api/event/', data=d, headers=h)
+        r = requests.post(url + '/api/event/', data=d, headers=h)
 
         if r.status_code != 201:
             raise Exception(r.status_code, r.content)
@@ -215,7 +221,7 @@ if load_events:
             print(item, r.json()[item])
 
         # Logout
-        r = requests.delete('http://127.0.0.1:5000/api/login/', headers=h)
+        r = requests.delete(url + '/api/login/', headers=h)
         if r.status_code != 200:
             raise Exception(r.status_code, r.content)    
         
