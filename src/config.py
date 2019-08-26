@@ -21,7 +21,8 @@ class Config(object):
     # SQLAlchemy conf
     SQLALCHEMY_ECHO = False
     SQLALCHEMY_TRACK_MODIFICATIONS = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///{}/oasis.sqlite'.format(INSTANCE_PATH)
+    # SQLALCHEMY_DATABASE_URI = 'sqlite:///{}/oasis.sqlite'.format(INSTANCE_PATH)
+    SQLALCHEMY_DATABASE_URI = 'postgresql://localhost/oasis'
 
     # Upload data conf
     MAX_CONTENT_LENGTH = 5000 * 1024
@@ -45,3 +46,4 @@ class TestConfig(Config):
 
     # In memory
     SQLALCHEMY_DATABASE_URI = 'sqlite:///'
+
