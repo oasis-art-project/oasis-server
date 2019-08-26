@@ -20,9 +20,9 @@ class User(SurrogatePK, db.Model):
     firstName = db.Column(db.String(50), nullable=False)
     lastName = db.Column(db.String(50), nullable=False)
     avatar = db.Column(db.String(100), nullable=True)
-    bio = db.Column(db.String(1000), nullable=True)
+    bio = db.Column(db.String(2000), nullable=True)
     role = db.Column(db.Integer, nullable=False)
-    twitter = db.Column(db.String(30), nullable=True)
+    twitter = db.Column(db.String(15), nullable=True)
     flickr = db.Column(db.String(30), nullable=True)
     instagram = db.Column(db.String(30), nullable=True)
     creation_date = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp(), nullable=False)
@@ -31,13 +31,13 @@ class User(SurrogatePK, db.Model):
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
         if kwargs.get('password') is not None:
-            self.password = flask_bcrypt.generate_password_hash(self.password)
+            self.password = flask_bcrypt.generate_password_hash(self.password).decode("utf-8", "ignore")
 
     def __repr__(self):
         return "<User %s>" % self.email
 
     def set_password(self, password):
-        self.password = flask_bcrypt.generate_password_hash(password)
+        self.password = flask_bcrypt.generate_password_hash(password).decode("utf-8", "ignore")
 
     def check_password(self, password):
         return flask_bcrypt.check_password_hash(self.password, password)
