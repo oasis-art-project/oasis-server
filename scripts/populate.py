@@ -90,8 +90,8 @@ url = 'http://127.0.0.1:5000'
 #url = 'https://server-oasis.herokuapp.com/'
 
 data_dir = "./dummy_data/"
-load_users = False
-load_places = False
+load_users = True
+load_places = True
 load_events = True
 load_artworks = False
 
@@ -181,8 +181,6 @@ if resp.status_code != 200:
 places = resp.json()['places']
 for place in places:
     place_dict[place['name']] = place
-
-print(place_dict)
 
 if load_events:
     print("Loading events...")
