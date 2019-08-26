@@ -4,8 +4,7 @@ import os
 import csv
 
 def data(dat, filenames=None):
-    parameters = {"request": json.dumps(dat)}
-    
+    parameters = {"request": json.dumps(dat)}    
     # # Prepare files for sending
     # if filenames:
     #     # Read files from the disk, open into File instances...
@@ -14,7 +13,6 @@ def data(dat, filenames=None):
 
     #     # ... and save it in parameters json
     #     parameters.update(files)
-
     return parameters
 
 def files(filenames):
@@ -63,14 +61,14 @@ def place_json(row, host):
         "description": row[4]
     }
 
-def event_json(place, artists):
+def event_json(place, artists, name, desc, start, end):
     return {
         "place": place,
         "artists": artists,
-        "name": "City Landscapes",
-        "description": "Landscape paintings from Rob Krishna",
-        "startTime": "2019-09-01T20:00:00",
-        "endTime": "2019-09-10T18:00:00"
+        "name": name,
+        "description": desc,
+        "startTime": start,
+        "endTime": end
     }    
 
 def send_request(meth, url, data, headers=None, files=None, print_prep=True):
@@ -86,8 +84,8 @@ def send_request(meth, url, data, headers=None, files=None, print_prep=True):
     return resp
 
 data_dir = "./dummy_data/"
-load_users = True
-load_places = True
+load_users = False
+load_places = False
 load_events = True
 load_artworks = False
 
@@ -95,46 +93,57 @@ if load_users: print("Loading users...")
 in_csv = os.path.join(data_dir, "user_list.csv")
 reader = csv.reader(open(in_csv, 'r'), dialect='excel')
 header = next(reader)
-user_dict = {}
-id = 1
+user_extra = {}
 for row in reader:
-    id += 1
-    raw_user_data = user_json(row)
-    user_dict[str(id)] = raw_user_data
-    
+    email = row[0]
+    password = row[1]
+    user_extra[row[2] + ' ' + row[3]] = {'email': email, 'password':password}
     if load_users:
+        raw_user_data = user_json(row)
+
         in_img = os.path.join(data_dir, row[9])
         d = data(raw_user_data, [in_img])
         f = files([in_img])
-        
+
         # r = send_request('POST', 'http://127.0.0.1:5000/api/user/', data=d, files=f)
         r = requests.post('http://127.0.0.1:5000/api/user/', data=d, files=f)
-        print(d)
         if r.status_code == 400:
             print("User already exists")
             continue
         
-        if r.status_code != 201:
-            # This means something went wrong.
+        if r.status_code != 201:                
             raise Exception(r.status_code, r.content)
 
         print("Created user", row[2], row[3], "! Got the following response from server:")
         for item in r.json():
             print(item, r.json()[item])
 
-if load_places:
+# Retrieving all users
+user_dict = {}
+resp = requests.get('http://127.0.0.1:5000/api/user/')
+if resp.status_code != 200:
+    raise Exception(resp.status_code)
+users = resp.json()['users']
+for user in users:
+    fullName = user['firstName'] + ' ' + user['lastName']
+    if not fullName == 'Admin Oasis':
+        user['email'] = user_extra[fullName]['email']
+        user['password'] = user_extra[fullName]['password']
+    user_dict[fullName] = user
+
+if load_places: 
     print("Loading places...")
     in_csv = os.path.join(data_dir, "place_list.csv")
     reader = csv.reader(open(in_csv, 'r'), dialect='excel')
     header = next(reader)
     for row in reader:
+        print("Logging user", row[0])
         user = user_dict[row[0]]
 
         # First the host user needs to login so we have the token to use in place creation
         d = data({'email': user['email'], 'password': user['password']})
         r = requests.post('http://127.0.0.1:5000/api/login/', data=d)
         if r.status_code != 200:
-            # This means something went wrong.
             raise Exception(r.status_code, r.content)
         host_token = r.json()['token']
         h = auth_header(host_token)
@@ -145,7 +154,6 @@ if load_places:
         r = requests.post('http://127.0.0.1:5000/api/place/', data=p, files=f, headers=h)
 
         if r.status_code != 201:
-            # This means something went wrong.
             raise Exception(r.status_code, r.content)
 
         print("Created place", row[1], "! Got the following response from server:")
@@ -155,41 +163,63 @@ if load_places:
         # Logout
         r = requests.delete('http://127.0.0.1:5000/api/login/', headers=h)
         if r.status_code != 200:
-            # This means something went wrong.
             raise Exception(r.status_code, r.content)    
         
-        print("Logged out")
+        print("Logged out succesfully")
+
+# Retrieving all placess
+place_dict = {}
+resp = requests.get('http://127.0.0.1:5000/api/place/')
+if resp.status_code != 200:
+    raise Exception(resp.status_code)
+places = resp.json()['places']
+for place in places:
+    place_dict[place['name']] = place
+
+print(place_dict)
 
 if load_events:
     print("Loading events...")
 
-    # First the host user needs to login so we have the token to use in event creation
-    d = data({'email': 'ksian@oasis.art', 'password': '123456'})
-    r = requests.post('http://127.0.0.1:5000/api/login/', data=d)
-    if r.status_code != 200:
-        # This means something went wrong.
-        raise Exception(r.status_code, r.content)
-    host_token = r.json()['token']
-    h = auth_header(host_token)
+    in_csv = os.path.join(data_dir, "event_list.csv")
+    reader = csv.reader(open(in_csv, 'r'), dialect='excel')
+    header = next(reader)
+    for row in reader:
+        place = {"id": place_dict[row[0]]['id']}
+        artists = [{"id":user_dict[name.strip()]['id']} for name in row[1].split(';')]
+        host = place_dict[row[0]]['host']
+        hostFullName = host['firstName'] + ' ' + host['lastName']
+        hostEmail = user_dict[hostFullName]['email']
+        hostPassword = user_dict[hostFullName]['password']
+        
+        print("Logging host", hostFullName)
+        
+        # First the host user needs to login so we have the token to use in place creation
+        d = data({'email': hostEmail, 'password': hostPassword})
+        r = requests.post('http://127.0.0.1:5000/api/login/', data=d)
+        if r.status_code != 200:
+            raise Exception(r.status_code, r.content)
+        host_token = r.json()['token']
+        h = auth_header(host_token)   
 
-    raw_event_data = event_json({"id": 1}, [{"id": 3}, {"id": 8}])
-    d=data(raw_event_data)
+        raw_event_data = event_json(place, artists, row[2], row[3], row[4], row[5])
+        d=data(raw_event_data)
 
-    r = requests.post('http://127.0.0.1:5000/api/event/', data=d, headers=h)
+        r = requests.post('http://127.0.0.1:5000/api/event/', data=d, headers=h)
 
-    if r.status_code != 201:
-        # This means something went wrong.
-        raise Exception(r.status_code, r.content)
+        if r.status_code != 201:
+            raise Exception(r.status_code, r.content)
 
-    print("Created dummy event! Got the following response from server:")
-    for item in r.json():
-        print(item, r.json()[item])
+        print("Created new event! Got the following response from server:")
+        for item in r.json():
+            print(item, r.json()[item])
 
-    # Logout
-    r = requests.delete('http://127.0.0.1:5000/api/login/', headers=h)
-    if r.status_code != 200:
-        # This means something went wrong.
-        raise Exception(r.status_code, r.content)   
+        # Logout
+        r = requests.delete('http://127.0.0.1:5000/api/login/', headers=h)
+        if r.status_code != 200:
+            raise Exception(r.status_code, r.content)    
+        
+        print("Logged out succesfully")
 
 if load_artworks:
     print("Loading artworks...")
