@@ -18,6 +18,8 @@ from src.backend.jwt import jwt_identity, identity_loader
 from src.backend.router import init_router
 from src.config import ProductionConfig
 
+# from flask_bootstrap import Bootstrap
+import boto3
 
 def create_app(conf=ProductionConfig):
     app = Flask(__name__,
@@ -46,10 +48,29 @@ def create_app(conf=ProductionConfig):
     app.cli.add_command(test)
     app.cli.add_command(seed)
 
+
+
+    s3_resource = boto3.resource(
+       "s3",
+       aws_access_key_id=conf.S3_KEY,
+       aws_secret_access_key=conf.S3_SECRET
+    )
+
+
+
     # Load index.html from template folder
     @app.route('/')
     def index():
         return render_template("index.html")
+
+    @app.route('/files')
+    def files():
+        # s3_resource = boto3.resource('s3')
+        my_bucket = s3_resource.Bucket(conf.S3_BUCKET)
+        summaries = my_bucket.objects.all()
+
+        return render_template('files.html', my_bucket=my_bucket, files=summaries)
+
 
     # Ensure the instance and upload folder exists
     try:
