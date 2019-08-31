@@ -7,29 +7,36 @@ This is the server backend of the OASIS platform. Please, read REST API referenc
 1. Install python libraries used by Flask <br>
 `pip install -r requirements.txt`
 
-2. Add environmental _FLASK_ variable <br>
-`export FLASK_APP=run`
+2. Create PostgreSQL database <br>
+psql postgres -c "CREATE DATABASE oasis"
 
 3. Add environmental _DATABASE_URL_ variable <br>
 `export DATABASE_URL=postgresql://localhost/oasis`
 
-4. Initialize db schema <br>
+4. Add environmental _FLASK_ variable <br>
+`export FLASK_APP=run`
+
+5. Initialize db schema <br>
 `flask db init`
 
-5. Load tables <br>
+6. Load tables <br>
 `flask db migrate` 
 
-6. Create database <br>
+7. Create database <br>
 `flask db upgrade`
 
-7. Create a default admin user. _Read console output_ <br>
+8. Create a default admin user. _Read console output_ <br>
 `flask seed`
 
-8. Run tests <br>
+9. Run tests <br>
 `flask test`
 
-9. Start server <br>
+10. Start server <br>
 `flask run`
+
+To clear the existing database before re-install the, run the following script:
+
+`./clear-db.sh`
 
 ### Starting:
 
