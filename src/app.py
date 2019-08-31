@@ -24,7 +24,7 @@ import boto3
 def create_app(conf=ProductionConfig):
     app = Flask(__name__,
                 static_folder='./public',
-                template_folder="../../webapp")
+                template_folder="./templates")
 
     # Load config
     app.config.from_object(conf)
