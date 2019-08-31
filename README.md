@@ -8,7 +8,7 @@ This is the server backend of the OASIS platform. Please, read REST API referenc
 `pip install -r requirements.txt`
 
 2. Create PostgreSQL database <br>
-psql postgres -c "CREATE DATABASE oasis"
+`psql postgres -c "CREATE DATABASE oasis"`
 
 3. Add environmental _DATABASE_URL_ variable <br>
 `export DATABASE_URL=postgresql://localhost/oasis`
