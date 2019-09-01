@@ -63,12 +63,13 @@ class UploadResource(Resource):
         #     return {'message': 'Unprocessable entity'}, 422
         # request_data = resources.generate_presigned_post(file_name, file_type)
 
-        print("GET signed request") 
+        print("GET signed request", req_json) 
 
     #    Merge({"status": 'success'}, dict2)
         
          
         return req_json.update({"status": 'success'}), 200
+        # return json.dumps(req_json)
 
     @jwt_optional
     def post(self, user_id=None, user_email=None):
