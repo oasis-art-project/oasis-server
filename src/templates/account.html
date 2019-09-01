@@ -63,7 +63,7 @@
     function getSignedRequest(file){
       const xhr = new XMLHttpRequest();
       // xhr.open('GET', `/upload/sign-s3?file-name=${file.name}&file-type=${file.type}`);
-      xhr.open('GET', `/api/upload/sign-s3/1`);
+      xhr.open('GET', `/api/upload/sign/2?resource-kind=user&file-name=${file.name}&file-type=${file.type}`);
       xhr.onreadystatechange = () => {
         if(xhr.readyState === 4){
           if(xhr.status === 200){

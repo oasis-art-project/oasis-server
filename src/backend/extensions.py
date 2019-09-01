@@ -65,7 +65,7 @@ class Storage(object):
             aws_secret_access_key=app.config["S3_SECRET"])
         self.bucket = self.s3.Bucket(app.config["S3_BUCKET"])
 
-    def generate_presigned_post(self, file_name, file_type):
+    def generate_presigned_post(self, resource_kind, resource_id, file_name, file_type):
         post_data = self.s3.generate_presigned_post(
             Bucket = self.bucket,
             Key = file_name,
@@ -77,9 +77,19 @@ class Storage(object):
             ExpiresIn = 3600
         )
         
+        prefix = ''
+        if resource_kind == 'user':
+            prefix = "users"
+        elif resource_kind == 'place':
+            prefix = "places"
+        elif resource_kind == 'event':
+            prefix = "events"
+        elif resource_kind == 'artworks':
+            prefix = "artworks"
+
         return json.dumps({
             'data': post_data,
-            'url': 'https://%s.s3.amazonaws.com/%s' % (self.bucket, file_name)
+            'url': 'https://%s.s3.amazonaws.com/%s/%d/%s' % (self.bucket, prefix, resource_id, file_name)
         })
 
     def create_user_folder(self, uid):
