@@ -11,7 +11,7 @@ from src.backend.controllers.eventController import EventResource
 from src.backend.controllers.loginController import LoginResource
 from src.backend.controllers.placeController import PlaceResource
 from src.backend.controllers.userController import UserResource
-
+from src.backend.controllers.uploadController import UploadResource
 
 def init_router(api):
     """
@@ -31,4 +31,6 @@ def init_router(api):
     api.add_resource(EventResource, '/event/')
     api.add_resource(EventResource, '/event/<int:event_id>', endpoint='event_id')
     api.add_resource(EventResource, '/event/place/<int:place_event_id>', endpoint='place_event_id')
-
+    api.add_resource(UploadResource, '/upload/')
+    api.add_resource(UploadResource, '/upload/sign/<int:resource_id>', endpoint='sign_id')
+    api.add_resource(UploadResource, '/upload/<int:resource_id>', endpoint='upload_id')

@@ -1,0 +1,17 @@
+<!doctype html>
+<title>FILES - OASIS</title>
+<section class="content">
+  <header></header>
+    <div class="col-12-xs">
+      <h3>Bucket Info</h3>
+      <p>Created: {{ my_bucket.creation_date }}</p>
+
+      <hr>
+      {% for f in files %}
+      {{ f.key }}<br>
+      {{ f.last_modified }}<hr>
+      {% endfor %}
+
+    </div>
+  </div>
+</section>

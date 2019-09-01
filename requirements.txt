@@ -5,6 +5,7 @@ pytest-flask
 sqlalchemy
 gunicorn
 psycopg2
+boto3
 Flask==1.0.2
 flask-cors
 Flask_restplus

@@ -15,6 +15,8 @@ from flask_restplus import Api
 from flask_script import Manager
 from flask_sqlalchemy import SQLAlchemy, Model
 
+import boto3
+import json
 
 # Mixin adds CRUD operations to all models
 class CRUDMixin(Model):
@@ -50,12 +52,68 @@ class CustomApi(Api):
         return super().handle_error(e)
 
 
+# Object wrapping an S3 bucket to store user resources
+class Storage(object):
+    def __init__(self):
+        self.resource = None
+        self.client = None
+        self.bucket_name = ''
+        self.bucket = None
+
+    def init_app(self, app):
+        self.resource = boto3.resource(
+            "s3",
+            aws_access_key_id=app.config["AWS_ACCESS_KEY_ID"],
+            aws_secret_access_key=app.config["AWS_SECRET_ACCESS_KEY"])
+        self.client = boto3.client('s3')            
+        self.bucket_name = app.config["S3_BUCKET"]
+        self.bucket = self.resource.Bucket(self.bucket_name)
+
+    def generate_presigned_post(self, resource_kind, resource_id, file_name, file_type):
+        post_data = self.client.generate_presigned_post(
+            Bucket = self.bucket_name,
+            Key = file_name,
+            Fields = {"acl": "public-read", "Content-Type": file_type},
+            Conditions = [
+                {"acl": "public-read"},
+                {"Content-Type": file_type}
+            ],
+            ExpiresIn = 3600
+        )
+        
+        prefix = ''
+        if resource_kind == 'user':
+            prefix = "users"
+        elif resource_kind == 'place':
+            prefix = "places"
+        elif resource_kind == 'event':
+            prefix = "events"
+        elif resource_kind == 'artworks':
+            prefix = "artworks"
+
+        # return json.dumps({
+        return {    
+            'data': post_data,
+            'url': 'https://%s.s3.amazonaws.com/%s/%d/%s' % (self.bucket_name, prefix, resource_id, file_name)
+        }
+        # })
+
+    def create_user_folder(self, uid):
+        status = self.bucket.put_object(Key="users/" + str(uid) + "/")
+        print(status)            
+
+    def create_place_folder(self, pid):
+        status = self.bucket.put_object(Key="places/" + str(pid) + "/")
+        print(status)
+
+
 # Create extension instances
 db = SQLAlchemy(model_class=CRUDMixin)
 ma = Marshmallow()
 jwt = JWTManager()
 migrate = Migrate()
 manager = Manager()
+storage = Storage()
 
 # Create and register Api (Flask-Restplus)
 # TODO: doc can be used for Swagger docs generation

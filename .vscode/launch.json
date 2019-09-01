@@ -21,7 +21,12 @@
             "env": {
                 "FLASK_APP": "run.py",
                 "FLASK_ENV": "development",
-                "FLASK_DEBUG": "0"
+                "FLASK_DEBUG": "0",
+                "DATABASE_URL": "postgresql://localhost/oasis",
+                "S3_BUCKET": "<put S3 bucket name here>",
+                "AWS_ACCESS_KEY": "<put S3 key here>",
+                "AWS_SECRET_KEY": "<put S3 secret access key here>"
+
             },
             "args": [
                 "run",
