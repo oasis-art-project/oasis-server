@@ -49,6 +49,7 @@ class CustomApi(Api):
                     raise e
         return super().handle_error(e)
 
+
 # Object wrapping an S3 bucket to store user resources
 class UserResources(object):
     def __init__(self):
@@ -65,6 +66,11 @@ class UserResources(object):
     def create_user_folder(self, email):
         status = self.bucket.put_object(Key="users/" + email + "/")
         print(status)            
+
+    def create_place_folder(self, name):
+        status = self.bucket.put_object(Key="places/" + name + "/")
+        print(status)  
+
 
 # Create extension instances
 db = SQLAlchemy(model_class=CRUDMixin)

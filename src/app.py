@@ -46,7 +46,7 @@ def create_app(conf=ProductionConfig):
     app.cli.add_command(test)
     app.cli.add_command(seed)
 
-    resources.create_user_folder("andres@oasis.net")
+    
 
     # Load index.html from template folder
     @app.route('/')
