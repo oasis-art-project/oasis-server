@@ -53,7 +53,7 @@ class CustomApi(Api):
 
 
 # Object wrapping an S3 bucket to store user resources
-class UserResources(object):
+class Storage(object):
     def __init__(self):
         self.s3 = None
         self.bucket = None
@@ -82,12 +82,12 @@ class UserResources(object):
             'url': 'https://%s.s3.amazonaws.com/%s' % (self.bucket, file_name)
         })
 
-    def create_user_folder(self, email):
-        status = self.bucket.put_object(Key="users/" + email + "/")
+    def create_user_folder(self, uid):
+        status = self.bucket.put_object(Key="users/" + str(uid) + "/")
         print(status)            
 
-    def create_place_folder(self, email, name):
-        status = self.bucket.put_object(Key="users/" + email + "/places/" + name + "/")
+    def create_place_folder(self, pid):
+        status = self.bucket.put_object(Key="places/" + str(pid) + "/")
         print(status)
 
 
@@ -97,7 +97,7 @@ ma = Marshmallow()
 jwt = JWTManager()
 migrate = Migrate()
 manager = Manager()
-resources = UserResources()
+storage = Storage()
 
 # Create and register Api (Flask-Restplus)
 # TODO: doc can be used for Swagger docs generation

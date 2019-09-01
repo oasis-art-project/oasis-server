@@ -15,7 +15,7 @@ from sqlalchemy.exc import OperationalError
 from src.backend.controllers.controller import upload_files, load_request, delete_files
 from src.backend.models.tokenModel import Token
 from src.backend.models.userModel import User, UserSchema
-from src.backend.extensions import resources
+from src.backend.extensions import storage
 
 user_schema = UserSchema()
 
@@ -94,13 +94,12 @@ class UserResource(Resource):
             user = UserSchema().load(user_json).data
             user.save()
             
-            resources.create_user_folder(user.email)
-            
-
         except OperationalError:
             return {'message': 'Database error'}, 500
-
+        
         token = Token.create_token(user.id)
+
+        storage.create_user_folder(user.id)
 
         return {"status": 'success', 'token': token}, 201
 

@@ -13,9 +13,9 @@ from flask_jwt_extended import jwt_required, current_user
 from flask_restplus import Resource
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import joinedload
-
 from src.backend.controllers.controller import load_request, upload_files, delete_files
 from src.backend.models.placeModel import PlaceSchema, Place
+from src.backend.extensions import storage
 
 place_schema = PlaceSchema()
 
@@ -83,9 +83,11 @@ class PlaceResource(Resource):
 
         # Save a new place
         try:
-            PlaceSchema().load(place_json).data.save()
+            place = PlaceSchema().load(place_json).data.save()
         except OperationalError:
             return {'message': 'Database error'}, 500
+
+        storage.create_place_folder(place.id)
 
         return {"status": 'success'}, 201
 

@@ -9,7 +9,7 @@ License Artistic-2.0
 from flask import request
 from flask_jwt_extended import jwt_required, jwt_optional, current_user
 from flask_restplus import Resource
-from src.backend.extensions import resources
+from src.backend.extensions import storage
 
 import json
 

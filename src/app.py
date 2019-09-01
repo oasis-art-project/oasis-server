@@ -13,7 +13,7 @@ from flask_migrate import MigrateCommand
 from flask_cors import CORS
 
 from src.backend.commands import test, seed
-from src.backend.extensions import db, migrate, jwt, ma, manager, api_bp, api, resources
+from src.backend.extensions import db, migrate, jwt, ma, manager, api_bp, api, storage
 from src.backend.jwt import jwt_identity, identity_loader
 from src.backend.router import init_router
 from src.config import ProductionConfig
@@ -31,13 +31,12 @@ def create_app(conf=ProductionConfig):
     # Initializers
     db.init_app(app)
     ma.init_app(app)
+    storage.init_app(app)
     jwt.init_app(app)
     jwt.user_loader_callback_loader(jwt_identity)
-    jwt.user_identity_loader(identity_loader)
-    resources.init_app(app)
+    jwt.user_identity_loader(identity_loader)    
     migrate.init_app(app, db)
     manager.add_command('db', MigrateCommand)
-
     # Load router
     app.register_blueprint(api_bp, url_prefix='/api')
     init_router(api)
@@ -45,8 +44,6 @@ def create_app(conf=ProductionConfig):
     # Load commands
     app.cli.add_command(test)
     app.cli.add_command(seed)
-
-    
 
     # Load index.html from template folder
     @app.route('/')
@@ -60,8 +57,8 @@ def create_app(conf=ProductionConfig):
 
     @app.route('/files')
     def files():
-        summaries = resources.bucket.objects.all()
-        return render_template('files.html', my_bucket=resources.bucket, files=summaries)
+        summaries = storage.bucket.objects.all()
+        return render_template('files.html', my_bucket=storage.bucket, files=summaries)
 
 
     # Ensure the instance and upload folder exists
