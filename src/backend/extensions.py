@@ -14,7 +14,9 @@ from flask_migrate import Migrate
 from flask_restplus import Api
 from flask_script import Manager
 from flask_sqlalchemy import SQLAlchemy, Model
+
 import boto3
+import json
 
 # Mixin adds CRUD operations to all models
 class CRUDMixin(Model):
@@ -63,13 +65,30 @@ class UserResources(object):
             aws_secret_access_key=app.config["S3_SECRET"])
         self.bucket = self.s3.Bucket(app.config["S3_BUCKET"])
 
+    def generate_presigned_post(self, file_name, file_type):
+        post_data = self.s3.generate_presigned_post(
+            Bucket = self.bucket,
+            Key = file_name,
+            Fields = {"acl": "public-read", "Content-Type": file_type},
+            Conditions = [
+                {"acl": "public-read"},
+                {"Content-Type": file_type}
+            ],
+            ExpiresIn = 3600
+        )
+        
+        return json.dumps({
+            'data': post_data,
+            'url': 'https://%s.s3.amazonaws.com/%s' % (self.bucket, file_name)
+        })
+
     def create_user_folder(self, email):
         status = self.bucket.put_object(Key="users/" + email + "/")
         print(status)            
 
-    def create_place_folder(self, name):
-        status = self.bucket.put_object(Key="places/" + name + "/")
-        print(status)  
+    def create_place_folder(self, email, name):
+        status = self.bucket.put_object(Key="users/" + email + "/places/" + name + "/")
+        print(status)
 
 
 # Create extension instances

@@ -53,6 +53,11 @@ def create_app(conf=ProductionConfig):
     def index():
         return render_template("index.html")
 
+    @app.route("/account")
+    def account():
+        # Show the account-edit HTML page:
+        return render_template('account.html')
+
     @app.route('/files')
     def files():
         summaries = resources.bucket.objects.all()
