@@ -14,7 +14,7 @@ from flask_migrate import Migrate
 from flask_restplus import Api
 from flask_script import Manager
 from flask_sqlalchemy import SQLAlchemy, Model
-
+import boto3
 
 # Mixin adds CRUD operations to all models
 class CRUDMixin(Model):
@@ -49,6 +49,22 @@ class CustomApi(Api):
                     raise e
         return super().handle_error(e)
 
+# Object wrapping an S3 bucket to store user resources
+class UserResources(object):
+    def __init__(self):
+        self.s3 = None
+        self.bucket = None
+
+    def init_app(self, app):
+        self.s3 = boto3.resource(
+            "s3",
+            aws_access_key_id=app.config["S3_KEY"],
+            aws_secret_access_key=app.config["S3_SECRET"])
+        self.bucket = self.s3.Bucket(app.config["S3_BUCKET"])
+
+    def create_user_folder(self, email):
+        status = self.bucket.put_object(Key="users/" + email + "/")
+        print(status)            
 
 # Create extension instances
 db = SQLAlchemy(model_class=CRUDMixin)
@@ -56,6 +72,7 @@ ma = Marshmallow()
 jwt = JWTManager()
 migrate = Migrate()
 manager = Manager()
+resources = UserResources()
 
 # Create and register Api (Flask-Restplus)
 # TODO: doc can be used for Swagger docs generation

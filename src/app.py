@@ -13,13 +13,10 @@ from flask_migrate import MigrateCommand
 from flask_cors import CORS
 
 from src.backend.commands import test, seed
-from src.backend.extensions import db, migrate, jwt, ma, manager, api_bp, api
+from src.backend.extensions import db, migrate, jwt, ma, manager, api_bp, api, resources
 from src.backend.jwt import jwt_identity, identity_loader
 from src.backend.router import init_router
 from src.config import ProductionConfig
-
-# from flask_bootstrap import Bootstrap
-import boto3
 
 def create_app(conf=ProductionConfig):
     app = Flask(__name__,
@@ -37,6 +34,7 @@ def create_app(conf=ProductionConfig):
     jwt.init_app(app)
     jwt.user_loader_callback_loader(jwt_identity)
     jwt.user_identity_loader(identity_loader)
+    resources.init_app(app)
     migrate.init_app(app, db)
     manager.add_command('db', MigrateCommand)
 
@@ -48,15 +46,7 @@ def create_app(conf=ProductionConfig):
     app.cli.add_command(test)
     app.cli.add_command(seed)
 
-
-
-    s3_resource = boto3.resource(
-       "s3",
-       aws_access_key_id=conf.S3_KEY,
-       aws_secret_access_key=conf.S3_SECRET
-    )
-
-
+    resources.create_user_folder("andres@oasis.net")
 
     # Load index.html from template folder
     @app.route('/')
@@ -65,11 +55,8 @@ def create_app(conf=ProductionConfig):
 
     @app.route('/files')
     def files():
-        # s3_resource = boto3.resource('s3')
-        my_bucket = s3_resource.Bucket(conf.S3_BUCKET)
-        summaries = my_bucket.objects.all()
-
-        return render_template('files.html', my_bucket=my_bucket, files=summaries)
+        summaries = resources.bucket.objects.all()
+        return render_template('files.html', my_bucket=resources.bucket, files=summaries)
 
 
     # Ensure the instance and upload folder exists
