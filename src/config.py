@@ -28,7 +28,7 @@ class Config(object):
     # AWS configuration
     S3_BUCKET = os.environ.get("S3_BUCKET")
     AWS_ACCESS_KEY = os.environ.get("AWS_ACCESS_KEY")
-    AWS_SECRET_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
+    AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
 
     # Upload data conf
     MAX_CONTENT_LENGTH = 5000 * 1024

@@ -61,8 +61,8 @@ class Storage(object):
     def init_app(self, app):
         self.s3 = boto3.resource(
             "s3",
-            aws_access_key_id=app.config["S3_KEY"],
-            aws_secret_access_key=app.config["S3_SECRET"])
+            aws_access_key_id=app.config["AWS_ACCESS_KEY"],
+            aws_secret_access_key=app.config["AWS_SECRET_ACCESS_KEY"])
         self.bucket = self.s3.Bucket(app.config["S3_BUCKET"])
 
     def generate_presigned_post(self, resource_kind, resource_id, file_name, file_type):
