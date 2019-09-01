@@ -37,6 +37,7 @@ def create_app(conf=ProductionConfig):
     jwt.user_identity_loader(identity_loader)    
     migrate.init_app(app, db)
     manager.add_command('db', MigrateCommand)
+    
     # Load router
     app.register_blueprint(api_bp, url_prefix='/api')
     init_router(api)

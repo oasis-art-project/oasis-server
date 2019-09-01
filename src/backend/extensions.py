@@ -55,19 +55,23 @@ class CustomApi(Api):
 # Object wrapping an S3 bucket to store user resources
 class Storage(object):
     def __init__(self):
-        self.s3 = None
+        self.resource = None
+        self.client = None
+        self.bucket_name = ''
         self.bucket = None
 
     def init_app(self, app):
-        self.s3 = boto3.resource(
+        self.resource = boto3.resource(
             "s3",
-            aws_access_key_id=app.config["AWS_ACCESS_KEY"],
+            aws_access_key_id=app.config["AWS_ACCESS_KEY_ID"],
             aws_secret_access_key=app.config["AWS_SECRET_ACCESS_KEY"])
-        self.bucket = self.s3.Bucket(app.config["S3_BUCKET"])
+        self.client = boto3.client('s3')            
+        self.bucket_name = app.config["S3_BUCKET"]
+        self.bucket = self.resource.Bucket(self.bucket_name)
 
     def generate_presigned_post(self, resource_kind, resource_id, file_name, file_type):
-        post_data = self.s3.generate_presigned_post(
-            Bucket = self.bucket,
+        post_data = self.client.generate_presigned_post(
+            Bucket = self.bucket_name,
             Key = file_name,
             Fields = {"acl": "public-read", "Content-Type": file_type},
             Conditions = [
@@ -87,10 +91,12 @@ class Storage(object):
         elif resource_kind == 'artworks':
             prefix = "artworks"
 
-        return json.dumps({
+        # return json.dumps({
+        return {    
             'data': post_data,
-            'url': 'https://%s.s3.amazonaws.com/%s/%d/%s' % (self.bucket, prefix, resource_id, file_name)
-        })
+            'url': 'https://%s.s3.amazonaws.com/%s/%d/%s' % (self.bucket_name, prefix, resource_id, file_name)
+        }
+        # })
 
     def create_user_folder(self, uid):
         status = self.bucket.put_object(Key="users/" + str(uid) + "/")
