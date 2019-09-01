@@ -25,10 +25,10 @@ class Config(object):
     # SQLALCHEMY_DATABASE_URI = 'postgresql://localhost/oasis'
     SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
 
-    # AWS S3 configuration
+    # AWS configuration
     S3_BUCKET = os.environ.get("S3_BUCKET")
-    S3_KEY = os.environ.get("S3_KEY")
-    S3_SECRET = os.environ.get("S3_SECRET_ACCESS_KEY")
+    AWS_ACCESS_KEY = os.environ.get("AWS_ACCESS_KEY")
+    AWS_SECRET_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
 
     # Upload data conf
     MAX_CONTENT_LENGTH = 5000 * 1024
