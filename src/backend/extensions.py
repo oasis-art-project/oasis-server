@@ -65,7 +65,10 @@ class Storage(object):
             "s3",
             aws_access_key_id=app.config["AWS_ACCESS_KEY_ID"],
             aws_secret_access_key=app.config["AWS_SECRET_ACCESS_KEY"])
-        self.client = boto3.client('s3')            
+        self.client = boto3.client(
+            "s3",
+            aws_access_key_id=app.config["AWS_ACCESS_KEY_ID"],
+            aws_secret_access_key=app.config["AWS_SECRET_ACCESS_KEY"])
         self.bucket_name = app.config["S3_BUCKET"]
         self.bucket = self.resource.Bucket(self.bucket_name)
 
@@ -94,9 +97,28 @@ class Storage(object):
         # return json.dumps({
         return {    
             'data': post_data,
-            'url': 'https://%s.s3.amazonaws.com/%s/%d/%s' % (self.bucket_name, prefix, resource_id, file_name)
+            # 'url': 'https://%s.s3.amazonaws.com/%s/%d/%s' % (self.bucket_name, prefix, resource_id, file_name)
+            'url': 'https://%s.s3.amazonaws.com/%s' % (self.bucket_name, file_name)
         }
         # })
+
+    def passthrough_upload(self, resource_kind, resource_id, file_object):
+        acl="public-read"
+        try:
+            self.client.upload_fileobj(
+                file_object,
+                self.bucket_name,
+                file_object.filename,
+                ExtraArgs={
+                    "ACL": acl
+                    # "ContentType": file_object.content_type
+                }
+            )
+
+        except Exception as e:
+            print("Something Happened: ", e)
+            return e
+
 
     def create_user_folder(self, uid):
         status = self.bucket.put_object(Key="users/" + str(uid) + "/")
