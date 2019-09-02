@@ -76,13 +76,10 @@ class Storage(object):
         post_data = self.client.generate_presigned_post(
             Bucket = self.bucket_name,
             Key = file_name,
-            # Fields = {"acl": "public-read", "Content-Type": file_type},
-            # Conditions = [
-            #     {"acl": "public-read"},
-            #     {"Content-Type": file_type}
-            Fields = {"acl": "public-read"},
+            Fields = {"acl": "public-read", "Content-Type": file_type},
             Conditions = [
-                {"acl": "public-read"}
+                {"acl": "public-read"},
+                {"Content-Type": file_type}
             ],
             ExpiresIn = 3600
         )
@@ -97,13 +94,10 @@ class Storage(object):
         elif resource_kind == 'artworks':
             prefix = "artworks"
 
-        # return json.dumps({
         return {    
             'data': post_data,
-            # 'url': 'https://%s.s3.amazonaws.com/%s/%d/%s' % (self.bucket_name, prefix, resource_id, file_name)
-            'url': 'https://%s.s3.amazonaws.com/%s' % (self.bucket_name, file_name)
+            'url': 'https://%s.s3.amazonaws.com/%s/%d/%s' % (self.bucket_name, prefix, resource_id, file_name)
         }
-        # })
 
     def passthrough_upload(self, resource_kind, resource_id, file_object):
         prefix = ''
@@ -116,24 +110,20 @@ class Storage(object):
         elif resource_kind == 'artworks':
             prefix = "artworks"
 
-        file_name = '%s/%d/%s' % ( prefix, resource_id, file_object.filename)
+        file_path = '%s/%d/%s' % (prefix, resource_id, file_object.filename)
 
-        acl="public-read"
-        try:
-            self.client.upload_fileobj(
-                Fileobj = file_object,
-                Bucket = self.bucket_name,
-                Key = file_name,
-                ExtraArgs={
-                    "ACL": acl
-                    # "ContentType": file_object.content_type
-                }
-            )
+        self.client.upload_fileobj(
+            Fileobj = file_object,
+            Bucket = self.bucket_name,
+            Key = file_path,
+            ExtraArgs={
+                "ACL": "public-read",
+                "ContentType": file_object.content_type
+            }
+        )
 
-        except Exception as e:
-            print("Something Happened: ", e)
-            return e
-
+        url = 'https://%s.s3.amazonaws.com/%s' % (self.bucket_name, file_path)
+        return url
 
     def create_user_folder(self, uid):
         status = self.bucket.put_object(Key="users/" + str(uid) + "/")
@@ -143,6 +133,13 @@ class Storage(object):
         status = self.bucket.put_object(Key="places/" + str(pid) + "/")
         print(status)
 
+    def create_event_folder(self, eid):
+        status = self.bucket.put_object(Key="events/" + str(eid) + "/")
+        print(status)
+
+    def create_artwork_folder(self, aid):
+        status = self.bucket.put_object(Key="artworks/" + str(aid) + "/")
+        print(status)        
 
 # Create extension instances
 db = SQLAlchemy(model_class=CRUDMixin)

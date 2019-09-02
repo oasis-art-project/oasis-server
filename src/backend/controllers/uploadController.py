@@ -13,6 +13,7 @@ from src.backend.models.userModel import User
 from src.backend.models.placeModel import Place
 from src.backend.models.eventModel import Event
 from src.backend.models.artworkModel import Artwork
+from src.backend.controllers.controller import upload_images
 from src.backend.extensions import storage
 
 import json
@@ -51,16 +52,19 @@ class UploadResource(Resource):
         # Load required data from the request
         file_name = request.args.get('file-name')
         file_type = request.args.get('file-type')
-        print(resource)
-        print(file_name)
-        print(file_type)
-        req_json = storage.generate_presigned_post(resource_kind, resource_id, file_name, file_type)
+        
+        try:
+            req_dict = storage.generate_presigned_post(resource_kind, resource_id, file_name, file_type)
 
-        print("GET signed request", req_json) 
+            return req_dict, 200
+
+        except Exception as e:
+            return {'message': str(e)}, 400
+
+        # print("GET signed request", req_json) 
          
         # return req_json.update({"status": 'success'}), 200
         # return json.dumps(req_json)
-        return req_json, 200
 
     @jwt_optional
     def post(self, resource_id=None):
@@ -88,22 +92,12 @@ class UploadResource(Resource):
         else:
             return {'message': 'Request contains an invalid argument'}, 400
 
-        # If not exists, raise an error
         if not resource:
             return {'message': 'The requested %s does not exist' % (resource_kind)}, 400      
 
-        # Load required data from the request
-        # file_name = request.args.get('file-name')
-        # file_type = request.args.get('file-type')
-        # print(resource)
-        # print(file_name)
-        # print(file_type)
+        try:
+            upload_dict = upload_images(request, resource_kind, resource_id)            
+            return {"status": 'success', "images": json.dumps(upload_dict)}, 200 
 
-        if 'file' in request.files:
-            files = request.files.getlist('file')
-            for file_object in files:
-                storage.passthrough_upload(resource_kind, resource_id, file_object)
-
-        print("POST image") 
-
-        return {"status": 'success'}, 200        
+        except Exception as e:
+            return {'message': str(e)}, 400
