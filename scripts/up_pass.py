@@ -20,7 +20,8 @@ full_path = os.path.join(data_dir, file_name)
 
 print("WILL TRY TO POST THE FILE")
 url = 'http://127.0.0.1:5000/api/upload/2?resource-kind=user'
-f = {'file': open(full_path, 'rb')}
+# f = {'files': open(full_path, 'rb')}
+f = [('images', (file_name, open(full_path, 'rb'), 'image/jpg'))]
 resp = requests.post(url, files=f)
 
 if resp.status_code != 200:
@@ -31,5 +32,6 @@ print("Request was succesful!")
 print("Got the following:")
 print(resp)
 json = resp.json()
+print(json)
 for item in json:
     print(item, json[item])
