@@ -17,6 +17,7 @@ from sqlalchemy.orm import joinedload
 from src.backend.controllers.controller import upload_files, load_request, delete_files
 from src.backend.models.eventModel import EventSchema, Event
 from src.backend.models.placeModel import Place
+from src.backend.extensions import storage
 
 event_schema = EventSchema()
 
@@ -80,9 +81,11 @@ class EventResource(Resource):
 
         # Save a new event
         try:
-            EventSchema().load(event_json).data.save()
+            event = EventSchema().load(event_json).data.save()
         except OperationalError:
             return {'message': 'Database error'}, 500
+
+        storage.create_event_folder(event.id)
 
         return {"status": 'success'}, 201
 

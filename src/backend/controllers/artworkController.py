@@ -16,6 +16,7 @@ from sqlalchemy.orm import joinedload
 
 from src.backend.controllers.controller import upload_files, load_request, delete_files
 from src.backend.models.artworkModel import Artwork, ArtworkSchema
+from src.backend.extensions import storage
 
 artwork_schema = ArtworkSchema()
 
@@ -82,9 +83,11 @@ class ArtworkResource(Resource):
 
         # Save a new artwork
         try:
-            ArtworkSchema().load(artwork_json).data.save()
+            artwork = ArtworkSchema().load(artwork_json).data.save()
         except OperationalError:
             return {'message': 'Database error'}, 500
+
+        storage.create_artwork_folder(artwork.id)
 
         return {"status": 'success'}, 201
 
