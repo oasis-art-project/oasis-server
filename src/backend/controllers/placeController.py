@@ -89,7 +89,7 @@ class PlaceResource(Resource):
 
         storage.create_place_folder(place.id)
 
-        return {"status": 'success'}, 201
+        return {"status": 'success', 'id': place.id}, 201
 
     @jwt_required
     def put(self):

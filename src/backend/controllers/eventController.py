@@ -87,7 +87,7 @@ class EventResource(Resource):
 
         storage.create_event_folder(event.id)
 
-        return {"status": 'success'}, 201
+        return {"status": 'success', 'id': event.id}, 201
 
     @jwt_required
     def put(self):

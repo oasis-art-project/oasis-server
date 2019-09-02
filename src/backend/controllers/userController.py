@@ -101,7 +101,7 @@ class UserResource(Resource):
 
         storage.create_user_folder(user.id)
 
-        return {"status": 'success', 'token': token}, 201
+        return {"status": 'success', 'token': token, 'id': user.id}, 201
 
     @jwt_required
     def put(self):

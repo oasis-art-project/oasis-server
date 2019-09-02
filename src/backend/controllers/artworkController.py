@@ -89,7 +89,7 @@ class ArtworkResource(Resource):
 
         storage.create_artwork_folder(artwork.id)
 
-        return {"status": 'success'}, 201
+        return {"status": 'success', 'id': artwork.id}, 201
 
     @jwt_required
     def put(self):
