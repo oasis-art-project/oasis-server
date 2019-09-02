@@ -76,10 +76,13 @@ class Storage(object):
         post_data = self.client.generate_presigned_post(
             Bucket = self.bucket_name,
             Key = file_name,
-            Fields = {"acl": "public-read", "Content-Type": file_type},
+            # Fields = {"acl": "public-read", "Content-Type": file_type},
+            # Conditions = [
+            #     {"acl": "public-read"},
+            #     {"Content-Type": file_type}
+            Fields = {"acl": "public-read"},
             Conditions = [
-                {"acl": "public-read"},
-                {"Content-Type": file_type}
+                {"acl": "public-read"}
             ],
             ExpiresIn = 3600
         )
@@ -103,12 +106,24 @@ class Storage(object):
         # })
 
     def passthrough_upload(self, resource_kind, resource_id, file_object):
+        prefix = ''
+        if resource_kind == 'user':
+            prefix = "users"
+        elif resource_kind == 'place':
+            prefix = "places"
+        elif resource_kind == 'event':
+            prefix = "events"
+        elif resource_kind == 'artworks':
+            prefix = "artworks"
+
+        file_name = '%s/%d/%s' % ( prefix, resource_id, file_object.filename)
+
         acl="public-read"
         try:
             self.client.upload_fileobj(
-                file_object,
-                self.bucket_name,
-                file_object.filename,
+                Fileobj = file_object,
+                Bucket = self.bucket_name,
+                Key = file_name,
                 ExtraArgs={
                     "ACL": acl
                     # "ContentType": file_object.content_type
