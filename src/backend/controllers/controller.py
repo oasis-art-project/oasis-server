@@ -80,6 +80,18 @@ def upload_images(request, resource_kind, resource_id):
     else:
         raise ValueError('Request does not contain images')
 
+
+def list_images(request, resource_kind, resource_id):
+    return {}
+
+
+
+
+
+
+
+
+
 def upload_files(request, maximum_files, files_in_db=None):
     """
     Uploader of files help to manage loading of file
