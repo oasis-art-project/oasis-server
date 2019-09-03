@@ -13,7 +13,7 @@ from flask_jwt_extended import jwt_required, current_user
 from flask_restplus import Resource
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import joinedload
-from src.backend.controllers.controller import load_request, upload_files, delete_files
+from src.backend.controllers.controller import load_request, delete_images
 from src.backend.models.placeModel import PlaceSchema, Place
 from src.backend.extensions import storage
 
@@ -77,10 +77,6 @@ class PlaceResource(Resource):
                     and not current_user.is_admin():
                 return {'message': 'Not enough privileges'}, 401
 
-        # Process files from the request
-        if 'files' in request.files:
-                place_json['photo'] = upload_files(request, 10)
-
         # Save a new place
         try:
             place = PlaceSchema().load(place_json).data.save()
@@ -118,13 +114,6 @@ class PlaceResource(Resource):
                     and not current_user.is_admin():
                 return {'message': 'Not enough privileges'}, 401
 
-            # Process files from the request
-            if 'files' in request.files:
-                photo_from_db = None
-                if place_from_db.photo:
-                    photo_from_db = json.loads(place_from_db.photo)
-                place_json["photo"] = upload_files(request, 10, photo_from_db)
-
             # Save updated in the db
             place_from_db.update(**place_json)
         except IOError as e:
@@ -158,22 +147,11 @@ class PlaceResource(Resource):
             if current_user.id != place.host.id and not current_user.is_admin():
                 return {'message': 'Not enough privileges'}, 401
 
-            # If photo in the request, means just delete a specific photo instead of the whole place
-            if 'photo' in request.form:
-                photo = request.form['photo']
-                if photo not in place.photo:
-                    return {'message': '{} does not have {} picture'}, 400
-
-                # Delete file from the disk
-                delete_files([photo])
-                return {'status': "success"}, 200
-
             # Delete artwork
             place.delete()
 
-            # Delete all files from the disk after deleting of a place
-            if place.photo:
-                delete_files(json.loads(place.photo))
+            # Delete all images associated with this place
+            delete_images('place', place.id)
 
         except OperationalError:
             return {'message': 'Database error'}, 500

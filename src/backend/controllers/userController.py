@@ -12,7 +12,7 @@ from flask import request
 from flask_jwt_extended import jwt_required, jwt_optional, current_user
 from flask_restplus import Resource
 from sqlalchemy.exc import OperationalError
-from src.backend.controllers.controller import upload_files, load_request, delete_files
+from src.backend.controllers.controller import load_request, delete_images
 from src.backend.models.tokenModel import Token
 from src.backend.models.userModel import User, UserSchema
 from src.backend.extensions import storage
@@ -86,10 +86,6 @@ class UserResource(Resource):
             if user_json['role'] == 1 and (not current_user or not current_user.is_admin()):
                 return {'message': 'Not enough privileges'}, 401
 
-            # Process avatar from the request
-            if 'files' in request.files:
-                user_json['avatar'] = upload_files(request, 1)
-
             # Create a new user
             user = UserSchema().load(user_json).data
             user.save()
@@ -136,12 +132,6 @@ class UserResource(Resource):
                 user_from_db.set_password(user_json["password"])
                 del user_json['password']
 
-            # Process avatar from the request
-            if 'files' in request.files:
-                if user_from_db.avatar:
-                    delete_files(json.loads(user_from_db.avatar))
-                user_json["avatar"] = upload_files(request, 1)
-
             # Save updated in the db
             user_from_db.update(**user_json)
         except OperationalError:
@@ -176,12 +166,6 @@ class UserResource(Resource):
             if not user:
                 return {'message': 'User does not exist'}, 400
 
-            # If avatar in the request, means just delete a specific photo instead of the whole user
-            if 'avatar' in request.form and (str(current_user.id) == user_id or current_user.is_admin()):
-                if user.avatar:
-                    delete_files(json.loads(user.avatar))
-                return {"status": 'success'}, 200
-
             # Deleting of users is available only for admins
             if not current_user.is_admin():
                 return {'message': 'Not enough privileges'}, 401
@@ -189,12 +173,11 @@ class UserResource(Resource):
             # Revoke the user's token
             Token.revoke_token_by_user_identity(user.id)
 
-            # Delete the use
+            # Delete the user
             user.delete()
 
-            # Delete avatar from the disk after deleting of the user
-            if user.avatar:
-                delete_files(json.loads(user.avatar))
+            # Delete all images associated with this user
+            delete_images('user', user.id)
 
         except OperationalError:
             return {'message': 'Database error'}, 500

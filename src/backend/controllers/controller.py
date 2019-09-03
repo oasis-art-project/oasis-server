@@ -79,6 +79,8 @@ def upload_images(request, resource_kind, resource_id):
     else:
         return {'message': 'Request contains an invalid argument'}, 400
 
+def delete_images(resource_kind, resource_id):
+    print("Remove images associated to the specified resource")
 
 def upload_files(request, maximum_files, files_in_db=None):
     """
