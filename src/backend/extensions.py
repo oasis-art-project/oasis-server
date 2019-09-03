@@ -15,6 +15,7 @@ from flask_restplus import Api
 from flask_script import Manager
 from flask_sqlalchemy import SQLAlchemy, Model
 
+from geopy.geocoders import Nominatim
 import boto3
 import json
 
@@ -145,8 +146,6 @@ class Storage(object):
             url = 'https://%s.s3.amazonaws.com/%s' % (self.bucket_name, it.key)
             images += [url]
 
-
-
         return images
 
     def create_user_folder(self, uid):
@@ -191,6 +190,7 @@ jwt = JWTManager()
 migrate = Migrate()
 manager = Manager()
 storage = Storage()
+geolocator = Nominatim(user_agent="OASIS server")
 
 # Create and register Api (Flask-Restplus)
 # TODO: doc can be used for Swagger docs generation

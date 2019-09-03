@@ -15,7 +15,7 @@ from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import joinedload
 from src.backend.controllers.controller import load_request
 from src.backend.models.placeModel import PlaceSchema, Place
-from src.backend.extensions import storage
+from src.backend.extensions import storage, geolocator
 
 place_schema = PlaceSchema()
 
@@ -77,6 +77,13 @@ class PlaceResource(Resource):
                     and not current_user.is_admin():
                 return {'message': 'Not enough privileges'}, 401
 
+        location = geolocator.geocode(place_json['address'])
+        if location:
+            place_json['latitude'] = location.latitude
+            place_json['longitude'] = location.longitude
+        else:
+            return {'message': "Address is invalid"}, 400
+
         # Save a new place
         try:
             place = PlaceSchema().load(place_json).data.save()
@@ -113,6 +120,15 @@ class PlaceResource(Resource):
             if (current_user.id != place_from_db.host.id or not current_user.is_host()) \
                     and not current_user.is_admin():
                 return {'message': 'Not enough privileges'}, 401
+
+            # If new address is different.
+            if place_from_db.address != place_json['address']:
+                location = geolocator.geocode(place_json['address'])
+                if location:
+                    place_json['latitude'] = location.latitude
+                    place_json['longitude'] = location.longitude   
+                else:
+                    return {'message': "Address is invalid"}, 400                                 
 
             # Save updated in the db
             place_from_db.update(**place_json)

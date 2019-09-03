@@ -8,6 +8,7 @@ License Artistic-2.0
 
 from marshmallow import fields, validate, post_dump
 
+from sqlalchemy.types import ARRAY
 from src.backend.extensions import db
 from src.backend.models.model import SurrogatePK, BaseSchema
 from src.backend.models.userModel import UserSchema, User
@@ -19,8 +20,9 @@ class Place(SurrogatePK, db.Model):
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(1000), nullable=True)
     address = db.Column(db.String(300), nullable=False)
+    latitude = db.Column(db.Float, nullable=True)
+    longitude = db.Column(db.Float, nullable=True)
     creation_date = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp(), nullable=False)
-
     host = db.relationship('User', backref=db.backref('places'))
 
     def __init__(self, **kwargs):
@@ -33,6 +35,8 @@ class PlaceSchema(BaseSchema):
     name = fields.Str(required=True, validate=validate.Length(max=100))
     description = fields.Str(validate=validate.Length(max=1000))
     address = fields.Str(required=True, validate=validate.Length(max=300))
+    latitude = fields.Float(allow_none=True, validate=validate.Range(min=-90, max=90))
+    longitude = fields.Float(allow_none=True, validate=validate.Range(min=-180, max=180))
 
     class Meta:
         # BaseSchema automatically generates fields based on the model

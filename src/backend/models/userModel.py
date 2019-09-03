@@ -64,9 +64,9 @@ class UserSchema(BaseSchema):
     lastName = fields.Str(required=True, validate=[
         validate.Regexp('^[a-zA-Z]+$'),
         validate.Length(max=50)])
-    bio = fields.Str(allow_none=True, validate=validate.Length(max=1000))
+    bio = fields.Str(allow_none=True, validate=validate.Length(max=2000))
     role = fields.Int(required=True, validate=validate.Range(min=1, max=4))
-    twitter = fields.Str(allow_none=True, validate=[validate.Regexp('^[a-zA-Z0-9_]+$'), validate.Length(max=30)])
+    twitter = fields.Str(allow_none=True, validate=[validate.Regexp('^[a-zA-Z0-9_]+$'), validate.Length(max=15)])
     flickr = fields.Str(allow_none=True, validate=[validate.Regexp('^[a-zA-Z0-9@]+$'), validate.Length(max=30)])
     instagram = fields.Str(allow_none=True, validate=[validate.Regexp('^[a-zA-Z0-9._]+$'), validate.Length(max=30)])
     token = fields.Str(load_only=True)
