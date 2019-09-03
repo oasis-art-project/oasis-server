@@ -65,9 +65,12 @@ def upload_image(bdir, fn, rkind, rid):
     r = requests.post(url + '/api/upload/' + str(rid) +'?resource-kind=' + rkind, files=f)
     if r.status_code != 200:
         raise Exception(r.status_code)
-    json = r.json()
-    for item in json:
-        print("  Uploaded image:", item, json[item])
+    j = r.json()
+    for item in j:
+        if item == "images":
+            imgs = json.loads(j[item])
+            for fn in imgs:
+                print("  Uploaded image:", fn, "=>", imgs[fn]["url"])
 
 def upload_images(bdir, rkind, rid):
     f = []
@@ -77,20 +80,23 @@ def upload_images(bdir, rkind, rid):
         mtype = mimetypes.guess_type(full_path)[0]
         if not mtype: continue
         f += [('images', (fn, open(full_path, 'rb'), mtype))]
-        r = requests.post(url + '/api/upload/'+ str(rid) +'?resource-kind=' + rkind, files=f)
-        if r.status_code != 200:
-            raise Exception(r.status_code)
-        json = r.json()
-        for item in json:
-            print("  Uploaded image:", item, json[item])
+    r = requests.post(url + '/api/upload/'+ str(rid) +'?resource-kind=' + rkind, files=f)
+    if r.status_code != 200:
+        raise Exception(r.status_code)
+    j = r.json()
+    for item in j:
+        if item == "images":
+            imgs = json.loads(j[item])
+            for fn in imgs:
+                print("  Uploaded image:", fn, "=>", imgs[fn]["url"])
 
 use_local_server = True
 
-load_users = False
-load_places = False
-load_events = True
+load_users = True
+load_places = True
+load_events = Truee
 load_artworks = False
-load_images = False
+load_images = True
 
 if use_local_server:
     # Local server
@@ -113,7 +119,7 @@ for row in reader:
     email = row[0]
     password = row[1]
     user_extra[row[2] + ' ' + row[3]] = {'email': email, 'password':password}
-    if load_users:
+    if load_users and load_users:
         raw_user_data = user_json(row)
 
         print("Creating user", row[2], row[3], "...")
@@ -131,10 +137,10 @@ for row in reader:
 
 # Retrieving all users
 user_dict = {}
-resp = requests.get(url + '/api/user/')
-if resp.status_code != 200:
-    raise Exception(resp.status_code)
-users = resp.json()['users']
+r = requests.get(url + '/api/user/')
+if r.status_code != 200:
+    raise Exception(r.status_code)
+users = r.json()['users']
 for user in users:
     fullName = user['firstName'] + ' ' + user['lastName']
     if not fullName == adminFullName:
@@ -149,7 +155,7 @@ for user in users:
             base_path = data_dir + "/images/users/hosts/" + user['email']
         elif role == 3:
             base_path = data_dir + "/images/users/artists/" + user['email']
-        print("Uploading images for", user["firstName"], user["lastName"])
+        print("Uploading images for user", user["firstName"], user["lastName"])
         upload_images(base_path, "user", uid)
 
 if load_places: 
@@ -190,36 +196,17 @@ if load_places:
 
 # Retrieving all places
 place_dict = {}
-resp = requests.get(url + '/api/place/')
-if resp.status_code != 200:
-    raise Exception(resp.status_code)
-places = resp.json()['places']
+r = requests.get(url + '/api/place/')
+if r.status_code != 200:
+    raise Exception(r.status_code)
+places = r.json()['places']
 for place in places:
     place_dict[place['name']] = place
     if load_places and load_images:
         pid = place['id']
         base_path = data_dir + "/images/places/" + place["name"]
-        print("Uploading images for", place["name"])
+        print("Uploading images for place", place["name"])
         upload_images(base_path, "place", pid)
-
-        # f = []
-        
-        # only_files = [f for f in listdir(base_path) if isfile(join(base_path, f))]
-        # for file_name in only_files:
-        #     full_path = base_path + "/" + file_name        
-        #     mtype = mimetypes.guess_type(full_path)[0]
-        #     if not mtype: continue
-        #     f += [('images', (file_name, open(full_path, 'rb'), mtype))]
-
-        # url = 'http://127.0.0.1:5000/api/upload/'+ str(pid) +'?resource-kind=place'
-        # print("Uploading picture for place", place["name"])
-        # resp = requests.post(url, files=f)
-        # if resp.status_code != 200:
-        #     raise Exception(resp.status_code)
-        # print("Success!")
-        # json = resp.json()
-        # for item in json:
-        #     print(item, json[item])
 
 if load_events: print("Loading events...")
 in_csv = os.path.join(data_dir, "event_list.csv")
@@ -268,32 +255,17 @@ for row in reader:
 
 # Retrieving all events
 events_dict = {}
-resp = requests.get(url + '/api/event/')
-if resp.status_code != 200:
-    raise Exception(resp.status_code)
-events = resp.json()['events']
+r = requests.get(url + '/api/event/')
+if r.status_code != 200:
+    raise Exception(r.status_code)
+events = r.json()['events']
 for event in events:
-    # if load_events and load_images:
-    if load_images:
+    if load_events and load_images:
         if not event['name'] in event_extra: continue
         eid = event['id']
-        fn = event_extra[event['name']]['image']        
+        fn = event_extra[event['name']]['image']
+        print("Uploading images for event", event["name"])
         upload_image(data_dir + "/images/events", fn, "event", eid)
-
-
-        # mtype = mimetypes.guess_type(full_path)[0]
-        # if not mtype: continue
-        # f = [('images', (file_name, open(full_path, 'rb'), mtype))]
-
-        # url = 'http://127.0.0.1:5000/api/upload/'+ str(eid) +'?resource-kind=event'
-        # print("Uploading picture for event", event['name'])
-        # resp = requests.post(url, files=f)
-        # if resp.status_code != 200:
-        #     raise Exception(resp.status_code)
-        # print("Success!")
-        # json = resp.json()
-        # for item in json:
-        #     print(item, json[item])
 
 if load_artworks:
     print("Loading artworks...")
