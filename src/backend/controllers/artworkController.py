@@ -14,7 +14,7 @@ from flask_restplus import Resource
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import joinedload
 
-from src.backend.controllers.controller import load_request, delete_images
+from src.backend.controllers.controller import load_request
 from src.backend.models.artworkModel import Artwork, ArtworkSchema
 from src.backend.extensions import storage
 
@@ -150,8 +150,8 @@ class ArtworkResource(Resource):
             # Delete artwork
             artwork.delete()
 
-            # Delete all images associated with this artwork
-            delete_images('event', artwork.id)
+            # Delete storage
+            storage.delete_artwork_folder(artwork.id)
 
         except OperationalError:
             return {'message': 'Database error'}, 500

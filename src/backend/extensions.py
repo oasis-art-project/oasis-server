@@ -127,19 +127,38 @@ class Storage(object):
 
     def create_user_folder(self, uid):
         status = self.bucket.put_object(Key="users/" + str(uid) + "/")
-        print(status)            
+        return status
 
     def create_place_folder(self, pid):
         status = self.bucket.put_object(Key="places/" + str(pid) + "/")
-        print(status)
+        return status
 
     def create_event_folder(self, eid):
         status = self.bucket.put_object(Key="events/" + str(eid) + "/")
-        print(status)
+        return status
 
     def create_artwork_folder(self, aid):
         status = self.bucket.put_object(Key="artworks/" + str(aid) + "/")
-        print(status)        
+        return status
+
+    def delete_folder(self, folder):
+        objects_to_delete = self.resource.meta.client.list_objects(Bucket=self.bucket_name, Prefix=folder)
+        delete_keys = {'Objects' : []}
+        delete_keys['Objects'] = [{'Key' : k} for k in [obj['Key'] for obj in objects_to_delete.get('Contents', [])]]
+        status = self.resource.meta.client.delete_objects(Bucket=self.bucket_name, Delete=delete_keys)
+        return status
+
+    def delete_user_folder(self, uid):
+        return self.delete_folder(folder="users/" + str(uid) + "/")
+
+    def delete_place_folder(self, pid):
+        return self.delete_folder(folder="places/" + str(pid) + "/")
+
+    def delete_event_folder(self, eid):
+        return self.delete_folder(folder="events/" + str(eid) + "/")
+
+    def delete_artwork_folder(self, aid):
+        return self.delete_folder(folder="artworks/" + str(aid) + "/")
 
 # Create extension instances
 db = SQLAlchemy(model_class=CRUDMixin)

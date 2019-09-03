@@ -13,7 +13,7 @@ from flask_jwt_extended import jwt_required, current_user
 from flask_restplus import Resource
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import joinedload
-from src.backend.controllers.controller import load_request, delete_images
+from src.backend.controllers.controller import load_request
 from src.backend.models.placeModel import PlaceSchema, Place
 from src.backend.extensions import storage
 
@@ -150,8 +150,8 @@ class PlaceResource(Resource):
             # Delete artwork
             place.delete()
 
-            # Delete all images associated with this place
-            delete_images('place', place.id)
+             # Delete storage
+            storage.delete_place_folder(place.id)
 
         except OperationalError:
             return {'message': 'Database error'}, 500

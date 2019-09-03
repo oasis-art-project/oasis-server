@@ -12,7 +12,7 @@ from flask import request
 from flask_jwt_extended import jwt_required, jwt_optional, current_user
 from flask_restplus import Resource
 from sqlalchemy.exc import OperationalError
-from src.backend.controllers.controller import load_request, delete_images
+from src.backend.controllers.controller import load_request
 from src.backend.models.tokenModel import Token
 from src.backend.models.userModel import User, UserSchema
 from src.backend.extensions import storage
@@ -176,8 +176,8 @@ class UserResource(Resource):
             # Delete the user
             user.delete()
 
-            # Delete all images associated with this user
-            delete_images('user', user.id)
+             # Delete storage
+            storage.delete_user_folder(user.id)
 
         except OperationalError:
             return {'message': 'Database error'}, 500

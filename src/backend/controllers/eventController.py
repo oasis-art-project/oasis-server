@@ -14,7 +14,7 @@ from flask_restplus import Resource
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import joinedload
 
-from src.backend.controllers.controller import load_request, delete_images
+from src.backend.controllers.controller import load_request
 from src.backend.models.eventModel import EventSchema, Event
 from src.backend.models.placeModel import Place
 from src.backend.extensions import storage
@@ -152,8 +152,8 @@ class EventResource(Resource):
             # Delete event
             event.delete()
 
-            # Delete all images associated with this event
-            delete_images('event', event.id)
+            # Delete storage
+            storage.delete_event_folder(event.id)
 
         except OperationalError:
             return {'message': 'Database error'}, 500
