@@ -50,8 +50,8 @@ class ManageResource(Resource):
             return {'message': 'The requested %s does not exist' % (resource_kind)}, 400      
 
         try:
-            images_dict = list_images(request, resource_kind, resource_id)            
-            return {"status": 'success', "images": json.dumps(images_dict)}, 200 
+            images_list = list_images(request, resource_kind, resource_id)            
+            return {"status": 'success', "images": json.dumps(images_list)}, 200 
 
         except Exception as e:
             return {'message': str(e)}, 400

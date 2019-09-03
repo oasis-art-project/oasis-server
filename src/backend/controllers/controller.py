@@ -82,7 +82,8 @@ def upload_images(request, resource_kind, resource_id):
 
 
 def list_images(request, resource_kind, resource_id):
-    return {}
+    list = storage.list_folder_contents(resource_kind, resource_id)
+    return list
 
 
 

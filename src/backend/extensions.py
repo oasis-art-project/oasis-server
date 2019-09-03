@@ -125,6 +125,30 @@ class Storage(object):
         url = 'https://%s.s3.amazonaws.com/%s' % (self.bucket_name, file_path)
         return url
 
+    def list_folder_contents(self, resource_kind, resource_id):
+        prefix = ''
+        if resource_kind == 'user':
+            prefix = "users"
+        elif resource_kind == 'place':
+            prefix = "places"
+        elif resource_kind == 'event':
+            prefix = "events"
+        elif resource_kind == 'artworks':
+            prefix = "artworks"
+        
+        folder_path = '%s/%d/' % (prefix, resource_id)
+
+        res = self.bucket.objects.filter(Prefix=folder_path)
+        images = []
+        for it in res:
+            if it.key == folder_path: continue
+            url = 'https://%s.s3.amazonaws.com/%s' % (self.bucket_name, it.key)
+            images += [url]
+
+
+
+        return images
+
     def create_user_folder(self, uid):
         status = self.bucket.put_object(Key="users/" + str(uid) + "/")
         return status
