@@ -16,6 +16,7 @@ from sqlalchemy.orm import joinedload
 from src.backend.controllers.controller import load_request
 from src.backend.models.placeModel import PlaceSchema, Place
 from src.backend.extensions import storage, geolocator
+from geopy.exc import GeocoderTimedOut
 
 place_schema = PlaceSchema()
 
@@ -77,7 +78,11 @@ class PlaceResource(Resource):
                     and not current_user.is_admin():
                 return {'message': 'Not enough privileges'}, 401
 
-        location = geolocator.geocode(place_json['address'])
+        location = None
+        try:
+            location = geolocator.geocode(place_json['address'], timeout=10)
+        except GeocoderTimedOut as e:
+            return {'message': str(e)}, 400
         if location:
             place_json['latitude'] = location.latitude
             place_json['longitude'] = location.longitude
@@ -123,12 +128,16 @@ class PlaceResource(Resource):
 
             # If new address is different.
             if place_from_db.address != place_json['address']:
-                location = geolocator.geocode(place_json['address'])
+                location = None
+                try:
+                    location = geolocator.geocode(place_json['address'], timeout=10)
+                except GeocoderTimedOut as e:
+                    return {'message': str(e)}, 400
                 if location:
                     place_json['latitude'] = location.latitude
-                    place_json['longitude'] = location.longitude   
+                    place_json['longitude'] = location.longitude
                 else:
-                    return {'message': "Address is invalid"}, 400                                 
+                    return {'message': "Address is invalid"}, 400
 
             # Save updated in the db
             place_from_db.update(**place_json)

@@ -23,7 +23,7 @@ class User(SurrogatePK, db.Model):
     role = db.Column(db.Integer, nullable=False)
     twitter = db.Column(db.String(15), nullable=True)
     flickr = db.Column(db.String(30), nullable=True)
-    instagram = db.Column(db.String(30), nullable=True)
+    instagram = db.Column(db.String(30), nullable=True)    
     creation_date = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp(), nullable=False)
     token = ''
 
