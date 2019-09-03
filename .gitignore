@@ -10,11 +10,11 @@ migrations/
 .coverage
 htmlcov/
 
-
 env/
 dist/
 build/
 *.egg-info/
 .DS_Store
 .idea
+.vscode/.ropeproject
 node_modules/

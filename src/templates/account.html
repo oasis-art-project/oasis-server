@@ -73,8 +73,8 @@
           else{
             alert('Could not get signed URL.');
           }
-        }  else{
-            alert('NOT READY.');
+        } else{
+          alert('NOT READY ' + xhr.readyState);
         }
       };
       xhr.send();

@@ -19,7 +19,6 @@ class User(SurrogatePK, db.Model):
     password = db.Column(db.String(64), nullable=False)
     firstName = db.Column(db.String(50), nullable=False)
     lastName = db.Column(db.String(50), nullable=False)
-    avatar = db.Column(db.String(100), nullable=True)
     bio = db.Column(db.String(2000), nullable=True)
     role = db.Column(db.Integer, nullable=False)
     twitter = db.Column(db.String(15), nullable=True)

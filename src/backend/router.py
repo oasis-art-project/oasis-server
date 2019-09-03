@@ -12,6 +12,7 @@ from src.backend.controllers.loginController import LoginResource
 from src.backend.controllers.placeController import PlaceResource
 from src.backend.controllers.userController import UserResource
 from src.backend.controllers.uploadController import UploadResource
+from src.backend.controllers.manageController import ManageResource
 
 def init_router(api):
     """
@@ -34,3 +35,5 @@ def init_router(api):
     api.add_resource(UploadResource, '/upload/')
     api.add_resource(UploadResource, '/upload/sign/<int:resource_id>', endpoint='sign_id')
     api.add_resource(UploadResource, '/upload/<int:resource_id>', endpoint='upload_id')
+    api.add_resource(ManageResource, '/manage/')
+    api.add_resource(ManageResource, '/manage/<int:resource_id>', endpoint='manage_id')

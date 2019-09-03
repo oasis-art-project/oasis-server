@@ -12,6 +12,7 @@ import os
 import uuid
 import flask
 from flask_jwt_extended import current_user
+from src.backend.extensions import storage
 
 
 def load_request(request, schema, update=False, user=False):
@@ -50,6 +51,46 @@ def load_request(request, schema, update=False, user=False):
         raise ValueError(json.dumps(errors))
 
     return json_data
+
+def upload_images(request, resource_kind, resource_id):
+    if 'images' not in request.files:
+        raise IOError('Request contains an invalid argument')
+        
+    if 'images' in request.files:
+        try:
+            images = request.files.getlist('images')
+
+            uploaded_images = {}
+            for file_object in images:
+                # imghdr reads headers of the file to determine the real type of the file, even the extension of it is different
+                image_type = imghdr.what(file_object)
+
+                # If image type is not in the list of allowed extensions, raise the error
+                if image_type is None or image_type not in flask.current_app.config['ALLOWED_EXTENSIONS']:
+                    raise IOError("Only {} files are allowed".format(", ".join(flask.current_app.config['ALLOWED_EXTENSIONS'])))
+
+                url = storage.passthrough_upload(resource_kind, resource_id, file_object)
+                uploaded_images[file_object.filename] = {'url':url, 'type':file_object.mimetype}
+
+            return uploaded_images
+
+        except Exception as e:
+            raise e
+
+    else:
+        raise ValueError('Request does not contain images')
+
+
+def list_images(request, resource_kind, resource_id):
+    list = storage.list_folder_contents(resource_kind, resource_id)
+    return list
+
+
+
+
+
+
+
 
 
 def upload_files(request, maximum_files, files_in_db=None):

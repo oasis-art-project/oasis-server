@@ -14,8 +14,9 @@ from flask_restplus import Resource
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import joinedload
 
-from src.backend.controllers.controller import upload_files, load_request, delete_files
+from src.backend.controllers.controller import load_request
 from src.backend.models.artworkModel import Artwork, ArtworkSchema
+from src.backend.extensions import storage
 
 artwork_schema = ArtworkSchema()
 
@@ -76,17 +77,15 @@ class ArtworkResource(Resource):
                     and not current_user.is_admin():
                 return {'message': 'Not enough privileges'}, 401
 
-        # Process files from the request
-        if 'files' in request.files:
-            artwork_json['photo'] = upload_files(request, 10)
-
         # Save a new artwork
         try:
-            ArtworkSchema().load(artwork_json).data.save()
+            artwork = ArtworkSchema().load(artwork_json).data.save()
         except OperationalError:
             return {'message': 'Database error'}, 500
 
-        return {"status": 'success'}, 201
+        storage.create_artwork_folder(artwork.id)
+
+        return {"status": 'success', 'id': artwork.id}, 201
 
     @jwt_required
     def put(self):
@@ -114,13 +113,6 @@ class ArtworkResource(Resource):
             if (current_user.id != artwork_from_db.artist.id or not current_user.is_artist()) \
                     and not current_user.is_admin():
                 return {'message': 'Not enough privileges'}, 401
-
-            # Process files from the request
-            if 'files' in request.files:
-                photo_from_db = None
-                if artwork_from_db.photo:
-                    photo_from_db = json.loads(artwork_from_db.photo)
-                artwork_json['photo'] = upload_files(request, 10, photo_from_db)
 
             # Save updated in the db
             artwork_from_db.update(**artwork_json)
@@ -155,22 +147,11 @@ class ArtworkResource(Resource):
             if current_user.id != artwork.artist.id and not current_user.is_admin():
                 return {'message': 'Not enough privileges'}, 401
 
-            # If photo in the request, means just delete a specific photo instead of the whole artwork
-            if 'photo' in request.form:
-                photo = request.form['photo']
-                if photo not in artwork.photo:
-                    return {'message': '{} does not have {} picture'}, 400
-
-                # Delete file from the disk
-                delete_files([photo])
-                return {'status': "success"}, 200
-
             # Delete artwork
             artwork.delete()
 
-            # Delete all files from the disk after deleting of an artwork
-            if artwork.photo:
-                delete_files(json.loads(artwork.photo))
+            # Delete storage
+            storage.delete_artwork_folder(artwork.id)
 
         except OperationalError:
             return {'message': 'Database error'}, 500

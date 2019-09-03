@@ -65,7 +65,10 @@ class Storage(object):
             "s3",
             aws_access_key_id=app.config["AWS_ACCESS_KEY_ID"],
             aws_secret_access_key=app.config["AWS_SECRET_ACCESS_KEY"])
-        self.client = boto3.client('s3')            
+        self.client = boto3.client(
+            "s3",
+            aws_access_key_id=app.config["AWS_ACCESS_KEY_ID"],
+            aws_secret_access_key=app.config["AWS_SECRET_ACCESS_KEY"])
         self.bucket_name = app.config["S3_BUCKET"]
         self.bucket = self.resource.Bucket(self.bucket_name)
 
@@ -91,21 +94,95 @@ class Storage(object):
         elif resource_kind == 'artworks':
             prefix = "artworks"
 
-        # return json.dumps({
         return {    
             'data': post_data,
             'url': 'https://%s.s3.amazonaws.com/%s/%d/%s' % (self.bucket_name, prefix, resource_id, file_name)
         }
-        # })
+
+    def passthrough_upload(self, resource_kind, resource_id, file_object):
+        prefix = ''
+        if resource_kind == 'user':
+            prefix = "users"
+        elif resource_kind == 'place':
+            prefix = "places"
+        elif resource_kind == 'event':
+            prefix = "events"
+        elif resource_kind == 'artworks':
+            prefix = "artworks"
+
+        file_path = '%s/%d/%s' % (prefix, resource_id, file_object.filename)
+
+        self.client.upload_fileobj(
+            Fileobj = file_object,
+            Bucket = self.bucket_name,
+            Key = file_path,
+            ExtraArgs={
+                "ACL": "public-read",
+                "ContentType": file_object.content_type
+            }
+        )
+
+        url = 'https://%s.s3.amazonaws.com/%s' % (self.bucket_name, file_path)
+        return url
+
+    def list_folder_contents(self, resource_kind, resource_id):
+        prefix = ''
+        if resource_kind == 'user':
+            prefix = "users"
+        elif resource_kind == 'place':
+            prefix = "places"
+        elif resource_kind == 'event':
+            prefix = "events"
+        elif resource_kind == 'artworks':
+            prefix = "artworks"
+        
+        folder_path = '%s/%d/' % (prefix, resource_id)
+
+        res = self.bucket.objects.filter(Prefix=folder_path)
+        images = []
+        for it in res:
+            if it.key == folder_path: continue
+            url = 'https://%s.s3.amazonaws.com/%s' % (self.bucket_name, it.key)
+            images += [url]
+
+
+
+        return images
 
     def create_user_folder(self, uid):
         status = self.bucket.put_object(Key="users/" + str(uid) + "/")
-        print(status)            
+        return status
 
     def create_place_folder(self, pid):
         status = self.bucket.put_object(Key="places/" + str(pid) + "/")
-        print(status)
+        return status
 
+    def create_event_folder(self, eid):
+        status = self.bucket.put_object(Key="events/" + str(eid) + "/")
+        return status
+
+    def create_artwork_folder(self, aid):
+        status = self.bucket.put_object(Key="artworks/" + str(aid) + "/")
+        return status
+
+    def delete_folder(self, folder):
+        objects_to_delete = self.resource.meta.client.list_objects(Bucket=self.bucket_name, Prefix=folder)
+        delete_keys = {'Objects' : []}
+        delete_keys['Objects'] = [{'Key' : k} for k in [obj['Key'] for obj in objects_to_delete.get('Contents', [])]]
+        status = self.resource.meta.client.delete_objects(Bucket=self.bucket_name, Delete=delete_keys)
+        return status
+
+    def delete_user_folder(self, uid):
+        return self.delete_folder(folder="users/" + str(uid) + "/")
+
+    def delete_place_folder(self, pid):
+        return self.delete_folder(folder="places/" + str(pid) + "/")
+
+    def delete_event_folder(self, eid):
+        return self.delete_folder(folder="events/" + str(eid) + "/")
+
+    def delete_artwork_folder(self, aid):
+        return self.delete_folder(folder="artworks/" + str(aid) + "/")
 
 # Create extension instances
 db = SQLAlchemy(model_class=CRUDMixin)

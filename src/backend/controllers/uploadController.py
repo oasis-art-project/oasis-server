@@ -13,6 +13,7 @@ from src.backend.models.userModel import User
 from src.backend.models.placeModel import Place
 from src.backend.models.eventModel import Event
 from src.backend.models.artworkModel import Artwork
+from src.backend.controllers.controller import upload_images
 from src.backend.extensions import storage
 
 import json
@@ -51,37 +52,47 @@ class UploadResource(Resource):
         # Load required data from the request
         file_name = request.args.get('file-name')
         file_type = request.args.get('file-type')
-        print(resource)
-        print(file_name)
-        print(file_type)
-        req_json = storage.generate_presigned_post(resource_kind, resource_id, file_name, file_type)
-
-
-        # try:
-
-        # except OperationalError:
-        #     return {'message': 'Unprocessable entity'}, 422
-        # request_data = resources.generate_presigned_post(file_name, file_type)
-
-        print("GET signed request", req_json) 
-
-    #    Merge({"status": 'success'}, dict2)
         
-         
-        return req_json.update({"status": 'success'}), 200
-        # return json.dumps(req_json)
+        try:
+            req_dict = storage.generate_presigned_post(resource_kind, resource_id, file_name, file_type)
+
+            return req_dict, 200
+
+        except Exception as e:
+            return {'message': str(e)}, 400
 
     @jwt_optional
-    def post(self, user_id=None, user_email=None):
+    def post(self, resource_id=None):
         """
-        Retrieves an appropriate signed request for the file object
+        Pass-through upload to S3
         """
-        # try:
 
-        # except OperationalError:
-        #     return {'message': 'Unprocessable entity'}, 422
-        # request_data = resources.generate_presigned_post(file_name, file_type)
+        if not resource_id:
+            return {'message': 'No input data provided'}, 400
 
-        print("POST image") 
+        # Get a specific user by id
+        resource_kind = request.args.get('resource-kind')
 
-        return {"status": 'success'}, 200        
+        resource = None
+        if resource_kind == 'user':
+            resource = User.get_by_id(resource_id)
+            if resource.is_admin():
+                return {'message': 'Not enough privileges'}, 401
+        elif resource_kind == 'place':
+            resource = Place.get_by_id(resource_id)
+        elif resource_kind == 'event':
+            resource = Event.get_by_id(resource_id)
+        elif resource_kind == 'artwork':
+            resource = Artwork.get_by_id(resource_id) 
+        else:
+            return {'message': 'Request contains an invalid argument'}, 400
+
+        if not resource:
+            return {'message': 'The requested %s does not exist' % (resource_kind)}, 400      
+
+        try:
+            upload_dict = upload_images(request, resource_kind, resource_id)            
+            return {"status": 'success', "images": json.dumps(upload_dict)}, 200 
+
+        except Exception as e:
+            return {'message': str(e)}, 400

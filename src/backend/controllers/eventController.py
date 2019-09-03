@@ -14,9 +14,10 @@ from flask_restplus import Resource
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import joinedload
 
-from src.backend.controllers.controller import upload_files, load_request, delete_files
+from src.backend.controllers.controller import load_request
 from src.backend.models.eventModel import EventSchema, Event
 from src.backend.models.placeModel import Place
+from src.backend.extensions import storage
 
 event_schema = EventSchema()
 
@@ -40,7 +41,7 @@ class EventResource(Resource):
 
                 return {"status": "success", 'event': event_schema.dump(event).data}, 200
 
-            # If no arguments passed, return all artworks
+            # If no arguments passed, return all events
             else:
                 events = Event.query.options(joinedload("place")).all()
                 return {"status": "success", 'events': EventSchema(many=True).dump(events).data}, 200
@@ -74,17 +75,15 @@ class EventResource(Resource):
         if "endTime" in event_json and event_json["startTime"] > event_json["endTime"]:
             return {'message': "The end date can't be earlier then event starts"}, 400
 
-        # Process files from the request
-        if 'files' in request.files:
-            event_json["photo"] = upload_files(request, 10)
-
         # Save a new event
         try:
-            EventSchema().load(event_json).data.save()
+            event = EventSchema().load(event_json).data.save()
         except OperationalError:
             return {'message': 'Database error'}, 500
 
-        return {"status": 'success'}, 201
+        storage.create_event_folder(event.id)
+
+        return {"status": 'success', 'id': event.id}, 201
 
     @jwt_required
     def put(self):
@@ -116,13 +115,6 @@ class EventResource(Resource):
             if (current_user.id != event_from_db.place.host.id or not current_user.is_host()) \
                     and not current_user.is_admin():
                 return {'message': 'Not enough privileges'}, 401
-
-            # Process files from the request
-            if 'files' in request.files:
-                photo_from_db = None
-                if event_from_db.photo:
-                    photo_from_db = json.loads(event_from_db.photo)
-                event_json["photo"] = upload_files(request, 10, photo_from_db)
 
             # Save updated in the db
             EventSchema().load(event_json, partial=True).data.save()
@@ -157,22 +149,11 @@ class EventResource(Resource):
             if current_user.id != event.place.host.id and not current_user.is_admin():
                 return {'message': 'Not enough privileges'}, 401
 
-            # If photo in the request, means just delete a specific photo instead of the whole event
-            if 'photo' in request.form:
-                photo = request.form['photo']
-                if photo not in event.photo:
-                    return {'message': '{} does not have {} picture'}, 400
-
-                # Delete file from the disk
-                delete_files([photo])
-                return {'status': "success"}, 200
-
             # Delete event
             event.delete()
 
-            # Delete all files from the disk after deleting of an event
-            if event.photo:
-                delete_files(json.loads(event.photo))
+            # Delete storage
+            storage.delete_event_folder(event.id)
 
         except OperationalError:
             return {'message': 'Database error'}, 500
