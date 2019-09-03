@@ -63,6 +63,6 @@ class EventSchema(BaseSchema):
                 artist = User.get_by_id(data['artists'][index]['id'])
                 if not artist:
                     raise ValueError
-                data['artists'][index] = UserSchema(only=('id', 'firstName', 'lastName', 'bio', 'avatar', 'twitter', 'flickr', 'instagram')).dump(artist).data
+                data['artists'][index] = UserSchema(only=('id', 'firstName', 'lastName', 'bio', 'twitter', 'flickr', 'instagram')).dump(artist).data
 
         return data

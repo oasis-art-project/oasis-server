@@ -45,5 +45,5 @@ class ArtworkSchema(BaseSchema):
             host = User.get_by_id(data['artist']['id'])
             if not host:
                 raise ValueError
-            data['artist'] = UserSchema(only=('id', 'firstName', 'lastName', 'bio', 'avatar', 'twitter', 'flickr', 'instagram')).dump(host).data
+            data['artist'] = UserSchema(only=('id', 'firstName', 'lastName', 'bio', 'twitter', 'flickr', 'instagram')).dump(host).data
         return data
