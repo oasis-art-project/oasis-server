@@ -82,6 +82,11 @@ def upload_images(request, resource_kind, resource_id):
 def delete_images(resource_kind, resource_id):
     print("Remove images associated to the specified resource")
 
+
+
+
+
+
 def upload_files(request, maximum_files, files_in_db=None):
     """
     Uploader of files help to manage loading of file

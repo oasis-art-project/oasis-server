@@ -25,7 +25,6 @@ class Event(SurrogatePK, db.Model):
     description = db.Column(db.String(1000), nullable=True)
     startTime = db.Column(db.DateTime, nullable=False)
     endTime = db.Column(db.DateTime, nullable=True)
-    photo = db.Column(db.String(1000), nullable=True)
     creation_date = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp(), nullable=False)
     place = db.relationship('Place', backref=db.backref('events'))
     artists = db.relationship('User',
@@ -56,7 +55,7 @@ class EventSchema(BaseSchema):
             place = Place.get_by_id(data['place']['id'])
             if not place:
                 raise ValueError
-            data['place'] = PlaceSchema(only=('id', 'host', 'name', 'description', 'address', 'photo')).dump(place).data
+            data['place'] = PlaceSchema(only=('id', 'host', 'name', 'description', 'address')).dump(place).data
 
         if 'artists' in data:
             for index in range(len(data['artists'])):

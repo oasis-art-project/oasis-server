@@ -19,7 +19,6 @@ class Place(SurrogatePK, db.Model):
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(1000), nullable=True)
     address = db.Column(db.String(300), nullable=False)
-    photo = db.Column(db.String(1000), nullable=True)
     creation_date = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp(), nullable=False)
 
     host = db.relationship('User', backref=db.backref('places'))
