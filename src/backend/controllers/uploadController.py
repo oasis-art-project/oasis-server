@@ -61,11 +61,6 @@ class UploadResource(Resource):
         except Exception as e:
             return {'message': str(e)}, 400
 
-        # print("GET signed request", req_json) 
-         
-        # return req_json.update({"status": 'success'}), 200
-        # return json.dumps(req_json)
-
     @jwt_optional
     def post(self, resource_id=None):
         """

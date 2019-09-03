@@ -41,7 +41,7 @@ class EventResource(Resource):
 
                 return {"status": "success", 'event': event_schema.dump(event).data}, 200
 
-            # If no arguments passed, return all artworks
+            # If no arguments passed, return all events
             else:
                 events = Event.query.options(joinedload("place")).all()
                 return {"status": "success", 'events': EventSchema(many=True).dump(events).data}, 200

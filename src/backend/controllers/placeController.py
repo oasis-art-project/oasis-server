@@ -40,7 +40,7 @@ class PlaceResource(Resource):
 
                 return {"status": "success", 'place': place_schema.dump(place).data}, 200
 
-            # If no arguments passed, return all artworks
+            # If no arguments passed, return all places
             else:
                 places = Place.query.options(joinedload("host")).all()
                 return {"status": "success", 'places': PlaceSchema(many=True).dump(places).data}, 200
@@ -147,7 +147,7 @@ class PlaceResource(Resource):
             if current_user.id != place.host.id and not current_user.is_admin():
                 return {'message': 'Not enough privileges'}, 401
 
-            # Delete artwork
+            # Delete place
             place.delete()
 
              # Delete storage
