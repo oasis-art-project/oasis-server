@@ -25,12 +25,14 @@ def user_json(row):
         "flickr": row[5],
         "instagram": row[6],
         "role": row[8],
-        "bio": row[9]
+        "bio": row[9],
+        "tags": row[10]
     }
 
 def host_json(id, user):
     return {
         # "id": int(id),
+        "tags": user["tags"],
         "firstName": user["firstName"],
         "lastName": user["lastName"],
         "bio": user["bio"],        
@@ -44,17 +46,19 @@ def place_json(row, host):
         "host": host,
         "name": row[1],
         "address": row[2],
-        "description": row[3]
+        "description": row[3],
+        "tags": row[4]
     }
 
-def event_json(place, artists, name, desc, start, end):
+def event_json(place, artists, row):
     return {
         "place": place,
         "artists": artists,
-        "name": name,
-        "description": desc,
-        "startTime": start,
-        "endTime": end
+        "name": row[2],
+        "description": row[3],
+        "startTime": row[4],
+        "endTime": row[5],
+        "tags": row[6]
     }
 
 def upload_image(bdir, fn, rkind, rid):
@@ -96,7 +100,7 @@ load_users = True
 load_places = True
 load_events = True
 load_artworks = False
-load_images = True
+load_images = False
 
 if use_local_server:
     # Local server
@@ -214,7 +218,7 @@ reader = csv.reader(open(in_csv, 'r'), dialect='excel')
 header = next(reader)    
 event_extra = {}
 for row in reader:
-    event_extra[row[2]] = {'image': row[6]}
+    event_extra[row[2]] = {'image': row[7]}
     if load_events:
         print("Creating event", row[2], "...")
 
@@ -235,7 +239,7 @@ for row in reader:
         host_token = r.json()['token']
         h = auth_header(host_token)   
 
-        raw_event_data = event_json(place, artists, row[2], row[3], row[4], row[5])
+        raw_event_data = event_json(place, artists, row)
         d = make_data_request(raw_event_data)
 
         r = requests.post(url + '/api/event/', data=d, headers=h)
