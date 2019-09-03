@@ -33,7 +33,8 @@ for user in users:
     if r.status_code != 200:
         raise Exception(r.status_code)
     j = r.json() 
-    print("  ", j["images"])
+    for img in j["images"]: 
+        print("  ", img)
 
 r = requests.get(url + '/api/place/')
 if r.status_code != 200:
@@ -45,8 +46,9 @@ for place in places:
     r = requests.get(url + '/api/manage/' + str(pid) +'?resource-kind=place')
     if r.status_code != 200:
         raise Exception(r.status_code)
-    j = r.json() 
-    print("  ", j["images"])
+    j = r.json()
+    for img in j["images"]: 
+        print("  ", img)
 
 r = requests.get(url + '/api/event/')
 if r.status_code != 200:
@@ -59,4 +61,5 @@ for event in events:
     if r.status_code != 200:
         raise Exception(r.status_code)
     j = r.json() 
-    print("  ", j["images"])
+    for img in j["images"]: 
+        print("  ", img)
