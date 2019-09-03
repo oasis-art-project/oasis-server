@@ -94,7 +94,7 @@ use_local_server = True
 
 load_users = True
 load_places = True
-load_events = Truee
+load_events = True
 load_artworks = False
 load_images = True
 
