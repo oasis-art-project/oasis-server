@@ -75,9 +75,10 @@ def upload_images(request, resource_kind, resource_id):
             return uploaded_images
 
         except Exception as e:
-            return {'message': str(e)}, 400
+            raise e
+
     else:
-        return {'message': 'Request contains an invalid argument'}, 400
+        raise ValueError('Request does not contain images')
 
 def delete_images(resource_kind, resource_id):
     print("Remove images associated to the specified resource")
