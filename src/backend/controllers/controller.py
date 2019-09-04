@@ -86,12 +86,8 @@ def list_images(request, resource_kind, resource_id):
     return list
 
 
-
-
-
-
-
-
+##########################################################################################################################
+# TODO remove the following:
 
 def upload_files(request, maximum_files, files_in_db=None):
     """
