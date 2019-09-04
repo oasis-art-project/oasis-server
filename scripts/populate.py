@@ -100,7 +100,7 @@ load_users = True
 load_places = True
 load_events = True
 load_artworks = False
-load_images = True
+load_images = False
 
 if use_local_server:
     # Local server
@@ -130,7 +130,7 @@ for row in reader:
         d = make_data_request(raw_user_data)
         r = requests.post(url + '/api/user/', data=d)
         if r.status_code == 400:
-            print("  Uer already exists")
+            print("  User already exists")
             continue
         
         if r.status_code != 201:                
