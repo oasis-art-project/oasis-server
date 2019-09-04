@@ -31,10 +31,10 @@ class UserResource(Resource):
             if not user_id and not user_email:
                 users = User.query.all()
                 if current_user and current_user.is_admin():
-                    return {"status": 'success', 'users': UserSchema(many=True).dump(users).data}, 200
+                    return {"status": 'success', 'users': UserSchema(many=True).dump(users)}, 200
                 else:
                     return {"status": 'success',
-                            'users': UserSchema(many=True, exclude=('email',)).dump(users).data}, 200
+                            'users': UserSchema(many=True, exclude=('email',)).dump(users)}, 200
 
             # Get a specific user by id
             if user_id:
@@ -44,9 +44,9 @@ class UserResource(Resource):
                     return {'message': 'User does not exist'}, 400
 
                 if current_user and current_user.is_admin():
-                    return {"status": 'success', 'user': user_schema.dump(user).data}, 200
+                    return {"status": 'success', 'user': user_schema.dump(user)}, 200
                 else:
-                    return {"status": 'success', 'user': UserSchema(exclude=('email',)).dump(user).data}, 200
+                    return {"status": 'success', 'user': UserSchema(exclude=('email',)).dump(user)}, 200
 
             # Get a specific user by email
             if user_email:
@@ -58,7 +58,7 @@ class UserResource(Resource):
                 if not user:
                     return {'message': 'User does not exist'}, 400
 
-                return {"status": 'success', 'user': user_schema.dump(user).data}, 200
+                return {"status": 'success', 'user': user_schema.dump(user)}, 200
 
         except OperationalError:
             return {'message': 'Database error'}, 500
@@ -87,7 +87,7 @@ class UserResource(Resource):
                 return {'message': 'Not enough privileges'}, 401
 
             # Create a new user
-            user = UserSchema().load(user_json).data
+            user = UserSchema().load(user_json)
             user.save()
             
         except OperationalError:

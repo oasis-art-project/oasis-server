@@ -30,7 +30,7 @@ class ArtworkResource(Resource):
             # Return all artworks of artist with ID artist_id
             if artist_id:
                 user_artworks = Artwork.query.filter_by(artist_id=artist_id).all()
-                return {"status": "success", 'artworks': artwork_schema.dump(user_artworks, many=True).data}, 200
+                return {"status": "success", 'artworks': artwork_schema.dump(user_artworks, many=True)}, 200
 
             # Return a specific artwork with ID artwork_id
             if artwork_id:
@@ -38,12 +38,12 @@ class ArtworkResource(Resource):
                 if not artwork:
                     return {'message': 'Artwork does not exist'}, 400
 
-                return {"status": "success", 'artwork': artwork_schema.dump(artwork).data}, 200
+                return {"status": "success", 'artwork': artwork_schema.dump(artwork)}, 200
 
             # If no arguments passed, return all artworks
             else:
                 artworks = Artwork.query.options(joinedload("artist")).all()
-                return {"status": "success", 'artworks': ArtworkSchema(many=True).dump(artworks).data}, 200
+                return {"status": "success", 'artworks': ArtworkSchema(many=True).dump(artworks)}, 200
 
         except OperationalError:
             return {'message': 'Database error'}, 500
@@ -79,7 +79,7 @@ class ArtworkResource(Resource):
 
         # Save a new artwork
         try:
-            artwork = ArtworkSchema().load(artwork_json).data.save()
+            artwork = ArtworkSchema().load(artwork_json).save()
         except OperationalError:
             return {'message': 'Database error'}, 500
 

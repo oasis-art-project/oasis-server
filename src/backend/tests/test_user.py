@@ -418,7 +418,7 @@ class TestUser:
 
                 client.put(_url, data=_params(partly_user_iteration), headers=_auth_header(token))
 
-                updated_user = _user_schema.dump(User.get_by_id(user.id)).data
+                updated_user = _user_schema.dump(User.get_by_id(user.id))
 
                 if i == 0:
                     assert dump[input_data] != updated_user[input_data]

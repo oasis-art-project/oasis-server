@@ -18,7 +18,7 @@ _user_schema = UserSchema()
 
 class TestLogin:
     def test_login(self, client):
-        user = _user_schema.load(_user_json()).data
+        user = _user_schema.load(_user_json())
         user.save()
 
         r = client.post(_url, data=_params({'email': _user_json()['email'], 'password': _user_json()['password']}))
@@ -27,7 +27,7 @@ class TestLogin:
         assert r.json['token'] != ""
 
     def test_login_wrong_password(self, client):
-        user = _user_schema.load(_user_json()).data
+        user = _user_schema.load(_user_json())
         user.save()
 
         r = client.post(_url, data=_params({'email': _user_json()['email'], 'password': 'barfoo'}))
@@ -36,7 +36,7 @@ class TestLogin:
         assert r.json['message'] == "Wrong password"
 
     def test_login_missing_no_input(self, client):
-        user = _user_schema.load(_user_json()).data
+        user = _user_schema.load(_user_json())
         user.save()
 
         r = client.post(_url, data={})
@@ -45,7 +45,7 @@ class TestLogin:
         assert r.json['message'] == 'No input data provided'
 
     def test_login_missing_incorrect_input(self, client):
-        user = _user_schema.load(_user_json()).data
+        user = _user_schema.load(_user_json())
         user.save()
 
         r = client.post(_url, data=_params({'foo': 'bar'}))
@@ -54,7 +54,7 @@ class TestLogin:
         assert r.json['message'] == "No input data provided"
 
     def test_logout(self, client):
-        user = _user_schema.load(_user_json()).data
+        user = _user_schema.load(_user_json())
         user.save()
 
         token = client.post(_url, data=_params({'email': _user_json()['email'],

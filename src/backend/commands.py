@@ -35,7 +35,7 @@ def seed():
             'firstName': 'Admin',
             'lastName': 'Oasis',
             'role': 1
-        }).data.save()
+        }).save()
         print('Admin created. Please use credentials:\nLogin: admin@oasis.com\nPassword: adminOasis')
     except IntegrityError:
         print('Admin is already created. Please use credentials:\nLogin: admin@oasis.com\nPassword: adminOasis')

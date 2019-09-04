@@ -30,7 +30,7 @@ class PlaceResource(Resource):
             # Return all places of host with ID host_id
             if host_id:
                 user_places = Place.query.filter_by(host_id=host_id).all()
-                return {"status": "success", 'places': place_schema.dump(user_places, many=True).data}, 200
+                return {"status": "success", 'places': place_schema.dump(user_places, many=True).}, 200
 
             # Return a specific place with ID place_id
             if place_id:
@@ -39,12 +39,12 @@ class PlaceResource(Resource):
                 if not place:
                     return {'message': 'Place does not exist'}, 400
 
-                return {"status": "success", 'place': place_schema.dump(place).data}, 200
+                return {"status": "success", 'place': place_schema.dump(place)}, 200
 
             # If no arguments passed, return all places
             else:
                 places = Place.query.options(joinedload("host")).all()
-                return {"status": "success", 'places': PlaceSchema(many=True).dump(places).data}, 200
+                return {"status": "success", 'places': PlaceSchema(many=True).dump(places)}, 200
 
         except OperationalError:
             return {'message': 'Database error'}, 500
@@ -91,7 +91,7 @@ class PlaceResource(Resource):
 
         # Save a new place
         try:
-            place = PlaceSchema().load(place_json).data.save()
+            place = PlaceSchema().load(place_json).save()
         except OperationalError:
             return {'message': 'Database error'}, 500
 

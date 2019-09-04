@@ -108,7 +108,7 @@ def create_user(**kwargs):
     user.save()
 
     token = Token.create_token(user.id)
-    dump = user_schema.dump(User.get_by_id(user.id)).data
+    dump = user_schema.dump(User.get_by_id(user.id))
 
     return user, token, dump
 
@@ -133,7 +133,7 @@ def create_artwork(artist, **kwargs):
     else:
         data = kwargs.get("json")
 
-    artwork = artwork_schema.load(data).data
+    artwork = artwork_schema.load(data)
     artwork.save()
 
     return artwork
@@ -160,7 +160,7 @@ def create_place(host, **kwargs):
     else:
         data = kwargs.get("json")
 
-    place = place_schema.load(data).data
+    place = place_schema.load(data)
     place.save()
 
     return place
@@ -194,7 +194,7 @@ def create_event(place, artists=None, **kwargs):
     else:
         data = kwargs.get("json")
 
-    event = event_schema.load(data).data
+    event = event_schema.load(data)
     event.save()
 
     return event

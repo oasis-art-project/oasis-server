@@ -31,7 +31,7 @@ class EventResource(Resource):
             # Return all events of place with ID place_event_id
             if place_event_id:
                 place_events = Event.query.filter_by(place_id=place_event_id).all()
-                return {"status": "success", "events": event_schema.dump(place_events, many=True).data}, 200
+                return {"status": "success", "events": event_schema.dump(place_events, many=True)}, 200
 
             # Return a specific event with ID event_id
             if event_id:
@@ -39,12 +39,12 @@ class EventResource(Resource):
                 if not event:
                     return {'message': 'Event does not exist'}, 400
 
-                return {"status": "success", 'event': event_schema.dump(event).data}, 200
+                return {"status": "success", 'event': event_schema.dump(event)}, 200
 
             # If no arguments passed, return all events
             else:
                 events = Event.query.options(joinedload("place")).all()
-                return {"status": "success", 'events': EventSchema(many=True).dump(events).data}, 200
+                return {"status": "success", 'events': EventSchema(many=True).dump(events)}, 200
 
         except OperationalError:
             return {'message': 'Database error'}, 500
@@ -77,7 +77,7 @@ class EventResource(Resource):
 
         # Save a new event
         try:
-            event = EventSchema().load(event_json).data.save()
+            event = EventSchema().load(event_json).save()
         except OperationalError:
             return {'message': 'Database error'}, 500
 
@@ -117,7 +117,7 @@ class EventResource(Resource):
                 return {'message': 'Not enough privileges'}, 401
 
             # Save updated in the db
-            EventSchema().load(event_json, partial=True).data.save()
+            EventSchema().load(event_json, partial=True).save()
         except IOError as e:
             return {'message': str(e)}, 400
         except OperationalError:
