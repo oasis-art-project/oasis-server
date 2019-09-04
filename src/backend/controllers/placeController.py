@@ -30,7 +30,7 @@ class PlaceResource(Resource):
             # Return all places of host with ID host_id
             if host_id:
                 user_places = Place.query.filter_by(host_id=host_id).all()
-                return {"status": "success", 'places': place_schema.dump(user_places, many=True).}, 200
+                return {"status": "success", 'places': place_schema.dump(user_places, many=True)}, 200
 
             # Return a specific place with ID place_id
             if place_id:
