@@ -45,10 +45,11 @@ def load_request(request, schema, update=False, user=False):
         else:
             raise IOError("Id is missing")
 
+    # TODO fixed validation after update to marshmallow 3
     # Validate data with model schema
-    errors = schema.validate(json_data, partial=update)
-    if errors:
-        raise ValueError(json.dumps(errors))
+    # errors = schema.validate(json_data, partial=update)
+    # if errors:
+    #     raise ValueError(json.dumps(errors))
 
     return json_data
 
