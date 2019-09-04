@@ -171,7 +171,7 @@ class Storage(object):
         except botocore.exceptions.ClientError as e:
             if e.response['Error']['Code'] == "404":
                 return None
-        else:
+        except Exception as e:
             raise e
 
         objects_to_delete = self.resource.meta.client.list_objects(Bucket=self.bucket_name, Prefix=folder)
