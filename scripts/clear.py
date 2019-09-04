@@ -11,7 +11,7 @@ def auth_header(token):
         'Authorization': 'Bearer {}'.format(token)
     }
 
-use_local_server = True
+use_local_server = False
 
 if use_local_server:
     # Local server

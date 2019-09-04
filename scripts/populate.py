@@ -94,13 +94,13 @@ def upload_images(bdir, rkind, rid):
             for fn in imgs:
                 print("  Uploaded image:", fn, "=>", imgs[fn]["url"])
 
-use_local_server = True
+use_local_server = False
 
 load_users = True
 load_places = True
 load_events = True
 load_artworks = False
-load_images = False
+load_images = True
 
 if use_local_server:
     # Local server

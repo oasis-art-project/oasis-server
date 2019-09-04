@@ -1,6 +1,15 @@
 import requests
 
-resp = requests.get('http://127.0.0.1:5000/api/user/')
+use_local_server = False
+
+if use_local_server:
+    # Local server
+    url = 'http://127.0.0.1:5000'
+else:
+    # Staging server
+    url = 'https://server-oasis.herokuapp.com/'
+
+resp = requests.get(url + '/api/user/')
 if resp.status_code != 200:
     raise Exception(resp.status_code)
 
@@ -10,7 +19,7 @@ users = resp.json()['users']
 for user in users:
     print(user['id'], user['firstName'], user['lastName'])
 
-resp = requests.get('http://127.0.0.1:5000/api/place/')
+resp = requests.get(url + '/api/place/')
 if resp.status_code != 200:
     raise Exception(resp.status_code)
 
