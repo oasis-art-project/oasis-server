@@ -14,7 +14,7 @@ def send_request(meth, url, data, headers=None, files=None, print_prep=True):
     resp = s.send(prepped)
     return resp
 
-data_dir = "./dummy_data/"
+data_dir = "./dummy_data/images/users/artists/bmedei@gmail.com/"
 file_name = "profile.jpg"
 full_path = os.path.join(data_dir, file_name)
 
