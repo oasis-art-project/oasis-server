@@ -2,15 +2,6 @@ import requests
 import json
 import os
 
-def make_data_request(data):
-    request = {"request": json.dumps(data)}
-    return request
-
-def auth_header(token):
-    return {
-        'Authorization': 'Bearer {}'.format(token)
-    }
-
 use_local_server = False
 
 if use_local_server:

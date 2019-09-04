@@ -61,12 +61,20 @@ def event_json(place, artists, row):
         "tags": row[6]
     }
 
-def upload_image(bdir, fn, rkind, rid):
+def upload_image(bdir, fn, rkind, rid, user):
+    # The user that owns the images needs to login
+    d = make_data_request({'email': user['email'], 'password': user['password']})
+    r = requests.post(url + '/api/login/', data=d)
+    if r.status_code != 200:
+        raise Exception(r.status_code, r.content)
+    host_token = r.json()['token']
+    h = auth_header(host_token)
+
     full_path = join(bdir, fn)
     mtype = mimetypes.guess_type(full_path)[0]
     if not mtype: return
     f = [('images', (fn, open(full_path, 'rb'), mtype))]
-    r = requests.post(url + '/api/media/' + str(rid) +'?resource-kind=' + rkind, files=f)
+    r = requests.post(url + '/api/media/' + str(rid) + '?resource-kind=' + rkind, files=f, headers=h)
     if r.status_code != 200:
         raise Exception(r.status_code)
     j = r.json()
@@ -76,7 +84,19 @@ def upload_image(bdir, fn, rkind, rid):
             for fn in imgs:
                 print("  Uploaded image:", fn, "=>", imgs[fn]["url"])
 
-def upload_images(bdir, rkind, rid):
+    r = requests.delete(url + '/api/login/', headers=h)
+    if r.status_code != 200:
+        raise Exception(r.status_code, r.content)                    
+
+def upload_images(bdir, rkind, rid, user):
+    # The user that owns the images needs to login
+    d = make_data_request({'email': user['email'], 'password': user['password']})
+    r = requests.post(url + '/api/login/', data=d,)
+    if r.status_code != 200:
+        raise Exception(r.status_code, r.content)
+    host_token = r.json()['token']
+    h = auth_header(host_token)
+
     f = []
     all_files = [f for f in listdir(bdir) if isfile(join(bdir, f))]
     for fn in all_files:
@@ -84,7 +104,7 @@ def upload_images(bdir, rkind, rid):
         mtype = mimetypes.guess_type(full_path)[0]
         if not mtype: continue
         f += [('images', (fn, open(full_path, 'rb'), mtype))]
-    r = requests.post(url + '/api/media/'+ str(rid) +'?resource-kind=' + rkind, files=f)
+    r = requests.post(url + '/api/media/'+ str(rid) + '?resource-kind=' + rkind, files=f, headers=h)
     if r.status_code != 200:
         raise Exception(r.status_code)
     j = r.json()
@@ -93,6 +113,10 @@ def upload_images(bdir, rkind, rid):
             imgs = json.loads(j[item])
             for fn in imgs:
                 print("  Uploaded image:", fn, "=>", imgs[fn]["url"])
+
+    r = requests.delete(url + '/api/login/', headers=h)
+    if r.status_code != 200:
+        raise Exception(r.status_code, r.content)  
 
 use_local_server = False
 
@@ -160,7 +184,7 @@ for user in users:
         elif role == 3:
             base_path = data_dir + "/images/users/artists/" + user['email']
         print("Uploading images for user", user["firstName"], user["lastName"])
-        upload_images(base_path, "user", uid)
+        upload_images(base_path, "user", uid, user)
 
 if load_places: 
     print("Loading places...")
@@ -208,9 +232,11 @@ for place in places:
     place_dict[place['name']] = place
     if load_places and load_images:
         pid = place['id']
+        host = place['host']
+        user = user_dict[host['firstName'] + ' ' + host['lastName']]
         base_path = data_dir + "/images/places/" + place["name"]
         print("Uploading images for place", place["name"])
-        upload_images(base_path, "place", pid)
+        upload_images(base_path, "place", pid, user)
 
 if load_events: print("Loading events...")
 in_csv = os.path.join(data_dir, "event_list.csv")
@@ -267,9 +293,11 @@ for event in events:
     if load_events and load_images:
         if not event['name'] in event_extra: continue
         eid = event['id']
+        host = event['place']['host']
+        user = user_dict[host['firstName'] + ' ' + host['lastName']]        
         fn = event_extra[event['name']]['image']
         print("Uploading images for event", event["name"])
-        upload_image(data_dir + "/images/events", fn, "event", eid)
+        upload_image(data_dir + "/images/events", fn, "event", eid, user)
 
 if load_artworks:
     print("Loading artworks...")
