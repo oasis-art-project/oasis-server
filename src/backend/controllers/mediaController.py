@@ -153,8 +153,9 @@ class MediaResource(Resource):
             return {'message': 'The requested %s does not exist' % (resource_kind)}, 400
 
         try:
-            upload_dict = upload_images(request, resource_kind, resource_id)
-            return {"status": 'success', "images": json.dumps(upload_dict)}, 200
+            storage.delete_image(resource_kind, resource_id, file_name)
+
+            return {'status': "success"}, 200
 
         except Exception as e:
             return {'message': str(e)}, 400
