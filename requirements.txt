@@ -6,6 +6,7 @@ sqlalchemy
 gunicorn
 psycopg2
 boto3
+geopy
 werkzeug==0.15.5
 Flask==1.1.1
 flask-cors==3.0.8
