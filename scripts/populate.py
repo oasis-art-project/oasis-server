@@ -66,7 +66,7 @@ def upload_image(bdir, fn, rkind, rid):
     mtype = mimetypes.guess_type(full_path)[0]
     if not mtype: return
     f = [('images', (fn, open(full_path, 'rb'), mtype))]
-    r = requests.post(url + '/api/upload/' + str(rid) +'?resource-kind=' + rkind, files=f)
+    r = requests.post(url + '/api/media/' + str(rid) +'?resource-kind=' + rkind, files=f)
     if r.status_code != 200:
         raise Exception(r.status_code)
     j = r.json()
@@ -84,7 +84,7 @@ def upload_images(bdir, rkind, rid):
         mtype = mimetypes.guess_type(full_path)[0]
         if not mtype: continue
         f += [('images', (fn, open(full_path, 'rb'), mtype))]
-    r = requests.post(url + '/api/upload/'+ str(rid) +'?resource-kind=' + rkind, files=f)
+    r = requests.post(url + '/api/media/'+ str(rid) +'?resource-kind=' + rkind, files=f)
     if r.status_code != 200:
         raise Exception(r.status_code)
     j = r.json()
@@ -100,7 +100,7 @@ load_users = True
 load_places = True
 load_events = True
 load_artworks = False
-load_images = False
+load_images = True
 
 if use_local_server:
     # Local server

@@ -18,11 +18,13 @@ from src.backend.extensions import storage
 
 import json
 
-class UploadResource(Resource):
+class S3Resource(Resource):
     @jwt_optional
     def get(self, resource_id=None):
         """
-        Retrieves an appropriate signed request for the file object
+        Retrieves an appropriate signed request for the file object. Adapted from        
+        https://github.com/willwebberley/FlaskDirectUploader
+        https://devcenter.heroku.com/articles/s3-upload-python
         """
 
         if not resource_id:

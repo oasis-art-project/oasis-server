@@ -19,7 +19,7 @@ file_name = "profile.jpg"
 full_path = os.path.join(data_dir, file_name)
 
 print("WILL TRY TO POST THE FILE")
-url = 'http://127.0.0.1:5000/api/upload/2?resource-kind=user'
+url = 'http://127.0.0.1:5000/api/media/2?resource-kind=user'
 # f = {'files': open(full_path, 'rb')}
 f = [('images', (file_name, open(full_path, 'rb'), 'image/jpg'))]
 resp = requests.post(url, files=f)

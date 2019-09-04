@@ -11,8 +11,8 @@ from src.backend.controllers.eventController import EventResource
 from src.backend.controllers.loginController import LoginResource
 from src.backend.controllers.placeController import PlaceResource
 from src.backend.controllers.userController import UserResource
-from src.backend.controllers.uploadController import UploadResource
-from src.backend.controllers.manageController import ManageResource
+from src.backend.controllers.s3Controller import S3Resource
+from src.backend.controllers.mediaController import MediaResource
 
 def init_router(api):
     """
@@ -32,8 +32,7 @@ def init_router(api):
     api.add_resource(EventResource, '/event/')
     api.add_resource(EventResource, '/event/<int:event_id>', endpoint='event_id')
     api.add_resource(EventResource, '/event/place/<int:place_event_id>', endpoint='place_event_id')
-    api.add_resource(UploadResource, '/upload/')
-    api.add_resource(UploadResource, '/upload/sign/<int:resource_id>', endpoint='sign_id')
-    api.add_resource(UploadResource, '/upload/<int:resource_id>', endpoint='upload_id')
-    api.add_resource(ManageResource, '/manage/')
-    api.add_resource(ManageResource, '/manage/<int:resource_id>', endpoint='manage_id')
+    api.add_resource(S3Resource, '/s3/')
+    api.add_resource(S3Resource, '/s3/sign/<int:resource_id>', endpoint='s3_sign_id')
+    api.add_resource(MediaResource, '/media/')
+    api.add_resource(MediaResource, '/media/<int:resource_id>', endpoint='media_id')

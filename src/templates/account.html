@@ -13,7 +13,7 @@
 
     <h2>Your information</h2>
 
-    <form method="POST" action="/api/upload/">
+    <form method="POST" action="/api/media/">
       <input type="hidden" id="avatar-url" name="avatar-url" value="/public/media/default.png">
       <input type="text" name="username" placeholder="Username"><br>
       <input type="text" name="full-name" placeholder="Full name"><br><br>
@@ -63,7 +63,7 @@
     function getSignedRequest(file){
       const xhr = new XMLHttpRequest();
       // xhr.open('GET', `/upload/sign-s3?file-name=${file.name}&file-type=${file.type}`);
-      xhr.open('GET', `/api/upload/sign/2?resource-kind=user&file-name=${file.name}&file-type=${file.type}`);
+      xhr.open('GET', `/api/s3/sign/2?resource-kind=user&file-name=${file.name}&file-type=${file.type}`);
       xhr.onreadystatechange = () => {
         if(xhr.readyState === 4){
           if(xhr.status === 200){

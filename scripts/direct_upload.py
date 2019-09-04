@@ -20,7 +20,7 @@ f = os.path.join(data_dir, fn)
 
 print("WILL TRY TO GET THE SIGNED REQUEST")
 
-resp = requests.get('http://127.0.0.1:5000/api/upload/sign/2?resource-kind=user&file-name=' + fn +'&file-type=image/jpg')
+resp = requests.get('http://127.0.0.1:5000/api/s3/sign/2?resource-kind=user&file-name=' + fn +'&file-type=image/jpg')
 
 if resp.status_code != 200:
     # This means something went wrong.
