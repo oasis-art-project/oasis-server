@@ -192,6 +192,18 @@ class Storage(object):
     def delete_artwork_folder(self, aid):
         return self.delete_folder(folder="artworks/" + str(aid) + "/")
 
+    def delete_image(self, res, rid, fn):
+        full_path = '%s/%d/%s' % (res, rid, fn)
+        print("hi, will delete the following", full_path)
+        try:
+            # self.resource.Object(self.bucket_name, full_path).delete()
+            self.bucket.delete_key(full_path)
+        except botocore.exceptions.ClientError as e:
+            if e.response['Error']['Code'] == "404":
+                return None
+        except Exception as e:
+            raise e
+
 # Create extension instances
 db = SQLAlchemy(model_class=CRUDMixin)
 ma = Marshmallow()
