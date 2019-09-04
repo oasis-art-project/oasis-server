@@ -11,8 +11,8 @@ This is the server backend of the OASIS platform. Please, read REST API referenc
 `export DATABASE_URL=postgresql://localhost/oasis`
 
 3. Add AWS credentials to environment <br>
-`export S3_BUCKET=<name of S3 bucket>`
-`export AWS_ACCESS_KEY_ID=<ID of AWD access key>`
+`export S3_BUCKET=<name of S3 bucket>` <br>
+`export AWS_ACCESS_KEY_ID=<ID of AWD access key>` <br>
 `export AWS_SECRET_ACCESS_KEY=<AWS secret access key>`
 
 4. Add environmental _FLASK_ variable <br>
