@@ -36,10 +36,10 @@ class BaseOpts(ModelSchemaOpts):
     Base classes that help to automatically load schemas from models
     class Meta in schema has to use BaseSchema class
     """
-    def __init__(self, meta):
+    def __init__(self, meta, **kwargs):
         if not hasattr(meta, "sql_session"):
             meta.sqla_session = db.session
-        super(BaseOpts, self).__init__(meta)
+        super(BaseOpts, self).__init__(meta, **kwargs)
 
 
 class BaseSchema(ModelSchema):
