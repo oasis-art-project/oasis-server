@@ -17,6 +17,7 @@ from flask_sqlalchemy import SQLAlchemy, Model
 
 from geopy.geocoders import Nominatim
 import boto3
+import botocore
 import json
 
 # Mixin adds CRUD operations to all models
@@ -165,6 +166,14 @@ class Storage(object):
         return status
 
     def delete_folder(self, folder):
+        try:
+            self.resource.Object(self.bucket_name, folder).load()
+        except botocore.exceptions.ClientError as e:
+            if e.response['Error']['Code'] == "404":
+                return None
+        else:
+            raise e
+
         objects_to_delete = self.resource.meta.client.list_objects(Bucket=self.bucket_name, Prefix=folder)
         delete_keys = {'Objects' : []}
         delete_keys['Objects'] = [{'Key' : k} for k in [obj['Key'] for obj in objects_to_delete.get('Contents', [])]]
