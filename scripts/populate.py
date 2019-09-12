@@ -73,8 +73,8 @@ def upload_image(bdir, fn, rkind, rid, user):
     full_path = join(bdir, fn)
     mtype = mimetypes.guess_type(full_path)[0]
     if not mtype: return
-    f = [('images', (fn, open(full_path, 'rb'), mtype))]
-    r = requests.post(url + '/api/media/' + str(rid) + '?resource-kind=' + rkind, files=f, headers=h)
+    image_files = [('images', (fn, open(full_path, 'rb'), mtype))]
+    r = requests.post(url + '/api/media/' + str(rid) + '?resource-kind=' + rkind, files=image_files, headers=h)
     if r.status_code != 200:
         raise Exception(r.status_code)
     j = r.json()
@@ -97,14 +97,14 @@ def upload_images(bdir, rkind, rid, user):
     host_token = r.json()['token']
     h = auth_header(host_token)
 
-    f = []
+    image_files = []
     all_files = [f for f in listdir(bdir) if isfile(join(bdir, f))]
     for fn in all_files:
         full_path = join(bdir, fn)
         mtype = mimetypes.guess_type(full_path)[0]
         if not mtype: continue
-        f += [('images', (fn, open(full_path, 'rb'), mtype))]
-    r = requests.post(url + '/api/media/'+ str(rid) + '?resource-kind=' + rkind, files=f, headers=h)
+        image_files += [('images', (fn, open(full_path, 'rb'), mtype))]
+    r = requests.post(url + '/api/media/'+ str(rid) + '?resource-kind=' + rkind, files=image_files, headers=h)
     if r.status_code != 200:
         raise Exception(r.status_code)
     j = r.json()
