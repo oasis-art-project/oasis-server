@@ -3,8 +3,9 @@ import json
 import os
 import csv
 import mimetypes
-from os import listdir
-from os.path import isfile, join
+from os import listdir, makedirs
+from os.path import isfile, join, exists
+from shutil import copy
 
 def make_data_request(data):
     request = {"request": json.dumps(data)}
@@ -61,20 +62,54 @@ def event_json(place, artists, row):
         "tags": row[6]
     }
 
+def copy_image(bdir, fn, rkind, rid, ddir):
+    dpath = os.path.join(os.path.expanduser(ddir), rkind, str(rid))
+    if not exists(dpath):
+        makedirs(dpath)
+    full_path = join(bdir, fn)
+    copy(full_path, dpath)
+
+    # mtype = mimetypes.guess_type(full_path)[0]
+    # if not mtype: return
+    # dpath = os.path.join(os.path.expanduser(ddir), rkind, str(rid))
+    # print(dpath)
+    # makedirs(dpath)
+    # for ifile in image_files:        
+    #     print(ifile[1], dpath)
+    #     copy(ifile[1], dpath)
+
+def copy_images(bdir, rkind, rid, ddir):
+    dpath = os.path.join(os.path.expanduser(ddir), rkind, str(rid))
+    if not exists(dpath):
+        makedirs(dpath)
+    all_files = [f for f in listdir(bdir) if isfile(join(bdir, f))]
+    for fn in all_files:
+        full_path = join(bdir, fn)
+        copy(full_path, dpath)
+        # mtype = mimetypes.guess_type(full_path)[0]
+        # if not mtype: continue
+        # image_files += [('images', (fn, open(full_path, 'rb'), mtype))]
+    
+    # print(dpath)
+    
+    # for ifile in image_files:
+    #     print(os.path.join(full_path, ), dpath)
+        
+
 def upload_image(bdir, fn, rkind, rid, user):
     # The user that owns the images needs to login
-    d = make_data_request({'email': user['email'], 'password': user['password']})
-    r = requests.post(url + '/api/login/', data=d)
+    user_data = make_data_request({'email': user['email'], 'password': user['password']})
+    r = requests.post(url + '/api/login/', data=user_data)
     if r.status_code != 200:
         raise Exception(r.status_code, r.content)
     host_token = r.json()['token']
-    h = auth_header(host_token)
+    host_header = auth_header(host_token)
 
     full_path = join(bdir, fn)
     mtype = mimetypes.guess_type(full_path)[0]
     if not mtype: return
     image_files = [('images', (fn, open(full_path, 'rb'), mtype))]
-    r = requests.post(url + '/api/media/' + str(rid) + '?resource-kind=' + rkind, files=image_files, headers=h)
+    r = requests.post(url + '/api/media/' + str(rid) + '?resource-kind=' + rkind, files=image_files, headers=host_header)
     if r.status_code != 200:
         raise Exception(r.status_code)
     j = r.json()
@@ -84,18 +119,18 @@ def upload_image(bdir, fn, rkind, rid, user):
             for fn in imgs:
                 print("  Uploaded image:", fn, "=>", imgs[fn]["url"])
 
-    r = requests.delete(url + '/api/login/', headers=h)
+    r = requests.delete(url + '/api/login/', headers=host_header)
     if r.status_code != 200:
         raise Exception(r.status_code, r.content)                    
 
 def upload_images(bdir, rkind, rid, user):
     # The user that owns the images needs to login
-    d = make_data_request({'email': user['email'], 'password': user['password']})
-    r = requests.post(url + '/api/login/', data=d,)
+    user_data = make_data_request({'email': user['email'], 'password': user['password']})
+    r = requests.post(url + '/api/login/', data=user_data)
     if r.status_code != 200:
         raise Exception(r.status_code, r.content)
     host_token = r.json()['token']
-    h = auth_header(host_token)
+    host_header = auth_header(host_token)
 
     image_files = []
     all_files = [f for f in listdir(bdir) if isfile(join(bdir, f))]
@@ -104,7 +139,7 @@ def upload_images(bdir, rkind, rid, user):
         mtype = mimetypes.guess_type(full_path)[0]
         if not mtype: continue
         image_files += [('images', (fn, open(full_path, 'rb'), mtype))]
-    r = requests.post(url + '/api/media/'+ str(rid) + '?resource-kind=' + rkind, files=image_files, headers=h)
+    r = requests.post(url + '/api/media/'+ str(rid) + '?resource-kind=' + rkind, files=image_files, headers=host_header)
     if r.status_code != 200:
         raise Exception(r.status_code)
     j = r.json()
@@ -114,11 +149,12 @@ def upload_images(bdir, rkind, rid, user):
             for fn in imgs:
                 print("  Uploaded image:", fn, "=>", imgs[fn]["url"])
 
-    r = requests.delete(url + '/api/login/', headers=h)
+    r = requests.delete(url + '/api/login/', headers=host_header)
     if r.status_code != 200:
         raise Exception(r.status_code, r.content)  
 
-use_local_server = False
+use_local_server = True
+save_images_locally = True
 
 load_users = True
 load_places = True
@@ -135,6 +171,7 @@ else:
 
 adminFullName = 'Admin Oasis'
 data_dir = "./dummy_data/"
+local_images_dir = '~/Temp/'
 
 mimetypes.init()
 
@@ -151,8 +188,8 @@ for row in reader:
         raw_user_data = user_json(row)
 
         print("Creating user", row[2], row[3], "...")
-        d = make_data_request(raw_user_data)
-        r = requests.post(url + '/api/user/', data=d)
+        user_data = make_data_request(raw_user_data)
+        r = requests.post(url + '/api/user/', data=user_data)
         if r.status_code == 400:
             print("  User already exists")
             continue
@@ -183,8 +220,12 @@ for user in users:
             base_path = data_dir + "/images/users/hosts/" + user['email']
         elif role == 3:
             base_path = data_dir + "/images/users/artists/" + user['email']
-        print("Uploading images for user", user["firstName"], user["lastName"])
-        upload_images(base_path, "user", uid, user)
+        if save_images_locally:
+            print("Copying images for user", user["firstName"], user["lastName"])
+            copy_images(base_path, "user", uid, local_images_dir)
+        else:
+            print("Uploading images for user", user["firstName"], user["lastName"])
+            upload_images(base_path, "user", uid, user)
 
 if load_places: 
     print("Loading places...")
@@ -198,16 +239,16 @@ if load_places:
         user = user_dict[row[0]]
 
         # First the host user needs to login so we have the token to use in place creation
-        d = make_data_request({'email': user['email'], 'password': user['password']})
-        r = requests.post(url + '/api/login/', data=d)
+        user_data = make_data_request({'email': user['email'], 'password': user['password']})
+        r = requests.post(url + '/api/login/', data=user_data)
         if r.status_code != 200:
             raise Exception(r.status_code, r.content)
         host_token = r.json()['token']
-        h = auth_header(host_token)
+        host_header = auth_header(host_token)
 
         raw_place_data = place_json(row, host_json(row[0], user))
         p = make_data_request(raw_place_data)
-        r = requests.post(url + '/api/place/', data=p, headers=h)
+        r = requests.post(url + '/api/place/', data=p, headers=host_header)
 
         if r.status_code != 201:
             raise Exception(r.status_code, r.content)
@@ -216,7 +257,7 @@ if load_places:
         print("  Created place with id", pid)
 
         # Logout
-        r = requests.delete(url + '/api/login/', headers=h)
+        r = requests.delete(url + '/api/login/', headers=host_header)
         if r.status_code != 200:
             raise Exception(r.status_code, r.content)    
         
@@ -235,8 +276,12 @@ for place in places:
         host = place['host']
         user = user_dict[host['firstName'] + ' ' + host['lastName']]
         base_path = data_dir + "/images/places/" + place["name"]
-        print("Uploading images for place", place["name"])
-        upload_images(base_path, "place", pid, user)
+        if save_images_locally:
+            print("Copying images for place", place["name"])
+            copy_images(base_path, "user", uid, local_images_dir)
+        else:
+            print("Uploading images for place", place["name"])
+            upload_images(base_path, "place", pid, user)
 
 if load_events: print("Loading events...")
 in_csv = os.path.join(data_dir, "event_list.csv")
@@ -258,17 +303,17 @@ for row in reader:
         print("  Logging host", hostFullName)
         
         # First the host user needs to login so we have the token to use in place creation
-        d = make_data_request({'email': hostEmail, 'password': hostPassword})
-        r = requests.post(url + '/api/login/', data=d)
+        user_data = make_data_request({'email': hostEmail, 'password': hostPassword})
+        r = requests.post(url + '/api/login/', data=user_data)
         if r.status_code != 200:
             raise Exception(r.status_code, r.content)
         host_token = r.json()['token']
-        h = auth_header(host_token)   
+        host_header = auth_header(host_token)   
 
         raw_event_data = event_json(place, artists, row)
-        d = make_data_request(raw_event_data)
+        user_data = make_data_request(raw_event_data)
 
-        r = requests.post(url + '/api/event/', data=d, headers=h)
+        r = requests.post(url + '/api/event/', data=user_data, headers=host_header)
 
         if r.status_code != 201:
             raise Exception(r.status_code, r.content)
@@ -277,7 +322,7 @@ for row in reader:
         print("  Created event with id", eid)
 
         # Logout
-        r = requests.delete(url + '/api/login/', headers=h)
+        r = requests.delete(url + '/api/login/', headers=host_header)
         if r.status_code != 200:
             raise Exception(r.status_code, r.content)    
         
@@ -296,8 +341,12 @@ for event in events:
         host = event['place']['host']
         user = user_dict[host['firstName'] + ' ' + host['lastName']]        
         fn = event_extra[event['name']]['image']
-        print("Uploading images for event", event["name"])
-        upload_image(data_dir + "/images/events", fn, "event", eid, user)
+        if save_images_locally:
+            print("Uploading images for event", event["name"])
+            copy_image(data_dir + "/images/events", fn, "event", eid, local_images_dir)
+        else:        
+            print("Uploading images for event", event["name"])
+            upload_image(data_dir + "/images/events", fn, "event", eid, user)
 
 if load_artworks:
     print("Loading artworks...")
