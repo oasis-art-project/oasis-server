@@ -4,9 +4,10 @@ import os
 import csv
 import mimetypes
 import imghdr
+import uuid
 from os import listdir, makedirs
 from os.path import isfile, join, exists, expanduser
-from shutil import copy
+from shutil import copy, rmtree
 from PIL import Image
 
 def make_data_request(data):
@@ -90,9 +91,12 @@ def copy_image_list(lst, rkind, rid, ddir):
         dst_name = "artwork"
     for fn in lst:
         image_type = imghdr.what(fn)
+        tmp_path = None
         if image_type and image_type != 'jpeg':
             print("  Converting", fn, "to jpeg")
-            tmp_path = expanduser("~/Temp")
+            sub_folder = str(uuid.uuid4())
+            tmp_path = join(expanduser(temp_dir), sub_folder)
+            os.makedirs(tmp_path)
 
              # Convert the image
             src_img = Image.open(fn)
@@ -102,6 +106,12 @@ def copy_image_list(lst, rkind, rid, ddir):
             fn = conv_fn
 
         copy(fn, join(dpath, dst_name + ".jpg"))
+
+        if tmp_path:
+            try:
+                rmtree(tmp_path)
+            except OSError as e:
+                print ("Error: %s - %s." % (e.filename, e.strerror))
 
 def upload_image(bdir, fn, rkind, rid, user):
     # The user that owns the images needs to login
@@ -179,6 +189,7 @@ else:
 adminFullName = 'Admin Oasis'
 data_dir = "./dummy_data/"
 local_images_dir = '~/code/oasis/webapp/public/imgs/'
+temp_dir = "~/Temp"
 
 mimetypes.init()
 
