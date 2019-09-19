@@ -69,7 +69,8 @@ def create_app(conf=ProductionConfig):
         pass
 
     try:
-        os.makedirs(os.path.join('src', app.config['UPLOAD_FOLDER']))
+        upload_folder = os.path.join(app.root_path, app.config['UPLOAD_FOLDER'])
+        os.makedirs(upload_folder)
     except OSError:
         pass
 
