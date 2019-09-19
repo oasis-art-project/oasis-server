@@ -9,8 +9,13 @@ License Artistic-2.0
 import imghdr
 import json
 import os
+import shutil
 import uuid
 import flask
+from io import BytesIO
+from PIL import Image
+from werkzeug.datastructures import FileStorage
+from werkzeug.utils import secure_filename
 from flask_jwt_extended import current_user
 from src.backend.extensions import storage
 
@@ -64,13 +69,73 @@ def upload_images(request, resource_kind, resource_id):
             for file_object in images:
                 # imghdr reads headers of the file to determine the real type of the file, even the extension of it is different
                 image_type = imghdr.what(file_object)
-
+ 
                 # If image type is not in the list of allowed extensions, raise the error
                 if image_type is None or image_type not in flask.current_app.config['ALLOWED_EXTENSIONS']:
                     raise IOError("Only {} files are allowed".format(", ".join(flask.current_app.config['ALLOWED_EXTENSIONS'])))
 
-                url = storage.passthrough_upload(resource_kind, resource_id, file_object)
-                uploaded_images[file_object.filename] = {'url':url, 'type':file_object.mimetype}
+                src_filename = secure_filename(file_object.filename)
+                dst_name = ''
+                if resource_kind == 'user':
+                    dst_name = "profile"
+                elif resource_kind == 'place':
+                    dst_name = "place"
+                elif resource_kind == 'event':
+                    dst_name = "event"
+                elif resource_kind == 'artworks':
+                    dst_name = "artwork"
+
+                # tmp_path = None
+                if image_type != 'jpeg':
+                    # # Generate a unique name for the folder where to save the 
+                    # # uploaded image and the jpeg-converted version            
+                    # upload_path = os.path.join(flask.current_app.root_path, flask.current_app.config['UPLOAD_FOLDER'])                    
+                    # sub_folder = str(uuid.uuid4())
+
+                    # tmp_path = os.path.join(upload_path, sub_folder)
+                    # os.makedirs(tmp_path)
+                    # file_path = os.path.join(tmp_path, dst_name + "." + image_type)
+
+                    # # Save file
+                    # file_object.save(file_path)
+
+                    # # Load and convert the image                 
+                    # src_img = Image.open(file_path)
+                    # rgb_img = src_img.convert('RGB')
+                    # conv_path = os.path.join(tmp_path, dst_name + ".jpg")
+                    # rgb_img.save(conv_path)
+                    # print("Converted image...")
+                    # print("===>", type(file_object))
+                    # file_object = FileStorage(open(conv_path, 'rb'))
+                    # file_object.content_type = 'image/jpeg'
+                    # file_object._parse_content_type = ('image/jpeg', {})
+                    # print("Opened image...")
+
+                    f = BytesIO(file_object.read())
+                    src_img = Image.open(f)
+                    rgb_img = src_img.convert('RGB')
+                    # conv_fn = join(tmp_path, dst_name + ".jpg")
+                    f2 = BytesIO()
+                    rgb_img.save(f2, format='JPEG')
+
+                    # fn = conv_fn
+                    # file_object = f2
+                    # v = f2.getvalue()
+                    # print(v)
+                    file_object = FileStorage(f2, dst_name + ".jpg")
+                    # file_object.content_type = 'image/jpeg'
+
+
+                url = storage.passthrough_fileobj_upload(resource_kind, resource_id, file_object, 'image/jpeg', dst_name + ".jpg")
+                print("Uploaded image...")
+                uploaded_images[src_filename] = {'url':url, 'type':file_object.mimetype}
+                
+                # if tmp_path:
+                #     try:
+                #         shutil.rmtree(tmp_path)
+                #     except OSError as e:
+                #         print ("Error: %s - %s." % (e.filename, e.strerror))
+
 
             return uploaded_images
 

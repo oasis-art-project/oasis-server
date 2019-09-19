@@ -101,7 +101,7 @@ class Storage(object):
             'url': 'https://%s.s3.amazonaws.com/%s/%d/%s' % (self.bucket_name, prefix, resource_id, file_name)
         }
 
-    def passthrough_upload(self, resource_kind, resource_id, file_object):
+    def passthrough_file_upload(self, resource_kind, resource_id, src_path, dest_name):
         prefix = ''
         if resource_kind == 'user':
             prefix = "users"
@@ -112,19 +112,44 @@ class Storage(object):
         elif resource_kind == 'artworks':
             prefix = "artworks"
 
-        file_path = '%s/%d/%s' % (prefix, resource_id, file_object.filename)
+        dest_path = '%s/%d/%s' % (prefix, resource_id, dest_name)
+
+        self.client.upload_file(
+            Filename = src_path,
+            Bucket = self.bucket_name,
+            Key = dest_path,
+            ExtraArgs={
+                "ACL": "public-read",
+            }
+        )
+
+        url = 'https://%s.s3.amazonaws.com/%s' % (self.bucket_name, dest_path)
+        return url
+
+    def passthrough_fileobj_upload(self, resource_kind, resource_id, file_object, content_type, dest_name):
+        prefix = ''
+        if resource_kind == 'user':
+            prefix = "users"
+        elif resource_kind == 'place':
+            prefix = "places"
+        elif resource_kind == 'event':
+            prefix = "events"
+        elif resource_kind == 'artworks':
+            prefix = "artworks"
+
+        dest_path = '%s/%d/%s' % (prefix, resource_id, dest_name)
 
         self.client.upload_fileobj(
             Fileobj = file_object,
             Bucket = self.bucket_name,
-            Key = file_path,
+            Key = dest_path,
             ExtraArgs={
                 "ACL": "public-read",
-                "ContentType": file_object.content_type
+                "ContentType": content_type
             }
         )
 
-        url = 'https://%s.s3.amazonaws.com/%s' % (self.bucket_name, file_path)
+        url = 'https://%s.s3.amazonaws.com/%s' % (self.bucket_name, dest_path)
         return url
 
     def list_folder_contents(self, resource_kind, resource_id):
