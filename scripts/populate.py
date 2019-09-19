@@ -3,9 +3,11 @@ import json
 import os
 import csv
 import mimetypes
+import imghdr
 from os import listdir, makedirs
-from os.path import isfile, join, exists
+from os.path import isfile, join, exists, expanduser
 from shutil import copy
+from PIL import Image
 
 def make_data_request(data):
     request = {"request": json.dumps(data)}
@@ -63,38 +65,43 @@ def event_json(place, artists, row):
     }
 
 def copy_image(bdir, fn, rkind, rid, ddir):
-    dpath = os.path.join(os.path.expanduser(ddir), rkind, str(rid))
-    if not exists(dpath):
-        makedirs(dpath)
-    full_path = join(bdir, fn)
-    copy(full_path, dpath)
-
-    # mtype = mimetypes.guess_type(full_path)[0]
-    # if not mtype: return
-    # dpath = os.path.join(os.path.expanduser(ddir), rkind, str(rid))
-    # print(dpath)
-    # makedirs(dpath)
-    # for ifile in image_files:        
-    #     print(ifile[1], dpath)
-    #     copy(ifile[1], dpath)
+    copy_image_list([join(bdir, fn)], rkind, rid, ddir)
 
 def copy_images(bdir, rkind, rid, ddir):
-    dpath = os.path.join(os.path.expanduser(ddir), rkind, str(rid))
+    all_files = []
+    for f in listdir(bdir):
+        path = join(bdir, f)
+        if not isfile(path) or not imghdr.what(path): continue
+        all_files += [path]
+    copy_image_list(all_files, rkind, rid, ddir)
+
+def copy_image_list(lst, rkind, rid, ddir):
+    dpath = join(expanduser(ddir), rkind, str(rid))
     if not exists(dpath):
-        makedirs(dpath)
-    all_files = [f for f in listdir(bdir) if isfile(join(bdir, f))]
-    for fn in all_files:
-        full_path = join(bdir, fn)
-        copy(full_path, dpath)
-        # mtype = mimetypes.guess_type(full_path)[0]
-        # if not mtype: continue
-        # image_files += [('images', (fn, open(full_path, 'rb'), mtype))]
-    
-    # print(dpath)
-    
-    # for ifile in image_files:
-    #     print(os.path.join(full_path, ), dpath)
-        
+        makedirs(dpath)    
+    dst_name = ''
+    if rkind == 'user':
+        dst_name = "profile"
+    elif rkind == 'place':
+        dst_name = "place"
+    elif rkind == 'event':
+        dst_name = "event"
+    elif rkind == 'artworks':
+        dst_name = "artwork"
+    for fn in lst:
+        image_type = imghdr.what(fn)
+        if image_type and image_type != 'jpeg':
+            print("  Converting", fn, "to jpeg")
+            tmp_path = expanduser("~/Temp")
+
+             # Convert the image
+            src_img = Image.open(fn)
+            rgb_img = src_img.convert('RGB')
+            conv_fn = join(tmp_path, dst_name + ".jpg")
+            rgb_img.save(conv_fn)
+            fn = conv_fn
+
+        copy(fn, join(dpath, dst_name + ".jpg"))
 
 def upload_image(bdir, fn, rkind, rid, user):
     # The user that owns the images needs to login
@@ -171,12 +178,12 @@ else:
 
 adminFullName = 'Admin Oasis'
 data_dir = "./dummy_data/"
-local_images_dir = '~/Temp/'
+local_images_dir = '~/code/oasis/webapp/public/imgs/'
 
 mimetypes.init()
 
 if load_users: print("Loading users...")
-in_csv = os.path.join(data_dir, "user_list.csv")
+in_csv = join(data_dir, "user_list.csv")
 reader = csv.reader(open(in_csv, 'r'), dialect='excel')
 header = next(reader)
 user_extra = {}
@@ -229,7 +236,7 @@ for user in users:
 
 if load_places: 
     print("Loading places...")
-    in_csv = os.path.join(data_dir, "place_list.csv")
+    in_csv = join(data_dir, "place_list.csv")
     reader = csv.reader(open(in_csv, 'r'), dialect='excel')
     header = next(reader)
     for row in reader:
@@ -284,7 +291,7 @@ for place in places:
             upload_images(base_path, "place", pid, user)
 
 if load_events: print("Loading events...")
-in_csv = os.path.join(data_dir, "event_list.csv")
+in_csv = join(data_dir, "event_list.csv")
 reader = csv.reader(open(in_csv, 'r'), dialect='excel')
 header = next(reader)    
 event_extra = {}
