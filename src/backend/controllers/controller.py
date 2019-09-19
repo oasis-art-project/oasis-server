@@ -9,7 +9,6 @@ License Artistic-2.0
 import imghdr
 import json
 import os
-import shutil
 import uuid
 import flask
 from io import BytesIO
@@ -85,57 +84,20 @@ def upload_images(request, resource_kind, resource_id):
                 elif resource_kind == 'artworks':
                     dst_name = "artwork"
 
-                # tmp_path = None
                 if image_type != 'jpeg':
-                    # # Generate a unique name for the folder where to save the 
-                    # # uploaded image and the jpeg-converted version            
-                    # upload_path = os.path.join(flask.current_app.root_path, flask.current_app.config['UPLOAD_FOLDER'])                    
-                    # sub_folder = str(uuid.uuid4())
-
-                    # tmp_path = os.path.join(upload_path, sub_folder)
-                    # os.makedirs(tmp_path)
-                    # file_path = os.path.join(tmp_path, dst_name + "." + image_type)
-
-                    # # Save file
-                    # file_object.save(file_path)
-
-                    # # Load and convert the image                 
-                    # src_img = Image.open(file_path)
-                    # rgb_img = src_img.convert('RGB')
-                    # conv_path = os.path.join(tmp_path, dst_name + ".jpg")
-                    # rgb_img.save(conv_path)
-                    # print("Converted image...")
-                    # print("===>", type(file_object))
-                    # file_object = FileStorage(open(conv_path, 'rb'))
-                    # file_object.content_type = 'image/jpeg'
-                    # file_object._parse_content_type = ('image/jpeg', {})
-                    # print("Opened image...")
-
-                    f = BytesIO(file_object.read())
-                    src_img = Image.open(f)
+                    # Convert image into jpeg in memory using BytesIO
+                    src_file = BytesIO(file_object.read())
+                    src_img = Image.open(src_file)
                     rgb_img = src_img.convert('RGB')
-                    # conv_fn = join(tmp_path, dst_name + ".jpg")
-                    f2 = BytesIO()
-                    rgb_img.save(f2, format='JPEG')
+                    dst_file = BytesIO()                    
+                    rgb_img.save(dst_file, format='JPEG')
+                    # Return the file pointer to the beginning after saving, otherwise it will be uploaded empty
+                    dst_file.seek(0)
+                    # Wrap the memory file holding the converted file as a FileStorage object for upload
+                    file_object = FileStorage(dst_file, dst_name + ".jpg")
 
-                    # fn = conv_fn
-                    # file_object = f2
-                    # v = f2.getvalue()
-                    # print(v)
-                    file_object = FileStorage(f2, dst_name + ".jpg")
-                    # file_object.content_type = 'image/jpeg'
-
-
-                url = storage.passthrough_fileobj_upload(resource_kind, resource_id, file_object, 'image/jpeg', dst_name + ".jpg")
-                print("Uploaded image...")
+                url = storage.passthrough_upload(resource_kind, resource_id, file_object, 'image/jpeg', dst_name + ".jpg")
                 uploaded_images[src_filename] = {'url':url, 'type':file_object.mimetype}
-                
-                # if tmp_path:
-                #     try:
-                #         shutil.rmtree(tmp_path)
-                #     except OSError as e:
-                #         print ("Error: %s - %s." % (e.filename, e.strerror))
-
 
             return uploaded_images
 
@@ -149,65 +111,3 @@ def upload_images(request, resource_kind, resource_id):
 def list_images(request, resource_kind, resource_id):
     list = storage.list_folder_contents(resource_kind, resource_id)
     return list
-
-
-##########################################################################################################################
-# TODO remove the following:
-
-def upload_files(request, maximum_files, files_in_db=None):
-    """
-    Uploader of files help to manage loading of file
-    :param request: class with .form and .files fields with data received from the client
-    :param maximum_files: integer with maximum files allowed to save
-    :param files_in_db: list with information about current files on the server for calculation purpose
-    :return: json (dict) of new list of files
-    """
-    if 'files' not in request.files and len(request.files.getlist('files')) == 0:
-        return
-
-    files = request.files.getlist('files')
-
-    if files_in_db and len(files_in_db) + len(files) > maximum_files:
-        raise IOError('Total number of files can be only {}'.format(maximum_files))
-
-    if len(files) > maximum_files:
-        raise IOError('Maximum number of files is {}'.format(maximum_files))
-
-    photos = list()
-
-    for file in files:
-        # imghdr reads headers of the file to determine the real type of the file, even the extension of it is different
-        image_type = imghdr.what(file)
-
-        # If image type is not in the list of allowed extensions, raise the error
-        if image_type is None or image_type not in flask.current_app.config['ALLOWED_EXTENSIONS']:
-            raise IOError("Only {} files are allowed".format(", ".join(flask.current_app.config['ALLOWED_EXTENSIONS'])))
-
-        # Get path /uploads/ folder
-        file_path = os.path.join(flask.current_app.root_path, flask.current_app.config['UPLOAD_FOLDER'])
-
-        # Generate a unique name for the file, add its extension
-        filename = str(uuid.uuid4()) + "." + image_type
-
-        # Save file
-        file.save(os.path.join(file_path, filename))
-
-        # Add file to the list
-        photos.append(filename)
-
-    if files_in_db:
-        # Update the final list of files with data from db
-        photos += files_in_db
-
-    return json.dumps(photos)
-
-
-def delete_files(files):
-    """
-    Method deletes all passed files
-    :param files: a list of files to delete
-    """
-    file_path = os.path.join(flask.current_app.root_path, flask.current_app.config['UPLOAD_FOLDER'])
-
-    for file in files:
-        os.remove(os.path.join(file_path, file))
