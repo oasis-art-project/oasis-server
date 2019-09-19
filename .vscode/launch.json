@@ -24,9 +24,8 @@
                 "FLASK_DEBUG": "0",
                 "DATABASE_URL": "postgresql://localhost/oasis",
                 "S3_BUCKET": "<put S3 bucket name here>",
-                "AWS_ACCESS_KEY": "<put S3 key here>",
-                "AWS_SECRET_KEY": "<put S3 secret access key here>"
-
+                "AWS_ACCESS_KEY_ID": "<put S3 access key ID here>",
+                "AWS_SECRET_ACCESS_KEY": "<put S3 secret access key here>"
             },
             "args": [
                 "run",
