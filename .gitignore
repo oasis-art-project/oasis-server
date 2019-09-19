@@ -10,6 +10,8 @@ migrations/
 .coverage
 htmlcov/
 
+src/public/uploads/
+
 env/
 dist/
 build/
