@@ -77,7 +77,7 @@ def copy_images(bdir, rkind, rid, ddir):
     copy_image_list(all_files, rkind, rid, ddir)
 
 def copy_image_list(lst, rkind, rid, ddir):
-    dpath = join(expanduser(ddir), rkind, str(rid))
+    dpath = join(expanduser(ddir), rkind + 's', str(rid))
     if not exists(dpath):
         makedirs(dpath)    
     dst_name = ''
@@ -87,7 +87,7 @@ def copy_image_list(lst, rkind, rid, ddir):
         dst_name = "place"
     elif rkind == 'event':
         dst_name = "event"
-    elif rkind == 'artworks':
+    elif rkind == 'artwork':
         dst_name = "artwork"
     for fn in lst:
         image_type = imghdr.what(fn)

@@ -81,7 +81,7 @@ def upload_images(request, resource_kind, resource_id):
                     dst_name = "place"
                 elif resource_kind == 'event':
                     dst_name = "event"
-                elif resource_kind == 'artworks':
+                elif resource_kind == 'artwork':
                     dst_name = "artwork"
 
                 if image_type != 'jpeg':

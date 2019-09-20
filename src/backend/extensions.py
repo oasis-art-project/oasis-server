@@ -93,7 +93,7 @@ class Storage(object):
             prefix = "places"
         elif resource_kind == 'event':
             prefix = "events"
-        elif resource_kind == 'artworks':
+        elif resource_kind == 'artwork':
             prefix = "artworks"
 
         return {    
@@ -109,7 +109,7 @@ class Storage(object):
             prefix = "places"
         elif resource_kind == 'event':
             prefix = "events"
-        elif resource_kind == 'artworks':
+        elif resource_kind == 'artwork':
             prefix = "artworks"
 
         dest_path = '%s/%d/%s' % (prefix, resource_id, dest_name)
@@ -135,7 +135,7 @@ class Storage(object):
             prefix = "places"
         elif resource_kind == 'event':
             prefix = "events"
-        elif resource_kind == 'artworks':
+        elif resource_kind == 'artwork':
             prefix = "artworks"
         
         folder_path = '%s/%d/' % (prefix, resource_id)
