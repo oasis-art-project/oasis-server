@@ -177,7 +177,7 @@ parser.add_argument('-u', '--url', action='store', default='http://127.0.0.1:500
 parser.add_argument('-t', '--temp', action='store', default='~/Temp', help='temporary folder')
 parser.add_argument('-i', '--images', action='store', default='~/code/oasis/webapp/public/imgs/', help='local images folder')
 parser.add_argument('-a', '--admin', action='store', default='Admin Oasis', help='admin username')
-parser.add_argument('-c', '--local', action='store_true', help='store images locally')
+parser.add_argument('-l', '--local', action='store_true', help='store images locally')
 
 args = parser.parse_args()
 
