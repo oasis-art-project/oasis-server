@@ -1,7 +1,9 @@
 import requests
 import json
+import sys
 import os
 import csv
+import argparse
 import mimetypes
 import imghdr
 import uuid
@@ -116,7 +118,7 @@ def copy_image_list(lst, rkind, rid, ddir):
 def upload_image(bdir, fn, rkind, rid, user):
     # The user that owns the images needs to login
     user_data = make_data_request({'email': user['email'], 'password': user['password']})
-    r = requests.post(url + '/api/login/', data=user_data)
+    r = requests.post(server_url + '/api/login/', data=user_data)
     if r.status_code != 200:
         raise Exception(r.status_code, r.content)
     host_token = r.json()['token']
@@ -126,7 +128,7 @@ def upload_image(bdir, fn, rkind, rid, user):
     mtype = mimetypes.guess_type(full_path)[0]
     if not mtype: return
     image_files = [('images', (fn, open(full_path, 'rb'), mtype))]
-    r = requests.post(url + '/api/media/' + str(rid) + '?resource-kind=' + rkind, files=image_files, headers=host_header)
+    r = requests.post(server_url + '/api/media/' + str(rid) + '?resource-kind=' + rkind, files=image_files, headers=host_header)
     if r.status_code != 200:
         raise Exception(r.status_code)
     j = r.json()
@@ -136,14 +138,14 @@ def upload_image(bdir, fn, rkind, rid, user):
             for fn in imgs:
                 print("  Uploaded image:", fn, "=>", imgs[fn]["url"])
 
-    r = requests.delete(url + '/api/login/', headers=host_header)
+    r = requests.delete(server_url + '/api/login/', headers=host_header)
     if r.status_code != 200:
         raise Exception(r.status_code, r.content)                    
 
 def upload_images(bdir, rkind, rid, user):
     # The user that owns the images needs to login
     user_data = make_data_request({'email': user['email'], 'password': user['password']})
-    r = requests.post(url + '/api/login/', data=user_data)
+    r = requests.post(server_url + '/api/login/', data=user_data)
     if r.status_code != 200:
         raise Exception(r.status_code, r.content)
     host_token = r.json()['token']
@@ -156,7 +158,7 @@ def upload_images(bdir, rkind, rid, user):
         mtype = mimetypes.guess_type(full_path)[0]
         if not mtype: continue
         image_files += [('images', (fn, open(full_path, 'rb'), mtype))]
-    r = requests.post(url + '/api/media/'+ str(rid) + '?resource-kind=' + rkind, files=image_files, headers=host_header)
+    r = requests.post(server_url + '/api/media/'+ str(rid) + '?resource-kind=' + rkind, files=image_files, headers=host_header)
     if r.status_code != 200:
         raise Exception(r.status_code)
     j = r.json()
@@ -166,12 +168,25 @@ def upload_images(bdir, rkind, rid, user):
             for fn in imgs:
                 print("  Uploaded image:", fn, "=>", imgs[fn]["url"])
 
-    r = requests.delete(url + '/api/login/', headers=host_header)
+    r = requests.delete(server_url + '/api/login/', headers=host_header)
     if r.status_code != 200:
         raise Exception(r.status_code, r.content)  
 
-use_local_server = True
-save_images_locally = True
+parser = argparse.ArgumentParser(description='Upload dummy data to OASIS server.')
+parser.add_argument('-u', '--url', action='store', default='http://127.0.0.1:5000', help='set server url')
+parser.add_argument('-t', '--temp', action='store', default='~/Temp', help='temporary folder')
+parser.add_argument('-i', '--images', action='store', default='~/code/oasis/webapp/public/imgs/', help='local images folder')
+parser.add_argument('-a', '--admin', action='store', default='Admin Oasis', help='admin username')
+parser.add_argument('-c', '--local', action='store_true', help='store images locally')
+
+args = parser.parse_args()
+
+server_url = args.url
+adminFullName = args.admin
+save_images_locally = args.local
+data_dir = join(sys.path[0], "dummy_data")
+temp_dir = args.temp
+local_images_dir = args.images
 
 load_users = True
 load_places = True
@@ -179,17 +194,7 @@ load_events = True
 load_artworks = False
 load_images = True
 
-if use_local_server:
-    # Local server
-    url = 'http://127.0.0.1:5000'
-else:
-    # Staging server
-    url = 'https://server-oasis.herokuapp.com/'
-
-adminFullName = 'Admin Oasis'
-data_dir = "./dummy_data/"
-local_images_dir = '~/code/oasis/webapp/public/imgs/'
-temp_dir = "~/Temp"
+print(server_url, adminFullName, save_images_locally, data_dir, temp_dir, local_images_dir)
 
 mimetypes.init()
 
@@ -207,7 +212,7 @@ for row in reader:
 
         print("Creating user", row[2], row[3], "...")
         user_data = make_data_request(raw_user_data)
-        r = requests.post(url + '/api/user/', data=user_data)
+        r = requests.post(server_url + '/api/user/', data=user_data)
         if r.status_code == 400:
             print("  User already exists")
             continue
@@ -220,7 +225,7 @@ for row in reader:
 
 # Retrieving all users
 user_dict = {}
-r = requests.get(url + '/api/user/')
+r = requests.get(server_url + '/api/user/')
 if r.status_code != 200:
     raise Exception(r.status_code)
 users = r.json()['users']
@@ -258,7 +263,7 @@ if load_places:
 
         # First the host user needs to login so we have the token to use in place creation
         user_data = make_data_request({'email': user['email'], 'password': user['password']})
-        r = requests.post(url + '/api/login/', data=user_data)
+        r = requests.post(server_url + '/api/login/', data=user_data)
         if r.status_code != 200:
             raise Exception(r.status_code, r.content)
         host_token = r.json()['token']
@@ -266,7 +271,7 @@ if load_places:
 
         raw_place_data = place_json(row, host_json(row[0], user))
         p = make_data_request(raw_place_data)
-        r = requests.post(url + '/api/place/', data=p, headers=host_header)
+        r = requests.post(server_url + '/api/place/', data=p, headers=host_header)
 
         if r.status_code != 201:
             raise Exception(r.status_code, r.content)
@@ -275,7 +280,7 @@ if load_places:
         print("  Created place with id", pid)
 
         # Logout
-        r = requests.delete(url + '/api/login/', headers=host_header)
+        r = requests.delete(server_url + '/api/login/', headers=host_header)
         if r.status_code != 200:
             raise Exception(r.status_code, r.content)    
         
@@ -283,7 +288,7 @@ if load_places:
 
 # Retrieving all places
 place_dict = {}
-r = requests.get(url + '/api/place/')
+r = requests.get(server_url + '/api/place/')
 if r.status_code != 200:
     raise Exception(r.status_code)
 places = r.json()['places']
@@ -322,7 +327,7 @@ for row in reader:
         
         # First the host user needs to login so we have the token to use in place creation
         user_data = make_data_request({'email': hostEmail, 'password': hostPassword})
-        r = requests.post(url + '/api/login/', data=user_data)
+        r = requests.post(server_url + '/api/login/', data=user_data)
         if r.status_code != 200:
             raise Exception(r.status_code, r.content)
         host_token = r.json()['token']
@@ -331,7 +336,7 @@ for row in reader:
         raw_event_data = event_json(place, artists, row)
         user_data = make_data_request(raw_event_data)
 
-        r = requests.post(url + '/api/event/', data=user_data, headers=host_header)
+        r = requests.post(server_url + '/api/event/', data=user_data, headers=host_header)
 
         if r.status_code != 201:
             raise Exception(r.status_code, r.content)
@@ -340,7 +345,7 @@ for row in reader:
         print("  Created event with id", eid)
 
         # Logout
-        r = requests.delete(url + '/api/login/', headers=host_header)
+        r = requests.delete(server_url + '/api/login/', headers=host_header)
         if r.status_code != 200:
             raise Exception(r.status_code, r.content)    
         
@@ -348,7 +353,7 @@ for row in reader:
 
 # Retrieving all events
 events_dict = {}
-r = requests.get(url + '/api/event/')
+r = requests.get(server_url + '/api/event/')
 if r.status_code != 200:
     raise Exception(r.status_code)
 events = r.json()['events']
