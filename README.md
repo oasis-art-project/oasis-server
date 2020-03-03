@@ -39,7 +39,7 @@ This is the server backend of the OASIS platform. Please, read REST API referenc
 11. Start server <br>
 `flask run`
 
-To clear the existing database before re-install the, run the following script:
+To clear the existing database before re-install the server, run the following script:
 
 `./clear-db.sh`
 
@@ -59,6 +59,10 @@ To clear the existing database before re-install the, run the following script:
 The OASIS server can be run as a stand-alone WSGI application using a Python WSGI HTTP Serve like Gunicorn (listed in the requirements):
 
 `gunicorn --bind 127.0.0.1:5000  "run:create_app()"`
+
+### Populating the database
+
+Look into the scripts subfolder for instructions and scripts on how to populate the database with dummy data for testing.
 
 ### Contributors
 
