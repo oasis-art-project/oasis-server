@@ -210,17 +210,13 @@ def upload_images_from_list(bdir, fnlist, rkind, rid, user):
     if r.status_code != 200:
         raise Exception(r.status_code, r.content)
 
-
-
-
-
+# Parsing command line arguments
 parser = argparse.ArgumentParser(description='Upload dummy data to OASIS server.')
 parser.add_argument('-u', '--url', action='store', default='http://127.0.0.1:5000', help='set server url')
 parser.add_argument('-t', '--temp', action='store', default='~/Temp', help='temporary folder')
 parser.add_argument('-i', '--images', action='store', default='~/code/oasis/webapp/public/imgs/', help='local images folder')
 parser.add_argument('-a', '--admin', action='store', default='Admin Oasis', help='admin username')
 parser.add_argument('-l', '--local', action='store_true', help='store images locally')
-
 args = parser.parse_args()
 
 server_url = args.url
@@ -230,15 +226,9 @@ data_dir = join(sys.path[0], "dummy_data")
 temp_dir = args.temp
 local_images_dir = args.images
 
-load_users = True
-load_places = True
-load_events = True
-load_artworks = True
-load_images = True
-
 mimetypes.init()
 
-if load_users: print("Loading users...")
+print("Loading users...")
 in_csv = join(data_dir, "user_list.csv")
 reader = csv.reader(open(in_csv, 'r'), dialect='excel')
 header = next(reader)
@@ -247,21 +237,20 @@ for row in reader:
     email = row[0]
     password = row[1]
     user_extra[row[2] + ' ' + row[3]] = {'email': email, 'password':password}
-    if load_users and load_users:
-        raw_user_data = user_json(row)
+    raw_user_data = user_json(row)
 
-        print("Creating user", row[2], row[3], "...")
-        user_data = make_data_request(raw_user_data)
-        r = requests.post(server_url + '/api/user/', data=user_data)
-        if r.status_code == 400:
-            print("  User already exists")
-            continue
+    print("Creating user", row[2], row[3], "...")
+    user_data = make_data_request(raw_user_data)
+    r = requests.post(server_url + '/api/user/', data=user_data)
+    if r.status_code == 400:
+        print("  User already exists")
+        continue
         
-        if r.status_code != 201:                
-            raise Exception(r.status_code, r.content)
+    if r.status_code != 201:                
+        raise Exception(r.status_code, r.content)
 
-        uid = r.json()["id"]
-        print("  Created user with id", uid)
+    uid = r.json()["id"]
+    print("  Created user with id", uid)
 
 # Retrieving all users
 user_dict = {}
@@ -275,22 +264,21 @@ for user in users:
         user['email'] = user_extra[fullName]['email']
         user['password'] = user_extra[fullName]['password']
     user_dict[fullName] = user
-    if load_users and load_images:
-        uid = user['id']
-        role = user['role']
-        if role == 1: continue
-        if role == 2:
-            base_path = data_dir + "/images/users/hosts/" + user['email']
-        elif role == 3:
-            base_path = data_dir + "/images/users/artists/" + user['email']
-        if save_images_locally:
-            print("Copying images for user", user["firstName"], user["lastName"])
-            copy_images(base_path, "user", uid, local_images_dir)
-        else:
-            print("Uploading images for user", user["firstName"], user["lastName"])
-            upload_images_from_folder(base_path, "user", uid, user)
+    uid = user['id']
+    role = user['role']
+    if role == 1: continue
+    if role == 2:
+        base_path = data_dir + "/images/users/hosts/" + user['email']
+    elif role == 3:
+        base_path = data_dir + "/images/users/artists/" + user['email']
+    if save_images_locally:
+        print("Copying images for user", user["firstName"], user["lastName"])
+        copy_images(base_path, "user", uid, local_images_dir)
+    else:
+        print("Uploading images for user", user["firstName"], user["lastName"])
+        upload_images_from_folder(base_path, "user", uid, user)
 
-if load_artworks: print("Loading artworks...")
+print("Loading artworks...")
 in_csv = join(data_dir, "artwork_list.csv")
 reader = csv.reader(open(in_csv, 'r'), dialect='excel')
 header = next(reader)    
@@ -298,37 +286,36 @@ artwork_images = {}
 for row in reader:
     print("Creating artwork", row[1], "...")
     print("  Logging user", row[0])    
-    if load_artworks:
-        user = user_dict[row[0]]
+    user = user_dict[row[0]]
 
-        # First the host user needs to login so we have the token to use in place creation
-        user_data = make_data_request({'email': user['email'], 'password': user['password']})
-        r = requests.post(server_url + '/api/login/', data=user_data)
-        if r.status_code != 200:
-            raise Exception(r.status_code, r.content)
-        host_token = r.json()['token']
-        host_header = auth_header(host_token)
+    # First the host user needs to login so we have the token to use in place creation
+    user_data = make_data_request({'email': user['email'], 'password': user['password']})
+    r = requests.post(server_url + '/api/login/', data=user_data)
+    if r.status_code != 200:
+        raise Exception(r.status_code, r.content)
+    host_token = r.json()['token']
+    host_header = auth_header(host_token)
 
-        artist = {"id": user_dict[row[0].strip()]['id']}
+    artist = {"id": user_dict[row[0].strip()]['id']}
 
-        raw_artwork_data = artwork_json(row, artist)
-        p = make_data_request(raw_artwork_data)
-        r = requests.post(server_url + '/api/artwork/', data=p, headers=host_header)
+    raw_artwork_data = artwork_json(row, artist)
+    p = make_data_request(raw_artwork_data)
+    r = requests.post(server_url + '/api/artwork/', data=p, headers=host_header)
 
-        if r.status_code != 201:
-            raise Exception(r.status_code, r.content)
+    if r.status_code != 201:
+        raise Exception(r.status_code, r.content)
 
-        pid = r.json()["id"]
-        artwork_images[pid] = row[3].split(";")
+    pid = r.json()["id"]
+    artwork_images[pid] = row[3].split(";")
 
-        print("  Created artwork with id", pid)
+    print("  Created artwork with id", pid)
 
-        # Logout
-        r = requests.delete(server_url + '/api/login/', headers=host_header)
-        if r.status_code != 200:
-            raise Exception(r.status_code, r.content)    
+    # Logout
+    r = requests.delete(server_url + '/api/login/', headers=host_header)
+    if r.status_code != 200:
+        raise Exception(r.status_code, r.content)    
         
-        print("  Logged out succesfully")        
+    print("  Logged out succesfully")        
 
 # Retrieving all artworks
 # artwork_dict = {}
@@ -337,56 +324,52 @@ if r.status_code != 200:
     raise Exception(r.status_code)
 artworks = r.json()['artworks']
 for artwork in artworks:
-    # artwork_dict[artwork['name']] = artwork
-    if load_artworks and load_images:
-        pid = artwork['id']
-        artist = artwork['artist']
-        user = user_dict[artist['firstName'] + ' ' + artist['lastName']]
-        base_path = data_dir + "/images/artworks/" + user["email"]
-        images = artwork_images[pid]
-        if save_images_locally:
-            print("Copying images for artwork", artwork["name"])
-            copy_images(base_path, "artwork", uid, local_images_dir)
-        else:
-            # print("Uploading images for artwork", artwork["name"])
-            print("===> Uploading images for artwork", pid, artwork["name"], images)
-            upload_images_from_list(base_path, images, "artwork", pid, user)
+    pid = artwork['id']
+    artist = artwork['artist']
+    user = user_dict[artist['firstName'] + ' ' + artist['lastName']]
+    base_path = data_dir + "/images/artworks/" + user["email"]
+    images = artwork_images[pid]
+    if save_images_locally:
+        print("Copying images for artwork", artwork["name"])
+        copy_images(base_path, "artwork", uid, local_images_dir)
+    else:
+        print("Uploading images for artwork", artwork["name"])
+        upload_images_from_list(base_path, images, "artwork", pid, user)
 
-if load_places:
-    print("Loading places...")
-    in_csv = join(data_dir, "place_list.csv")
-    reader = csv.reader(open(in_csv, 'r'), dialect='excel')
-    header = next(reader)
-    for row in reader:
-        print("Creating place", row[1], "...")
-        print("  Logging user", row[0])
+print("Loading places...")
+in_csv = join(data_dir, "place_list.csv")
+reader = csv.reader(open(in_csv, 'r'), dialect='excel')
+header = next(reader)
+for row in reader:
+    print("Creating place", row[1], "...")
+    print("  Logging user", row[0])
 
-        user = user_dict[row[0]]
+    user = user_dict[row[0]]
 
-        # First the host user needs to login so we have the token to use in place creation
-        user_data = make_data_request({'email': user['email'], 'password': user['password']})
-        r = requests.post(server_url + '/api/login/', data=user_data)
-        if r.status_code != 200:
-            raise Exception(r.status_code, r.content)
-        host_token = r.json()['token']
-        host_header = auth_header(host_token)
+    # First the host user needs to login so we have the token to use in place creation
+    user_data = make_data_request({'email': user['email'], 'password': user['password']})
+    r = requests.post(server_url + '/api/login/', data=user_data)
+    if r.status_code != 200:
+        raise Exception(r.status_code, r.content)
+    host_token = r.json()['token']
+    host_header = auth_header(host_token)
 
-        raw_place_data = place_json(row, host_json(row[0], user))
-        p = make_data_request(raw_place_data)
-        r = requests.post(server_url + '/api/place/', data=p, headers=host_header)
+    raw_place_data = place_json(row, host_json(row[0], user))
+    p = make_data_request(raw_place_data)
+    r = requests.post(server_url + '/api/place/', data=p, headers=host_header)
 
-        if r.status_code != 201:
-            raise Exception(r.status_code, r.content)
+    if r.status_code != 201:
+        raise Exception(r.status_code, r.content)
 
-        pid = r.json()["id"]
-        print("  Created place with id", pid)
+    pid = r.json()["id"]
+    print("  Created place with id", pid)
 
-        # Logout
-        r = requests.delete(server_url + '/api/login/', headers=host_header)
-        if r.status_code != 200:
-            raise Exception(r.status_code, r.content)    
+    # Logout
+    r = requests.delete(server_url + '/api/login/', headers=host_header)
+    if r.status_code != 200:
+        raise Exception(r.status_code, r.content)    
         
-        print("  Logged out succesfully")
+    print("  Logged out succesfully")
 
 # Retrieving all places
 place_dict = {}
@@ -396,62 +379,60 @@ if r.status_code != 200:
 places = r.json()['places']
 for place in places:
     place_dict[place['name']] = place
-    if load_places and load_images:
-        pid = place['id']
-        host = place['host']
-        user = user_dict[host['firstName'] + ' ' + host['lastName']]
-        base_path = data_dir + "/images/places/" + place["name"]
-        if save_images_locally:
-            print("Copying images for place", place["name"])
-            copy_images(base_path, "place", uid, local_images_dir)
-        else:
-            print("Uploading images for place", place["name"])
-            upload_images_from_folder(base_path, "place", pid, user)
+    pid = place['id']
+    host = place['host']
+    user = user_dict[host['firstName'] + ' ' + host['lastName']]
+    base_path = data_dir + "/images/places/" + place["name"]
+    if save_images_locally:
+        print("Copying images for place", place["name"])
+        copy_images(base_path, "place", uid, local_images_dir)
+    else:
+        print("Uploading images for place", place["name"])
+        upload_images_from_folder(base_path, "place", pid, user)
 
-if load_events: print("Loading events...")
+print("Loading events...")
 in_csv = join(data_dir, "event_list.csv")
 reader = csv.reader(open(in_csv, 'r'), dialect='excel')
 header = next(reader)    
 event_extra = {}
 for row in reader:
     event_extra[row[2]] = {'image': row[7]}
-    if load_events:
-        print("Creating event", row[2], "...")
+    print("Creating event", row[2], "...")
 
-        place = {"id": place_dict[row[0]]['id']}
-        artists = [{"id":user_dict[name.strip()]['id']} for name in row[1].split(';')]
-        host = place_dict[row[0]]['host']
-        hostFullName = host['firstName'] + ' ' + host['lastName']
-        hostEmail = user_dict[hostFullName]['email']
-        hostPassword = user_dict[hostFullName]['password']
+    place = {"id": place_dict[row[0]]['id']}
+    artists = [{"id":user_dict[name.strip()]['id']} for name in row[1].split(';')]
+    host = place_dict[row[0]]['host']
+    hostFullName = host['firstName'] + ' ' + host['lastName']
+    hostEmail = user_dict[hostFullName]['email']
+    hostPassword = user_dict[hostFullName]['password']
         
-        print("  Logging host", hostFullName)
+    print("  Logging host", hostFullName)
         
-        # First the host user needs to login so we have the token to use in place creation
-        user_data = make_data_request({'email': hostEmail, 'password': hostPassword})
-        r = requests.post(server_url + '/api/login/', data=user_data)
-        if r.status_code != 200:
-            raise Exception(r.status_code, r.content)
-        host_token = r.json()['token']
-        host_header = auth_header(host_token)   
+    # First the host user needs to login so we have the token to use in place creation
+    user_data = make_data_request({'email': hostEmail, 'password': hostPassword})
+    r = requests.post(server_url + '/api/login/', data=user_data)
+    if r.status_code != 200:
+        raise Exception(r.status_code, r.content)
+    host_token = r.json()['token']
+    host_header = auth_header(host_token)   
 
-        raw_event_data = event_json(place, artists, row)
-        user_data = make_data_request(raw_event_data)
+    raw_event_data = event_json(place, artists, row)
+    user_data = make_data_request(raw_event_data)
 
-        r = requests.post(server_url + '/api/event/', data=user_data, headers=host_header)
+    r = requests.post(server_url + '/api/event/', data=user_data, headers=host_header)
 
-        if r.status_code != 201:
-            raise Exception(r.status_code, r.content)
+    if r.status_code != 201:
+        raise Exception(r.status_code, r.content)
 
-        eid = r.json()["id"]
-        print("  Created event with id", eid)
+    eid = r.json()["id"]
+    print("  Created event with id", eid)
 
-        # Logout
-        r = requests.delete(server_url + '/api/login/', headers=host_header)
-        if r.status_code != 200:
-            raise Exception(r.status_code, r.content)    
+    # Logout
+    r = requests.delete(server_url + '/api/login/', headers=host_header)
+    if r.status_code != 200:
+        raise Exception(r.status_code, r.content)    
         
-        print("  Logged out succesfully")
+    print("  Logged out succesfully")
 
 # Retrieving all events
 events_dict = {}
@@ -460,15 +441,14 @@ if r.status_code != 200:
     raise Exception(r.status_code)
 events = r.json()['events']
 for event in events:
-    if load_events and load_images:
-        if not event['name'] in event_extra: continue
-        eid = event['id']
-        host = event['place']['host']
-        user = user_dict[host['firstName'] + ' ' + host['lastName']]        
-        fn = event_extra[event['name']]['image']
-        if save_images_locally:
-            print("Uploading images for event", event["name"])
-            copy_image(data_dir + "/images/events", fn, "event", eid, local_images_dir)
-        else:        
-            print("Uploading images for event", event["name"])
-            upload_image(data_dir + "/images/events", fn, "event", eid, user)
+    if not event['name'] in event_extra: continue
+    eid = event['id']
+    host = event['place']['host']
+    user = user_dict[host['firstName'] + ' ' + host['lastName']]        
+    fn = event_extra[event['name']]['image']
+    if save_images_locally:
+        print("Uploading images for event", event["name"])
+        copy_image(data_dir + "/images/events", fn, "event", eid, local_images_dir)
+    else:        
+        print("Uploading images for event", event["name"])
+        upload_image(data_dir + "/images/events", fn, "event", eid, user)
