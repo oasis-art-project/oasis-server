@@ -75,8 +75,10 @@ def upload_images(request, resource_kind, resource_id):
 
                 src_filename = secure_filename(file_object.filename)
                 dst_name = ''
+                make_unique = True
                 if resource_kind == 'user':
                     dst_name = "profile"
+                    make_unique = False
                 elif resource_kind == 'place':
                     dst_name = "place"
                 elif resource_kind == 'event':
@@ -96,6 +98,9 @@ def upload_images(request, resource_kind, resource_id):
                     # Wrap the memory file holding the converted file as a FileStorage object for upload
                     file_object = FileStorage(dst_file, dst_name + ".jpg")
 
+                if make_unique:
+                    dst_name = storage.create_unique_filename(resource_kind, resource_id, dst_name)
+
                 url = storage.passthrough_upload(resource_kind, resource_id, file_object, 'image/jpeg', dst_name + ".jpg")
                 uploaded_images[src_filename] = {'url':url, 'type':file_object.mimetype}
 
@@ -109,5 +114,5 @@ def upload_images(request, resource_kind, resource_id):
 
 
 def list_images(request, resource_kind, resource_id):
-    list = storage.list_folder_contents(resource_kind, resource_id)
-    return list
+    res = storage.list_folder_contents(resource_kind, resource_id)
+    return res

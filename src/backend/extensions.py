@@ -19,6 +19,7 @@ from geopy.geocoders import Nominatim
 import boto3
 import botocore
 import json
+import os
 
 # Mixin adds CRUD operations to all models
 class CRUDMixin(Model):
@@ -126,6 +127,28 @@ class Storage(object):
 
         url = 'https://%s.s3.amazonaws.com/%s' % (self.bucket_name, dest_path)
         return url
+
+    def create_unique_filename(self, resource_kind, resource_id, filename):
+        lst = self.list_folder_contents(resource_kind, resource_id)
+
+        parts = filename.split('.')
+        if not parts: 
+            return filename
+        name0 = parts[0].lower()
+
+        count = 0
+        for fn in lst:
+            bname = os.path.basename(fn)
+            parts = bname.split('.')
+            if parts:
+                name = parts[0].lower()
+                name = name.rsplit("-")[0]
+                if name == name0:
+                    count += 1
+
+        res = name0 + "-" + str(count)
+
+        return res
 
     def list_folder_contents(self, resource_kind, resource_id):
         prefix = ''
