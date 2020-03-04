@@ -1,15 +1,13 @@
 import requests
+import argparse
 
-use_local_server = False
+parser = argparse.ArgumentParser(description='List user and place IDs.')
+parser.add_argument('-u', '--url', action='store', default='http://127.0.0.1:5000', help='set server url')
+args = parser.parse_args()
 
-if use_local_server:
-    # Local server
-    url = 'http://127.0.0.1:5000'
-else:
-    # Staging server
-    url = 'https://server-oasis.herokuapp.com/'
+server_url = args.url
 
-resp = requests.get(url + '/api/user/')
+resp = requests.get(server_url + '/api/user/')
 if resp.status_code != 200:
     raise Exception(resp.status_code)
 
@@ -19,7 +17,7 @@ users = resp.json()['users']
 for user in users:
     print(user['id'], user['firstName'], user['lastName'])
 
-resp = requests.get(url + '/api/place/')
+resp = requests.get(server_url + '/api/place/')
 if resp.status_code != 200:
     raise Exception(resp.status_code)
 

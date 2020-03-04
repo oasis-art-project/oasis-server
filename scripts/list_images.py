@@ -3,7 +3,7 @@ import json
 import os
 import argparse
 
-parser = argparse.ArgumentParser(description='Upload dummy data to OASIS server.')
+parser = argparse.ArgumentParser(description='List images stored in AWS.')
 parser.add_argument('-u', '--url', action='store', default='http://127.0.0.1:5000', help='set server url')
 args = parser.parse_args()
 
