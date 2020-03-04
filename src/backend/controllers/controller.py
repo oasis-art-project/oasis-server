@@ -75,16 +75,17 @@ def upload_images(request, resource_kind, resource_id):
 
                 src_filename = secure_filename(file_object.filename)
                 dst_name = ''
-                make_unique = True
+                make_unique = False
                 if resource_kind == 'user':
-                    dst_name = "profile"
-                    make_unique = False
+                    dst_name = "profile"                    
                 elif resource_kind == 'place':
                     dst_name = "place"
+                    make_unique = True
                 elif resource_kind == 'event':
-                    dst_name = "event"
+                    dst_name = "event"                    
                 elif resource_kind == 'artwork':
                     dst_name = "artwork"
+                    make_unique = True
 
                 if image_type != 'jpeg':
                     # Convert image into jpeg in memory using BytesIO
