@@ -56,6 +56,14 @@ def place_json(row, host):
         "tags": row[4]
     }
 
+def artwork_json(row, artist):
+    return {
+        "artist": artist,
+        "name": row[1],
+        "description": row[2],
+        "tags": row[4]
+    }
+
 def event_json(place, artists, row):
     return {
         "place": place,
@@ -188,10 +196,10 @@ data_dir = join(sys.path[0], "dummy_data")
 temp_dir = args.temp
 local_images_dir = args.images
 
-load_users = True
-load_places = True
-load_events = True
-load_artworks = False
+load_users = False
+load_places = False
+load_events = False
+load_artworks = True
 load_images = True
 
 mimetypes.init()
@@ -247,6 +255,45 @@ for user in users:
         else:
             print("Uploading images for user", user["firstName"], user["lastName"])
             upload_images(base_path, "user", uid, user)
+
+if load_artworks: 
+    print("Loading artworks...")
+    in_csv = join(data_dir, "artwork_list.csv")
+    reader = csv.reader(open(in_csv, 'r'), dialect='excel')
+    header = next(reader)    
+    event_extra = {}
+    for row in reader:
+        print("Creating artwork", row[1], "...")
+        print("  Logging user", row[0])
+
+        user = user_dict[row[0]]
+
+        # First the host user needs to login so we have the token to use in place creation
+        user_data = make_data_request({'email': user['email'], 'password': user['password']})
+        r = requests.post(server_url + '/api/login/', data=user_data)
+        if r.status_code != 200:
+            raise Exception(r.status_code, r.content)
+        host_token = r.json()['token']
+        host_header = auth_header(host_token)
+
+        artist = {"id": user_dict[row[0].strip()]['id']}
+
+        raw_artwork_data = artwork_json(row, artist)
+        p = make_data_request(raw_artwork_data)
+        r = requests.post(server_url + '/api/artwork/', data=p, headers=host_header)
+
+        if r.status_code != 201:
+            raise Exception(r.status_code, r.content)
+
+        pid = r.json()["id"]
+        print("  Created artwork with id", pid)
+
+        # Logout
+        r = requests.delete(server_url + '/api/login/', headers=host_header)
+        if r.status_code != 200:
+            raise Exception(r.status_code, r.content)    
+        
+        print("  Logged out succesfully")        
 
 if load_places: 
     print("Loading places...")
@@ -368,6 +415,3 @@ for event in events:
         else:        
             print("Uploading images for event", event["name"])
             upload_image(data_dir + "/images/events", fn, "event", eid, user)
-
-if load_artworks:
-    print("Loading artworks...")
