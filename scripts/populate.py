@@ -182,7 +182,7 @@ parser.add_argument('-l', '--local', action='store_true', help='store images loc
 args = parser.parse_args()
 
 server_url = args.url
-adminFullName = args.admin
+admin_name = args.admin
 save_images_locally = args.local
 data_dir = join(sys.path[0], "dummy_data")
 temp_dir = args.temp
@@ -193,8 +193,6 @@ load_places = True
 load_events = True
 load_artworks = False
 load_images = True
-
-print(server_url, adminFullName, save_images_locally, data_dir, temp_dir, local_images_dir)
 
 mimetypes.init()
 
@@ -231,7 +229,7 @@ if r.status_code != 200:
 users = r.json()['users']
 for user in users:
     fullName = user['firstName'] + ' ' + user['lastName']
-    if not fullName == adminFullName:
+    if not fullName == admin_name:
         user['email'] = user_extra[fullName]['email']
         user['password'] = user_extra[fullName]['password']
     user_dict[fullName] = user
