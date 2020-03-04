@@ -25,6 +25,20 @@ for user in users:
     for img in j["images"]: 
         print("  ", img)
 
+r = requests.get(server_url + '/api/artwork/')
+if r.status_code != 200:
+    raise Exception(r.status_code)
+artworks = r.json()['artworks']
+for artwork in artworks:
+    pid = artwork['id']
+    print("Images for artwork", artwork['name'])
+    r = requests.get(server_url + '/api/media/' + str(pid) +'?resource-kind=artwork')
+    if r.status_code != 200:
+        raise Exception(r.status_code)
+    j = r.json()
+    for img in j["images"]: 
+        print("  ", img)
+
 r = requests.get(server_url + '/api/place/')
 if r.status_code != 200:
     raise Exception(r.status_code)

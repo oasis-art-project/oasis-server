@@ -150,7 +150,7 @@ def upload_image(bdir, fn, rkind, rid, user):
     if r.status_code != 200:
         raise Exception(r.status_code, r.content)                    
 
-def upload_images(bdir, rkind, rid, user):
+def upload_images_from_folder(bdir, rkind, rid, user):
     # The user that owns the images needs to login
     user_data = make_data_request({'email': user['email'], 'password': user['password']})
     r = requests.post(server_url + '/api/login/', data=user_data)
@@ -178,7 +178,41 @@ def upload_images(bdir, rkind, rid, user):
 
     r = requests.delete(server_url + '/api/login/', headers=host_header)
     if r.status_code != 200:
-        raise Exception(r.status_code, r.content)  
+        raise Exception(r.status_code, r.content)
+
+def upload_images_from_list(bdir, fnlist, rkind, rid, user):
+    # The user that owns the images needs to login
+    user_data = make_data_request({'email': user['email'], 'password': user['password']})
+    r = requests.post(server_url + '/api/login/', data=user_data)
+    if r.status_code != 200:
+        raise Exception(r.status_code, r.content)
+    host_token = r.json()['token']
+    host_header = auth_header(host_token)
+
+    image_files = []
+    all_files = [f for f in fnlist if isfile(join(bdir, f))]
+    for fn in all_files:
+        full_path = join(bdir, fn)
+        mtype = mimetypes.guess_type(full_path)[0]
+        if not mtype: continue
+        image_files += [('images', (fn, open(full_path, 'rb'), mtype))]
+    r = requests.post(server_url + '/api/media/'+ str(rid) + '?resource-kind=' + rkind, files=image_files, headers=host_header)
+    if r.status_code != 200:
+        raise Exception(r.status_code)
+    j = r.json()
+    for item in j:
+        if item == "images":
+            imgs = json.loads(j[item])
+            for fn in imgs:
+                print("  Uploaded image:", fn, "=>", imgs[fn]["url"])
+
+    r = requests.delete(server_url + '/api/login/', headers=host_header)
+    if r.status_code != 200:
+        raise Exception(r.status_code, r.content)
+
+
+
+
 
 parser = argparse.ArgumentParser(description='Upload dummy data to OASIS server.')
 parser.add_argument('-u', '--url', action='store', default='http://127.0.0.1:5000', help='set server url')
@@ -196,9 +230,9 @@ data_dir = join(sys.path[0], "dummy_data")
 temp_dir = args.temp
 local_images_dir = args.images
 
-load_users = False
-load_places = False
-load_events = False
+load_users = True
+load_places = True
+load_events = True
 load_artworks = True
 load_images = True
 
@@ -254,18 +288,17 @@ for user in users:
             copy_images(base_path, "user", uid, local_images_dir)
         else:
             print("Uploading images for user", user["firstName"], user["lastName"])
-            upload_images(base_path, "user", uid, user)
+            upload_images_from_folder(base_path, "user", uid, user)
 
-if load_artworks: 
-    print("Loading artworks...")
-    in_csv = join(data_dir, "artwork_list.csv")
-    reader = csv.reader(open(in_csv, 'r'), dialect='excel')
-    header = next(reader)    
-    event_extra = {}
-    for row in reader:
-        print("Creating artwork", row[1], "...")
-        print("  Logging user", row[0])
-
+if load_artworks: print("Loading artworks...")
+in_csv = join(data_dir, "artwork_list.csv")
+reader = csv.reader(open(in_csv, 'r'), dialect='excel')
+header = next(reader)    
+artwork_images = {}
+for row in reader:
+    print("Creating artwork", row[1], "...")
+    print("  Logging user", row[0])    
+    if load_artworks:
         user = user_dict[row[0]]
 
         # First the host user needs to login so we have the token to use in place creation
@@ -286,6 +319,8 @@ if load_artworks:
             raise Exception(r.status_code, r.content)
 
         pid = r.json()["id"]
+        artwork_images[pid] = row[3].split(";")
+
         print("  Created artwork with id", pid)
 
         # Logout
@@ -295,7 +330,29 @@ if load_artworks:
         
         print("  Logged out succesfully")        
 
-if load_places: 
+# Retrieving all artworks
+# artwork_dict = {}
+r = requests.get(server_url + '/api/artwork/')
+if r.status_code != 200:
+    raise Exception(r.status_code)
+artworks = r.json()['artworks']
+for artwork in artworks:
+    # artwork_dict[artwork['name']] = artwork
+    if load_artworks and load_images:
+        pid = artwork['id']
+        artist = artwork['artist']
+        user = user_dict[artist['firstName'] + ' ' + artist['lastName']]
+        base_path = data_dir + "/images/artworks/" + user["email"]
+        images = artwork_images[pid]
+        if save_images_locally:
+            print("Copying images for artwork", artwork["name"])
+            copy_images(base_path, "artwork", uid, local_images_dir)
+        else:
+            # print("Uploading images for artwork", artwork["name"])
+            print("===> Uploading images for artwork", pid, artwork["name"], images)
+            upload_images_from_list(base_path, images, "artwork", pid, user)
+
+if load_places:
     print("Loading places...")
     in_csv = join(data_dir, "place_list.csv")
     reader = csv.reader(open(in_csv, 'r'), dialect='excel')
@@ -346,10 +403,10 @@ for place in places:
         base_path = data_dir + "/images/places/" + place["name"]
         if save_images_locally:
             print("Copying images for place", place["name"])
-            copy_images(base_path, "user", uid, local_images_dir)
+            copy_images(base_path, "place", uid, local_images_dir)
         else:
             print("Uploading images for place", place["name"])
-            upload_images(base_path, "place", pid, user)
+            upload_images_from_folder(base_path, "place", pid, user)
 
 if load_events: print("Loading events...")
 in_csv = join(data_dir, "event_list.csv")
