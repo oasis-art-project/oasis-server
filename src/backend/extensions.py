@@ -216,11 +216,20 @@ class Storage(object):
         return self.delete_folder(folder="artworks/" + str(aid) + "/")
 
     def delete_image(self, res, rid, fn):
-        full_path = '%s/%d/%s' % (res, rid, fn)
-        print("hi, will delete the following", full_path)
+        prefix = ''
+        if res == 'user':
+            prefix = "users"
+        elif res == 'place':
+            prefix = "places"
+        elif res == 'event':
+            prefix = "events"
+        elif res == 'artwork':
+            prefix = "artworks"
+
+        full_path = '%s/%d/%s' % (prefix, rid, fn)
+
         try:
-            # self.resource.Object(self.bucket_name, full_path).delete()
-            self.bucket.delete_key(full_path)
+            self.resource.Object(self.bucket_name, full_path).delete()
         except botocore.exceptions.ClientError as e:
             if e.response['Error']['Code'] == "404":
                 return None
