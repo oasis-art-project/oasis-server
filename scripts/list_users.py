@@ -1,7 +1,7 @@
 import requests
 import argparse
 
-parser = argparse.ArgumentParser(description='List user dataB.')
+parser = argparse.ArgumentParser(description='List user data.')
 parser.add_argument('-u', '--url', action='store', default='http://127.0.0.1:5000', help='set server url')
 args = parser.parse_args()
 

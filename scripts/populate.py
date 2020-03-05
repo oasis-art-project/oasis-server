@@ -484,7 +484,7 @@ for event in events:
     if not event['name'] in event_extra: continue
     eid = event['id']
     host = event['place']['host']
-    user = user_dict[host['firstName'] + ' ' + host['lastName']]        
+    user = user_dict[host['firstName'] + ' ' + host['lastName']]
     fn = event_extra[event['name']]['image']
     if save_images_locally:
         print("Copying images for event", event["name"])
