@@ -58,24 +58,31 @@ class CustomApi(Api):
 # Object wrapping an S3 bucket to store user resources
 class Storage(object):
     def __init__(self):
+        self.disabled = False
         self.resource = None
         self.client = None
         self.bucket_name = ''
         self.bucket = None
 
     def init_app(self, app):
+        v = app.config["AWS_DISABLED"]        
+        self.disabled = v != None and v.upper() == "TRUE"
+        if self.disabled: return
+
         self.resource = boto3.resource(
             "s3",
-            aws_access_key_id=app.config["AWS_ACCESS_KEY_ID"],
-            aws_secret_access_key=app.config["AWS_SECRET_ACCESS_KEY"])
+            aws_access_key_id = app.config["AWS_ACCESS_KEY_ID"],
+            aws_secret_access_key = app.config["AWS_SECRET_ACCESS_KEY"])
         self.client = boto3.client(
             "s3",
-            aws_access_key_id=app.config["AWS_ACCESS_KEY_ID"],
-            aws_secret_access_key=app.config["AWS_SECRET_ACCESS_KEY"])
+            aws_access_key_id = app.config["AWS_ACCESS_KEY_ID"],
+            aws_secret_access_key = app.config["AWS_SECRET_ACCESS_KEY"])
         self.bucket_name = app.config["S3_BUCKET"]
         self.bucket = self.resource.Bucket(self.bucket_name)
 
     def generate_presigned_post(self, resource_kind, resource_id, file_name, file_type):
+        if self.disabled: return None
+
         post_data = self.client.generate_presigned_post(
             Bucket = self.bucket_name,
             Key = file_name,
@@ -103,6 +110,8 @@ class Storage(object):
         }
 
     def passthrough_upload(self, resource_kind, resource_id, file_object, content_type, dest_name):
+        if self.disabled: return None
+
         prefix = ''
         if resource_kind == 'user':
             prefix = "users"
@@ -129,6 +138,8 @@ class Storage(object):
         return url
 
     def create_unique_filename(self, resource_kind, resource_id, filename):
+        if self.disabled: return None
+
         lst = self.list_folder_contents(resource_kind, resource_id)
 
         parts = filename.split('.')
@@ -151,6 +162,8 @@ class Storage(object):
         return res
 
     def list_folder_contents(self, resource_kind, resource_id):
+        if self.disabled: return None
+
         prefix = ''
         if resource_kind == 'user':
             prefix = "users"
@@ -173,22 +186,27 @@ class Storage(object):
         return images
 
     def create_user_folder(self, uid):
+        if self.disabled: return None
         status = self.bucket.put_object(Key="users/" + str(uid) + "/")
         return status
 
     def create_place_folder(self, pid):
+        if self.disabled: return None
         status = self.bucket.put_object(Key="places/" + str(pid) + "/")
         return status
 
     def create_event_folder(self, eid):
+        if self.disabled: return None
         status = self.bucket.put_object(Key="events/" + str(eid) + "/")
         return status
 
     def create_artwork_folder(self, aid):
+        if self.disabled: return None
         status = self.bucket.put_object(Key="artworks/" + str(aid) + "/")
         return status
 
     def delete_folder(self, folder):
+        if self.disabled: return None
         try:
             self.resource.Object(self.bucket_name, folder).load()
         except botocore.exceptions.ClientError as e:
@@ -204,18 +222,23 @@ class Storage(object):
         return status
 
     def delete_user_folder(self, uid):
+        if self.disabled: return None
         return self.delete_folder(folder="users/" + str(uid) + "/")
 
     def delete_place_folder(self, pid):
+        if self.disabled: return None
         return self.delete_folder(folder="places/" + str(pid) + "/")
 
     def delete_event_folder(self, eid):
+        if self.disabled: return None
         return self.delete_folder(folder="events/" + str(eid) + "/")
 
     def delete_artwork_folder(self, aid):
+        if self.disabled: return None
         return self.delete_folder(folder="artworks/" + str(aid) + "/")
 
     def delete_image(self, res, rid, fn):
+        if self.disabled: return None
         prefix = ''
         if res == 'user':
             prefix = "users"
