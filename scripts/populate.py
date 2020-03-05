@@ -7,6 +7,8 @@ import argparse
 import mimetypes
 import imghdr
 import uuid
+from datetime import *
+import dateutil.parser
 from os import listdir, makedirs
 from os.path import isfile, join, exists, expanduser
 from shutil import copy, rmtree
@@ -244,7 +246,7 @@ local_images_dir = args.images
 
 mimetypes.init()
 
-print("Loading users...")
+print("Populating users...")
 in_csv = join(data_dir, "user_list.csv")
 reader = csv.reader(open(in_csv, 'r'), dialect='excel')
 header = next(reader)
@@ -268,7 +270,7 @@ for row in reader:
     uid = r.json()["id"]
     print("  Created user with id", uid)
 
-# Retrieving all users
+# Uploading user images
 user_dict = {}
 r = requests.get(server_url + '/api/user/')
 if r.status_code != 200:
@@ -294,7 +296,7 @@ for user in users:
         print("Uploading images for user", user["firstName"], user["lastName"])
         upload_images_from_folder(base_path, "user", uid, user)
 
-print("Loading artworks...")
+print("Populating artworks...")
 in_csv = join(data_dir, "artwork_list.csv")
 reader = csv.reader(open(in_csv, 'r'), dialect='excel')
 header = next(reader)    
@@ -333,7 +335,7 @@ for row in reader:
         
     print("  Logged out succesfully")        
 
-# Retrieving all artworks
+# Uploading user images
 r = requests.get(server_url + '/api/artwork/')
 if r.status_code != 200:
     raise Exception(r.status_code)
@@ -351,7 +353,7 @@ for artwork in artworks:
         print("Uploading images for artwork", artwork["name"])
         upload_images_from_list(base_path, images, "artwork", pid, user)
 
-print("Loading places...")
+print("Populating places...")
 in_csv = join(data_dir, "place_list.csv")
 reader = csv.reader(open(in_csv, 'r'), dialect='excel')
 header = next(reader)
@@ -386,7 +388,7 @@ for row in reader:
         
     print("  Logged out succesfully")
 
-# Retrieving all places
+# Uploading place images
 place_dict = {}
 r = requests.get(server_url + '/api/place/')
 if r.status_code != 200:
@@ -405,14 +407,37 @@ for place in places:
         print("Uploading images for place", place["name"])
         upload_images_from_folder(base_path, "place", pid, user)
 
-print("Loading events...")
+print("Populating events...")
 in_csv = join(data_dir, "event_list.csv")
 reader = csv.reader(open(in_csv, 'r'), dialect='excel')
-header = next(reader)    
+header = next(reader)
 event_extra = {}
+
+rows = []
+first_date = None
+date_format = '%Y-%m-%dT%H:%M:%S'
 for row in reader:
+    start_date = datetime.strptime(row[4], date_format)
+    end_date = datetime.strptime(row[5], date_format)
+    row[4] = start_date
+    row[5] = end_date
+    if not first_date: first_date = start_date
+    if start_date < first_date:
+        first_date = start_date
+    rows.append(row)    
+    
+NOW = datetime.now()
+diff = NOW - first_date
+
+for row in rows:
     event_extra[row[2]] = {'image': row[7]}
     print("Creating event", row[2], "...")
+
+    # Normalizing dates using today as reference
+    start_date = row[4] + diff
+    end_date = row[5] + diff
+    row[4] = start_date.strftime(date_format)
+    row[5] = end_date.strftime(date_format)
 
     place = {"id": place_dict[row[0]]['id']}
     artists = [{"id":user_dict[name.strip()]['id']} for name in row[1].split(';')]
@@ -449,7 +474,7 @@ for row in reader:
         
     print("  Logged out succesfully")
 
-# Retrieving all events
+# Uploading event images
 events_dict = {}
 r = requests.get(server_url + '/api/event/')
 if r.status_code != 200:
