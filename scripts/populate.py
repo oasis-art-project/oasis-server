@@ -76,30 +76,43 @@ def event_json(place, artists, row):
     }
 
 def copy_image(bdir, fn, rkind, rid, ddir):
-    copy_image_list([join(bdir, fn)], rkind, rid, ddir)
+    copy_images([join(bdir, fn)], rkind, rid, ddir)
 
-def copy_images(bdir, rkind, rid, ddir):
+def copy_images_from_folder(bdir, rkind, rid, ddir):
     all_files = []
     for f in listdir(bdir):
         path = join(bdir, f)
         if not isfile(path) or not imghdr.what(path): continue
         all_files += [path]
-    copy_image_list(all_files, rkind, rid, ddir)
+    copy_images(all_files, rkind, rid, ddir)
 
-def copy_image_list(lst, rkind, rid, ddir):
+def copy_images_from_list(bdir, fnlist, rkind, rid, ddir):
+    all_files = []
+    for f in fnlist:
+        path = join(bdir, f)
+        if not isfile(path) or not imghdr.what(path): continue
+        all_files += [path]
+    copy_images(all_files, rkind, rid, ddir)
+
+def copy_images(lst, rkind, rid, ddir):
     dpath = join(expanduser(ddir), rkind + 's', str(rid))
     if not exists(dpath):
         makedirs(dpath)    
-    dst_name = ''
-    if rkind == 'user':
-        dst_name = "profile"
-    elif rkind == 'place':
-        dst_name = "place"
-    elif rkind == 'event':
-        dst_name = "event"
-    elif rkind == 'artwork':
-        dst_name = "artwork"
+
     for fn in lst:
+        dst_name = ''
+        make_unique = False
+        if rkind == 'user':
+            dst_name = "profile"
+        elif rkind == 'place':
+            dst_name = "place"
+            make_unique = True
+        elif rkind == 'event':
+            dst_name = "event"
+        elif rkind == 'artwork':
+            dst_name = "artwork"
+            make_unique = True
+
         image_type = imghdr.what(fn)
         tmp_path = None
         if image_type and image_type != 'jpeg':
@@ -115,7 +128,12 @@ def copy_image_list(lst, rkind, rid, ddir):
             rgb_img.save(conv_fn)
             fn = conv_fn
 
-        copy(fn, join(dpath, dst_name + ".jpg"))
+        if make_unique:
+            dst_name = create_unique_filename(dpath, dst_name)
+
+        destfn = join(dpath, dst_name + ".jpg")
+        print("  ", fn, "to", destfn)        
+        copy(fn, destfn)
 
         if tmp_path:
             try:
@@ -123,32 +141,30 @@ def copy_image_list(lst, rkind, rid, ddir):
             except OSError as e:
                 print ("Error: %s - %s." % (e.filename, e.strerror))
 
+def create_unique_filename(filepath, filename):
+    lst = listdir(filepath)
+
+    parts = filename.split('.')
+    if not parts: 
+        return filename
+    name0 = parts[0].lower()
+
+    count = 0
+    for fn in lst:
+        bname = os.path.basename(fn)
+        parts = bname.split('.')
+        if parts:
+            name = parts[0].lower()
+            name = name.rsplit("-")[0]
+            if name == name0:
+                count += 1
+
+    res = name0 + "-" + str(count)
+
+    return res
+
 def upload_image(bdir, fn, rkind, rid, user):
-    # The user that owns the images needs to login
-    user_data = make_data_request({'email': user['email'], 'password': user['password']})
-    r = requests.post(server_url + '/api/login/', data=user_data)
-    if r.status_code != 200:
-        raise Exception(r.status_code, r.content)
-    host_token = r.json()['token']
-    host_header = auth_header(host_token)
-
-    full_path = join(bdir, fn)
-    mtype = mimetypes.guess_type(full_path)[0]
-    if not mtype: return
-    image_files = [('images', (fn, open(full_path, 'rb'), mtype))]
-    r = requests.post(server_url + '/api/media/' + str(rid) + '?resource-kind=' + rkind, files=image_files, headers=host_header)
-    if r.status_code != 200:
-        raise Exception(r.status_code)
-    j = r.json()
-    for item in j:
-        if item == "images":
-            imgs = json.loads(j[item])
-            for fn in imgs:
-                print("  Uploaded image:", fn, "=>", imgs[fn]["url"])
-
-    r = requests.delete(server_url + '/api/login/', headers=host_header)
-    if r.status_code != 200:
-        raise Exception(r.status_code, r.content)                    
+    upload_images_from_list(bdir, [fn], rkind, rid, user)
 
 def upload_images_from_folder(bdir, rkind, rid, user):
     # The user that owns the images needs to login
@@ -273,7 +289,7 @@ for user in users:
         base_path = data_dir + "/images/users/artists/" + user['email']
     if save_images_locally:
         print("Copying images for user", user["firstName"], user["lastName"])
-        copy_images(base_path, "user", uid, local_images_dir)
+        copy_images_from_folder(base_path, "user", uid, local_images_dir)
     else:
         print("Uploading images for user", user["firstName"], user["lastName"])
         upload_images_from_folder(base_path, "user", uid, user)
@@ -318,7 +334,6 @@ for row in reader:
     print("  Logged out succesfully")        
 
 # Retrieving all artworks
-# artwork_dict = {}
 r = requests.get(server_url + '/api/artwork/')
 if r.status_code != 200:
     raise Exception(r.status_code)
@@ -331,7 +346,7 @@ for artwork in artworks:
     images = artwork_images[pid]
     if save_images_locally:
         print("Copying images for artwork", artwork["name"])
-        copy_images(base_path, "artwork", uid, local_images_dir)
+        copy_images_from_list(base_path, images, "artwork", pid, local_images_dir)
     else:
         print("Uploading images for artwork", artwork["name"])
         upload_images_from_list(base_path, images, "artwork", pid, user)
@@ -385,7 +400,7 @@ for place in places:
     base_path = data_dir + "/images/places/" + place["name"]
     if save_images_locally:
         print("Copying images for place", place["name"])
-        copy_images(base_path, "place", uid, local_images_dir)
+        copy_images_from_folder(base_path, "place", pid, local_images_dir)
     else:
         print("Uploading images for place", place["name"])
         upload_images_from_folder(base_path, "place", pid, user)
@@ -447,7 +462,7 @@ for event in events:
     user = user_dict[host['firstName'] + ' ' + host['lastName']]        
     fn = event_extra[event['name']]['image']
     if save_images_locally:
-        print("Uploading images for event", event["name"])
+        print("Copying images for event", event["name"])
         copy_image(data_dir + "/images/events", fn, "event", eid, local_images_dir)
     else:        
         print("Uploading images for event", event["name"])
