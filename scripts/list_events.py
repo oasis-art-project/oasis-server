@@ -15,7 +15,6 @@ def print_events(events):
         print("  Starts:", time0)
         print("  Ends:", time1)
 
-
 parser = argparse.ArgumentParser(description='List all events, or current and upcoming given a specific date.')
 parser.add_argument('-u', '--url', action='store', default='http://127.0.0.1:5000', help='set server url')
 parser.add_argument('-d', '--date', action='store', default='', help='date to classify events as current and upcoming, in yyy-mm-dd format')
