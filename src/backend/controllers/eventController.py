@@ -13,6 +13,7 @@ from flask_jwt_extended import jwt_required, current_user
 from flask_restplus import Resource
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import joinedload
+from datetime import datetime
 
 from src.backend.controllers.controller import load_request
 from src.backend.models.eventModel import EventSchema, Event
@@ -23,7 +24,7 @@ event_schema = EventSchema()
 
 
 class EventResource(Resource):
-    def get(self, event_id=None, place_event_id=None):
+    def get(self, event_id=None, event_date=None, place_event_id=None):
         """
         Gets a list of events
         """
@@ -32,6 +33,15 @@ class EventResource(Resource):
             if place_event_id:
                 place_events = Event.query.filter_by(place_id=place_event_id).all()
                 return {"status": "success", "events": event_schema.dump(place_events, many=True).data}, 200
+
+            # Return current and upcoming events based on date provided in request
+            if event_date:
+                date0 = datetime.strptime(event_date + "T23:59:59", "%Y-%m-%dT%H:%M:%S")
+                date1 = datetime.strptime(event_date + "T00:00:00", "%Y-%m-%dT%H:%M:%S")
+                current_events = Event.query.filter(Event.startTime<=date0, date1<=Event.endTime).all()
+                upcoming_events = Event.query.filter(date0<Event.startTime).all()
+                return {"status": "success", "current_events": event_schema.dump(current_events, many=True).data,
+                                             "upcoming_events": event_schema.dump(upcoming_events, many=True).data}, 200
 
             # Return a specific event with ID event_id
             if event_id:
