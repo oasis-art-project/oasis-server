@@ -76,18 +76,18 @@ If it is needed to clear the db and images, and restart the server, run the foll
 
 The server has been tested on Heroku. General steps involve
 
-1. Create Heroku app
+1. Create Heroku app <br>
 `heroku create server-oasis` <br>
 
-2. Set environment
+2. Set environment <br>
 `heroku addons:create heroku-postgresql:hobby-dev --app server-oasis` <br>
 `heroku config:set S3_BUCKET=oasis-storage` <br>
 `heroku config:set AWS_ACCESS_KEY_ID=<ID of AWD access key> AWS_SECRET_ACCESS_KEY=<AWS secret access key>` <br>
 
-3. Push changes
+3. Push changes <br>
 `git push heroku` <br>
 
-4. Populate DB and AWS
+4. Populate DB and AWS <br>
 `python scripts/populate.py` <br>
 
 ### Stand-alone WSGI server
