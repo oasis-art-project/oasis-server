@@ -41,11 +41,9 @@ class TestPlace:
         assert r.json['status'] == 'success'
         assert r.json['place']['host']['firstName'] == host.firstName
         assert r.json['place']['host']['lastName'] == host.lastName
-        assert r.json['place']['host']['avatar'] == host.avatar
         assert r.json['place']['name'] == place.name
         assert r.json['place']['description'] == place.description
         assert r.json['place']['address'] == place.address
-        assert r.json['place']['photo'] == place.photo
 
     def test_get_not_exists_place(self, client):
         r = client.get("{}{}".format(_url, 1))
@@ -56,24 +54,20 @@ class TestPlace:
     def test_get_places(self, client):
         host1, _, host1_dump = _create_user(role=2,
                                             firstName="hostFirstFirstName",
-                                            lastName="hostFirstLastName",
-                                            avatar="hostFirstAvatar")
+                                            lastName="hostFirstLastName")
         host2, _, host2_dump = _create_user(role=2,
                                             email="bar@foo.com",
                                             firstName="hostSecondFirstName",
-                                            lastName="hostSecondLastName",
-                                            avatar="hostSecondAvatar")
+                                            lastName="hostSecondLastName")
 
         place1 = _create_place(host1_dump,
                                name="place1Name",
                                description="place1Description",
-                               address="place1Address",
-                               photo="place1photo.jpg")
+                               address="place1Address")
         place2 = _create_place(host2_dump,
                                name="place2Name",
                                description="place2Description",
-                               address="place2Address",
-                               photo="place2photo.jpg")
+                               address="place2Address")
 
         r = client.get(_url)
 
@@ -82,12 +76,10 @@ class TestPlace:
         assert r.json['places'][0]['host']['id']
         assert r.json['places'][0]['host']['firstName'] == host1.firstName
         assert r.json['places'][0]['host']['lastName'] == host1.lastName
-        assert r.json['places'][0]['host']['avatar'] == host1.avatar
         assert r.json['places'][0]['id'] == place1.id
         assert r.json['places'][0]['name'] == place1.name
         assert r.json['places'][0]['description'] == place1.description
         assert r.json['places'][0]['address'] == place1.address
-        assert r.json['places'][0]['photo'] == place1.photo
         assert 'email' not in r.json['places'][0]['host']
         assert 'password' not in r.json['places'][0]['host']
         assert 'token' not in r.json['places'][0]['host']
@@ -95,12 +87,10 @@ class TestPlace:
         assert r.json['places'][1]['host']['id']
         assert r.json['places'][1]['host']['firstName'] == host2.firstName
         assert r.json['places'][1]['host']['lastName'] == host2.lastName
-        assert r.json['places'][1]['host']['avatar'] == host2.avatar
         assert r.json['places'][1]['id'] == place2.id
         assert r.json['places'][1]['name'] == place2.name
         assert r.json['places'][1]['description'] == place2.description
         assert r.json['places'][1]['address'] == place2.address
-        assert r.json['places'][1]['photo'] == place2.photo
         assert 'email' not in r.json['places'][1]['host']
         assert 'password' not in r.json['places'][1]['host']
         assert 'token' not in r.json['places'][1]['host']
@@ -110,13 +100,11 @@ class TestPlace:
         place1 = _create_place(host_dump,
                                name="place1Name",
                                description="place1Description",
-                               address="place1Address",
-                               photo="place1photo.jpg")
+                               address="place1Address")
         place2 = _create_place(host_dump,
                                name="place2Name",
                                description="place2Description",
-                               address="place2Address",
-                               photo="place2photo.jpg")
+                               address="place2Address")
 
         r = client.get(_url + "host/{}".format(host.id))
 
@@ -125,12 +113,10 @@ class TestPlace:
         assert r.json['places'][0]['name'] == place1.name
         assert r.json['places'][0]['description'] == place1.description
         assert r.json['places'][0]['address'] == place1.address
-        assert r.json['places'][0]['photo'] == place1.photo
         assert r.json['places'][1]['id'] == place2.id
         assert r.json['places'][1]['name'] == place2.name
         assert r.json['places'][1]['description'] == place2.description
         assert r.json['places'][1]['address'] == place2.address
-        assert r.json['places'][1]['photo'] == place2.photo
 
     #
     # Create
@@ -143,8 +129,6 @@ class TestPlace:
         assert r.status_code == 201
         assert r.json['status'] == 'success'
 
-        _remove_files(json.loads(Place.get_by_id(1).photo))
-
     def test_create_place_by_admin(self, client):
         _, _, _ = _create_user(role=2)
         _, admin_token, _ = _create_user(email='bar@foo.com', role=1)
@@ -153,8 +137,6 @@ class TestPlace:
         # TODO: !!! check in db if code 200 or 201 everywhere. Like in updated
         assert r.status_code == 201
         assert r.json['status'] == 'success'
-
-        _remove_files(json.loads(Place.get_by_id(1).photo))
 
     def test_create_place_no_input(self, client):
         host, host_token, _ = _create_user(role=2)
@@ -187,23 +169,6 @@ class TestPlace:
         assert r.status_code == 401
         assert r.json['msg'] == "Missing Authorization Header"
 
-    def test_create_place_photos_created(self, client):
-        _, host_token, host_dump = _create_user(role=2)
-
-        r = client.post(_url, data=_params(_place_json(host_dump), 2), headers=_auth_header(host_token))
-
-        assert r.status_code == 201
-        assert r.json['status'] == 'success'
-
-        file_path = os.path.join(flask.current_app.root_path, flask.current_app.config['UPLOAD_FOLDER'])
-
-        photo = json.loads(Place.get_by_id(1).photo)
-
-        assert os.path.isfile(os.path.join(file_path, photo[0]))
-        assert os.path.isfile(os.path.join(file_path, photo[1]))
-
-        _remove_files(photo)
-
     def test_create_place_with_fake_host_input(self, client):
         _, host_token, host_dump = _create_user(role=2)
 
@@ -218,8 +183,6 @@ class TestPlace:
         assert r.json['status'] == 'success'
         assert place.host.firstName != host_dump['firstName']
         assert place.host.lastName != host_dump['lastName']
-
-        _remove_files(json.loads(Place.get_by_id(1).photo))
 
     #
     # Update
@@ -246,8 +209,6 @@ class TestPlace:
         assert updated_place.description == place_dump['description']
         assert updated_place.address == place_dump['address']
 
-        _remove_files(json.loads(updated_place.photo))
-
     def test_update_place_no_input(self, client):
         _, token, _ = _create_user()
 
@@ -271,7 +232,8 @@ class TestPlace:
 
         place_dump = {
             'id': place.id,
-            'name': "updated name"
+            'name': "updated name",
+            'address': place.address
         }
 
         r = client.put(_url, data=_params(place_dump), headers=_auth_header(host_token))
@@ -284,7 +246,8 @@ class TestPlace:
 
         place_dump2 = {
             'id': place.id,
-            'description': 'updated description'
+            'description': 'updated description',
+            'address': place.address            
         }
 
         r = client.put(_url, data=_params(place_dump2), headers=_auth_header(host_token))
@@ -334,8 +297,6 @@ class TestPlace:
         assert updated_place.description == place_dump['description']
         assert updated_place.address == place_dump['address']
 
-        _remove_files(json.loads(updated_place.photo))
-
     def test_update_place_not_exists_place(self, client):
         host, token, host_dump = _create_user(role=2)
         _ = _create_place(host_dump)
@@ -367,45 +328,6 @@ class TestPlace:
 
         assert r.status_code == 401
         assert r.json['message'] == 'Not enough privileges'
-
-    def test_update_place_photos_updated(self, client):
-        _, host_token, host_dump = _create_user(role=2)
-
-        client.post(_url, data=_params(_place_json(host_dump), 2), headers=_auth_header(host_token))
-
-        r = client.put(_url, data=_params({"id": 1}, 2), headers=_auth_header(host_token))
-
-        assert r.status_code == 200
-        assert r.json['status'] == 'success'
-
-        file_path = os.path.join(flask.current_app.root_path, flask.current_app.config['UPLOAD_FOLDER'])
-
-        photo = json.loads(Place.get_by_id(1).photo)
-
-        assert os.path.isfile(os.path.join(file_path, photo[0]))
-        assert os.path.isfile(os.path.join(file_path, photo[1]))
-        assert os.path.isfile(os.path.join(file_path, photo[2]))
-        assert os.path.isfile(os.path.join(file_path, photo[3]))
-
-        _remove_files(photo)
-
-    def test_update_place_photos_maximum_reached(self, client):
-        _, host_token, host_dump = _create_user(role=2)
-
-        client.post(_url, data=_params(_place_json(host_dump), 2), headers=_auth_header(host_token))
-
-        client.put(_url, data=_params({"id": 1}, 2), headers=_auth_header(host_token))
-        client.put(_url, data=_params({"id": 1}, 2), headers=_auth_header(host_token))
-        client.put(_url, data=_params({"id": 1}, 2), headers=_auth_header(host_token))
-        client.put(_url, data=_params({"id": 1}, 2), headers=_auth_header(host_token))
-        r = client.put(_url, data=_params({"id": 1}, 2), headers=_auth_header(host_token))
-
-        assert r.status_code == 400
-        assert r.json['message'][:33] == 'Total number of files can be only'
-
-        photo = json.loads(Place.get_by_id(1).photo)
-
-        _remove_files(photo)
 
     #
     # Delete
@@ -464,39 +386,3 @@ class TestPlace:
 
         assert r.status_code == 401
         assert r.json['message'] == "Not enough privileges"
-
-    def test_delete_place_specific_photo(self, client):
-        _, host_token, host_dump = _create_user(role=2)
-
-        client.post(_url, data=_params(_place_json(host_dump), 2), headers=_auth_header(host_token))
-
-        photo = json.loads(Place.get_by_id(1).photo)
-
-        r1 = client.delete(_url, data={'id': 1, 'photo': photo[0]}, headers=_auth_header(host_token))
-        r2 = client.delete(_url, data={'id': 1, 'photo': photo[1]}, headers=_auth_header(host_token))
-
-        assert r1.status_code == 200
-        assert r1.json['status'] == 'success'
-        assert r2.status_code == 200
-        assert r2.json['status'] == 'success'
-
-        file_path = os.path.join(flask.current_app.root_path, flask.current_app.config['UPLOAD_FOLDER'])
-
-        assert not os.path.isfile(os.path.join(file_path, photo[0]))
-        assert not os.path.isfile(os.path.join(file_path, photo[1]))
-
-    def test_delete_place_all_photos(self, client):
-        _, host_token, host_dump = _create_user(role=2)
-
-        client.post(_url, data=_params(_place_json(host_dump), 2), headers=_auth_header(host_token))
-        photo = json.loads(Place.get_by_id(1).photo)
-
-        r = client.delete(_url, data={'id': 1}, headers=_auth_header(host_token))
-
-        assert r.status_code == 200
-        assert r.json['status'] == 'success'
-
-        file_path = os.path.join(flask.current_app.root_path, flask.current_app.config['UPLOAD_FOLDER'])
-
-        assert not os.path.isfile(os.path.join(file_path, photo[0]))
-        assert not os.path.isfile(os.path.join(file_path, photo[1]))

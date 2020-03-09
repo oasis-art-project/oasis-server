@@ -42,10 +42,8 @@ class TestArtwork:
         assert r.json['status'] == 'success'
         assert r.json['artwork']['artist']['firstName'] == artist.firstName
         assert r.json['artwork']['artist']['lastName'] == artist.lastName
-        assert r.json['artwork']['artist']['avatar'] == artist.avatar
         assert r.json['artwork']['name'] == artwork.name
         assert r.json['artwork']['description'] == artwork.description
-        assert r.json['artwork']['photo'] == artwork.photo
 
     def test_get_not_exists_artwork(self, client):
         r = client.get("{}{}".format(_url, 1))
@@ -56,22 +54,18 @@ class TestArtwork:
     def test_get_artworks(self, client):
         artist1, _, artist1_dump = _create_user(role=3,
                                                 firstName="artistFirstFirstName",
-                                                lastName="artistFirstLastName",
-                                                avatar="artist1Avatar")
+                                                lastName="artistFirstLastName")
         artist2, _, artist2_dump = _create_user(role=3,
                                                 email="bar@foo.com",
                                                 firstName="artistSecondFirstName",
-                                                lastName="artistSecondLastName",
-                                                avatar="artist2Avatar")
+                                                lastName="artistSecondLastName")
 
         artwork1 = _create_artwork(artist1_dump,
                                    name="artwork1Name",
-                                   description="artwork1Description",
-                                   photo="artwork1photo.jpg")
+                                   description="artwork1Description")
         artwork2 = _create_artwork(artist2_dump,
                                    name="artwork2Name",
-                                   description="artwork2Description",
-                                   photo="artwork2photo.jpg")
+                                   description="artwork2Description")
 
         r = client.get(_url)
 
@@ -80,11 +74,9 @@ class TestArtwork:
         assert r.json['artworks'][0]['artist']['id']
         assert r.json['artworks'][0]['artist']['firstName'] == artist1.firstName
         assert r.json['artworks'][0]['artist']['lastName'] == artist1.lastName
-        assert r.json['artworks'][0]['artist']['avatar'] == artist1.avatar
         assert r.json['artworks'][0]['id'] == artwork1.id
         assert r.json['artworks'][0]['name'] == artwork1.name
         assert r.json['artworks'][0]['description'] == artwork1.description
-        assert r.json['artworks'][0]['photo'] == artwork1.photo
         assert 'email' not in r.json['artworks'][0]['artist']
         assert 'password' not in r.json['artworks'][0]['artist']
         assert 'token' not in r.json['artworks'][0]['artist']
@@ -92,11 +84,9 @@ class TestArtwork:
         assert r.json['artworks'][1]['artist']['id']
         assert r.json['artworks'][1]['artist']['firstName'] == artist2.firstName
         assert r.json['artworks'][1]['artist']['lastName'] == artist2.lastName
-        assert r.json['artworks'][1]['artist']['avatar'] == artist2.avatar
         assert r.json['artworks'][1]['id'] == artwork2.id
         assert r.json['artworks'][1]['name'] == artwork2.name
         assert r.json['artworks'][1]['description'] == artwork2.description
-        assert r.json['artworks'][1]['photo'] == artwork2.photo
         assert 'email' not in r.json['artworks'][1]['artist']
         assert 'password' not in r.json['artworks'][1]['artist']
         assert 'token' not in r.json['artworks'][1]['artist']
@@ -105,12 +95,10 @@ class TestArtwork:
         artist, _, artist_dump = _create_user(role=3)
         artwork1 = _create_artwork(artist_dump,
                                    name="artwork1Name",
-                                   description="artwork1Description",
-                                   photo="artwork1photo.jpg")
+                                   description="artwork1Description")
         artwork2 = _create_artwork(artist_dump,
                                    name="artwork2Name",
-                                   description="artwork2Description",
-                                   photo="artwork2photo.jpg")
+                                   description="artwork2Description")
 
         r = client.get(_url + "artist/{}".format(artist.id))
 
@@ -118,11 +106,9 @@ class TestArtwork:
         assert r.json['artworks'][0]['id'] == artwork1.id
         assert r.json['artworks'][0]['name'] == artwork1.name
         assert r.json['artworks'][0]['description'] == artwork1.description
-        assert r.json['artworks'][0]['photo'] == artwork1.photo
         assert r.json['artworks'][1]['id'] == artwork2.id
         assert r.json['artworks'][1]['name'] == artwork2.name
         assert r.json['artworks'][1]['description'] == artwork2.description
-        assert r.json['artworks'][1]['photo'] == artwork2.photo
 
     #
     # Create
@@ -135,8 +121,6 @@ class TestArtwork:
         assert r.status_code == 201
         assert r.json['status'] == 'success'
 
-        _remove_files(json.loads(Artwork.get_by_id(1).photo))
-
     def test_create_artwork_by_admin(self, client):
         _, _, _ = _create_user(role=2)
         _, admin_token, _ = _create_user(email='bar@foo.com', role=1)
@@ -145,8 +129,6 @@ class TestArtwork:
 
         assert r.status_code == 201
         assert r.json['status'] == 'success'
-
-        _remove_files(json.loads(Artwork.get_by_id(1).photo))
 
     def test_create_artwork_no_input(self, client):
         artist, artist_token, _ = _create_user(role=3)
@@ -179,23 +161,6 @@ class TestArtwork:
         assert r.status_code == 401
         assert r.json['message'] == "Not enough privileges"
 
-    def test_create_artwork_photos_created(self, client):
-        _, artist_token, artist_dump = _create_user(role=3)
-
-        r = client.post(_url, data=_params(_artwork_json(artist_dump), 2), headers=_auth_header(artist_token))
-
-        assert r.status_code == 201
-        assert r.json['status'] == 'success'
-
-        file_path = os.path.join(flask.current_app.root_path, flask.current_app.config['UPLOAD_FOLDER'])
-
-        photo = json.loads(Artwork.get_by_id(1).photo)
-
-        assert os.path.isfile(os.path.join(file_path, photo[0]))
-        assert os.path.isfile(os.path.join(file_path, photo[1]))
-
-        _remove_files(photo)
-
     def test_create_artwork_with_fake_artist_input(self, client):
         _, artist_token, artist_dump = _create_user(role=3)
 
@@ -210,8 +175,6 @@ class TestArtwork:
         assert r.json['status'] == 'success'
         assert artwork.artist.firstName != artist_dump['firstName']
         assert artwork.artist.lastName != artist_dump['lastName']
-
-        _remove_files(json.loads(Artwork.get_by_id(1).photo))
 
     #
     # Update
@@ -235,8 +198,6 @@ class TestArtwork:
         assert updated_artwork is not None
         assert updated_artwork.name == artwork_dump['name']
         assert updated_artwork.description == artwork_dump['description']
-
-        _remove_files(json.loads(updated_artwork.photo))
 
     def test_update_artwork_no_input(self, client):
         _, token, _ = _create_user()
@@ -322,8 +283,6 @@ class TestArtwork:
         assert updated_artwork.name == artwork_dump['name']
         assert updated_artwork.description == artwork_dump['description']
 
-        _remove_files(json.loads(updated_artwork.photo))
-
     def test_update_artwork_not_exists_artwork(self, client):
         _, token, artist_dump = _create_user(role=3)
         _ = _create_artwork(artist_dump)
@@ -355,45 +314,6 @@ class TestArtwork:
 
         assert r.status_code == 401
         assert r.json['message'] == 'Not enough privileges'
-
-    def test_update_artwork_photos_updated(self, client):
-        _, artist_token, artist_dump = _create_user(role=3)
-
-        client.post(_url, data=_params(_artwork_json(artist_dump), 2), headers=_auth_header(artist_token))
-
-        r = client.put(_url, data=_params({"id": 1}, 2), headers=_auth_header(artist_token))
-
-        assert r.status_code == 200
-        assert r.json['status'] == 'success'
-
-        file_path = os.path.join(flask.current_app.root_path, flask.current_app.config['UPLOAD_FOLDER'])
-
-        photo = json.loads(Artwork.get_by_id(1).photo)
-
-        assert os.path.isfile(os.path.join(file_path, photo[0]))
-        assert os.path.isfile(os.path.join(file_path, photo[1]))
-        assert os.path.isfile(os.path.join(file_path, photo[2]))
-        assert os.path.isfile(os.path.join(file_path, photo[3]))
-
-        _remove_files(photo)
-
-    def test_update_place_photos_maximum_reached(self, client):
-        _, artist_token, artist_dump = _create_user(role=3)
-
-        client.post(_url, data=_params(_artwork_json(artist_dump), 2), headers=_auth_header(artist_token))
-
-        client.put(_url, data=_params({"id": 1}, 2), headers=_auth_header(artist_token))
-        client.put(_url, data=_params({"id": 1}, 2), headers=_auth_header(artist_token))
-        client.put(_url, data=_params({"id": 1}, 2), headers=_auth_header(artist_token))
-        client.put(_url, data=_params({"id": 1}, 2), headers=_auth_header(artist_token))
-        r = client.put(_url, data=_params({"id": 1}, 2), headers=_auth_header(artist_token))
-
-        assert r.status_code == 400
-        assert r.json['message'][:33] == 'Total number of files can be only'
-
-        photo = json.loads(Artwork.get_by_id(1).photo)
-
-        _remove_files(photo)
 
     #
     # Delete
@@ -452,40 +372,3 @@ class TestArtwork:
 
         assert r.status_code == 401
         assert r.json['message'] == "Not enough privileges"
-
-    def test_delete_artwork_specific_photo(self, client):
-        _, artist_token, artist_dump = _create_user(role=3)
-
-        client.post(_url, data=_params(_artwork_json(artist_dump), 2), headers=_auth_header(artist_token))
-
-        photo = json.loads(Artwork.get_by_id(1).photo)
-
-        r1 = client.delete(_url, data={'id': 1, 'photo': photo[0]}, headers=_auth_header(artist_token))
-        r2 = client.delete(_url, data={'id': 1, 'photo': photo[1]}, headers=_auth_header(artist_token))
-
-        assert r1.status_code == 200
-        assert r1.json['status'] == 'success'
-        assert r2.status_code == 200
-        assert r2.json['status'] == 'success'
-
-        file_path = os.path.join(flask.current_app.root_path, flask.current_app.config['UPLOAD_FOLDER'])
-
-        assert not os.path.isfile(os.path.join(file_path, photo[0]))
-        assert not os.path.isfile(os.path.join(file_path, photo[1]))
-
-    def test_delete_artwork_all_photos(self, client):
-        _, artist_token, artist_dump = _create_user(role=3)
-
-        client.post(_url, data=_params(_artwork_json(artist_dump), 2), headers=_auth_header(artist_token))
-
-        photo = json.loads(Artwork.get_by_id(1).photo)
-
-        r = client.delete(_url, data={'id': 1}, headers=_auth_header(artist_token))
-
-        assert r.status_code == 200
-        assert r.json['status'] == 'success'
-
-        file_path = os.path.join(flask.current_app.root_path, flask.current_app.config['UPLOAD_FOLDER'])
-
-        assert not os.path.isfile(os.path.join(file_path, photo[0]))
-        assert not os.path.isfile(os.path.join(file_path, photo[1]))

@@ -21,8 +21,6 @@ class Config(object):
     # SQLAlchemy conf
     SQLALCHEMY_ECHO = False
     SQLALCHEMY_TRACK_MODIFICATIONS = True
-    # SQLALCHEMY_DATABASE_URI = 'sqlite:///{}/oasis.sqlite'.format(INSTANCE_PATH)
-    # SQLALCHEMY_DATABASE_URI = 'postgresql://localhost/oasis'
     SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
 
     # AWS configuration
@@ -32,7 +30,7 @@ class Config(object):
     AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
 
     # Upload data conf
-    MAX_CONTENT_LENGTH = 5000 * 1024
+    MAX_IMAGE_SIZE = 2024 * 2048
     UPLOAD_FOLDER = 'public/uploads/'
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 

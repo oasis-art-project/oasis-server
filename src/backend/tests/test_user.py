@@ -44,7 +44,6 @@ class TestUser:
         assert r.json['user']['id']
         assert r.json['user']['firstName'] == user_dump['firstName']
         assert r.json['user']['lastName'] == user_dump['lastName']
-        assert r.json['user']['avatar'] == user_dump['avatar']
         assert r.json['user']['twitter'] == user_dump['twitter']
         assert r.json['user']['flickr'] == user_dump['flickr']
         assert r.json['user']['instagram'] == user_dump['instagram']
@@ -71,7 +70,6 @@ class TestUser:
         assert r.json['user']['email'] == user_dump['email']
         assert r.json['user']['firstName'] == user_dump['firstName']
         assert r.json['user']['lastName'] == user_dump['lastName']
-        assert r.json['user']['avatar'] == user_dump['avatar']
         assert r.json['user']['twitter'] == user_dump['twitter']
         assert r.json['user']['flickr'] == user_dump['flickr']
         assert r.json['user']['instagram'] == user_dump['instagram']
@@ -91,7 +89,6 @@ class TestUser:
         assert r.json['user']['email'] == user_dump['email']
         assert r.json['user']['firstName'] == user_dump['firstName']
         assert r.json['user']['lastName'] == user_dump['lastName']
-        assert r.json['user']['avatar'] == user_dump['avatar']
         assert r.json['user']['twitter'] == user_dump['twitter']
         assert r.json['user']['flickr'] == user_dump['flickr']
         assert r.json['user']['instagram'] == user_dump['instagram']
@@ -122,7 +119,6 @@ class TestUser:
         another_user = {
             'firstName': 'bar',
             'lastName': 'foo',
-            'avatar': 'avatar.jpg',
             'twitter': 'anotherTwitter',
             'flickr': 'anotherFlickr',
             'instagram': 'anotherInstagram',
@@ -138,7 +134,6 @@ class TestUser:
 
         assert r.json['users'][0]['firstName'] == dump['firstName']
         assert r.json['users'][0]['lastName'] == dump['lastName']
-        assert r.json['users'][0]['avatar'] == dump['avatar']
         assert r.json['users'][0]['twitter'] == dump['twitter']
         assert r.json['users'][0]['flickr'] == dump['flickr']
         assert r.json['users'][0]['instagram'] == dump['instagram']
@@ -150,7 +145,6 @@ class TestUser:
 
         assert r.json['users'][1]['firstName'] == another_user_dump['firstName']
         assert r.json['users'][1]['lastName'] == another_user_dump['lastName']
-        assert r.json['users'][1]['avatar'] == another_user_dump['avatar']
         assert r.json['users'][1]['twitter'] == another_user_dump['twitter']
         assert r.json['users'][1]['flickr'] == another_user_dump['flickr']
         assert r.json['users'][1]['instagram'] == another_user_dump['instagram']
@@ -167,7 +161,6 @@ class TestUser:
             'email': 'bar@foo.com',
             'firstName': 'bar',
             'lastName': 'foo',
-            'avatar': 'avatar.jpg',
             'twitter': 'anotherTwitter',
             'flickr': 'anotherFlickr',
             'instagram': 'anotherInstagram',
@@ -181,7 +174,6 @@ class TestUser:
         assert r.json['users'][0]['email'] == admin_dump['email']
         assert r.json['users'][0]['firstName'] == admin_dump['firstName']
         assert r.json['users'][0]['lastName'] == admin_dump['lastName']
-        assert r.json['users'][0]['avatar'] == admin_dump['avatar']
         assert r.json['users'][0]['twitter'] == admin_dump['twitter']
         assert r.json['users'][0]['flickr'] == admin_dump['flickr']
         assert r.json['users'][0]['instagram'] == admin_dump['instagram']
@@ -193,7 +185,6 @@ class TestUser:
         assert r.json['users'][1]['email'] == another_user_dump['email']
         assert r.json['users'][1]['firstName'] == another_user_dump['firstName']
         assert r.json['users'][1]['lastName'] == another_user_dump['lastName']
-        assert r.json['users'][1]['avatar'] == another_user_dump['avatar']
         assert r.json['users'][1]['twitter'] == another_user_dump['twitter']
         assert r.json['users'][1]['flickr'] == another_user_dump['flickr']
         assert r.json['users'][1]['instagram'] == another_user_dump['instagram']
@@ -212,8 +203,6 @@ class TestUser:
         assert r.json['status'] == 'success'
         assert r.json['token'] != ''
         assert User.get_by_id(1).firstName == _user_json()['firstName']
-
-        _remove_files(json.loads(User.get_by_id(1).avatar))
 
     def test_create_no_input(self, client):
         r = client.post(_url, data={})
@@ -236,9 +225,6 @@ class TestUser:
                 'password': "foo",
                 'firstName': "",
                 'lastName': " ",
-                'twitter': "http://",
-                'flickr': "http://",
-                'instagram': "http://",
                 'role': 6
                 }
 
@@ -250,9 +236,6 @@ class TestUser:
         assert r.json['message']['firstName'] == ["String does not match expected pattern."]
         assert r.json['message']['lastName'] == ["String does not match expected pattern."]
         assert r.json['message']['role'] == ["Must be between 1 and 4."]
-        assert r.json['message']['twitter'] == ["String does not match expected pattern."]
-        assert r.json['message']['flickr'] == ["String does not match expected pattern."]
-        assert r.json['message']['instagram'] == ["String does not match expected pattern."]
 
     def test_create_user_exists(self, client):
         client.post(_url, data=_params(_user_json()))
@@ -284,20 +267,6 @@ class TestUser:
         assert r.json['status'] == 'success'
         assert r.json['token'] != ''
 
-    def test_create_user_avatar_created(self, client):
-        r = client.post(_url, data=_params(_user_json(), 1))
-
-        assert r.status_code == 201
-        assert r.json['status'] == 'success'
-
-        file_path = os.path.join(flask.current_app.root_path, flask.current_app.config['UPLOAD_FOLDER'])
-
-        photo = json.loads(User.get_by_id(1).avatar)
-
-        assert os.path.isfile(os.path.join(file_path, photo[0]))
-
-        _remove_files(photo)
-
     #
     # Update
     #
@@ -311,8 +280,7 @@ class TestUser:
             'lastName': "foo",
             'twitter': 'anotherTwitter',
             'flickr': 'anotherFlickr',
-            'instagram': 'anotherInstagram',
-            'avatar': 'justForTest'
+            'instagram': 'anotherInstagram'
         }
 
         r = client.put(_url, data=_params(updates, 1), headers=_auth_header(token))
@@ -329,9 +297,6 @@ class TestUser:
         assert updated_user.twitter == updates['twitter']
         assert updated_user.flickr == updates['flickr']
         assert updated_user.instagram == updates['instagram']
-        assert updated_user.avatar != updates['avatar']
-
-        _remove_files(json.loads(updated_user.avatar))
 
     def test_update_user_by_admin(self, client):
         user, _, _ = _create_user()
@@ -346,8 +311,7 @@ class TestUser:
             'lastName': "foo",
             'twitter': 'anotherTwitter',
             'flickr': 'anotherFlickr',
-            'instagram': 'anotherInstagram',
-            'avatar': 'justForTest'
+            'instagram': 'anotherInstagram'
         }
 
         r = client.put(_url, data=_params(updates, 1), headers=_auth_header(admin_token))
@@ -364,9 +328,6 @@ class TestUser:
         assert updated_user.twitter == updates['twitter']
         assert updated_user.flickr == updates['flickr']
         assert updated_user.instagram == updates['instagram']
-        assert updated_user.avatar != updates['avatar']
-
-        _remove_files(json.loads(updated_user.avatar))
 
     def test_update_login_updated_password(self, client):
         user, token, _ = _create_user()
@@ -400,7 +361,7 @@ class TestUser:
         user, token, dump = _create_user()
 
         for input_data in dump:
-            if input_data == 'id' or input_data == 'avatar':
+            if input_data == 'id':
                 continue
 
             partly_user_iteration = deepcopy(dump)
@@ -432,9 +393,6 @@ class TestUser:
                    'password': "foo",
                    'firstName': "",
                    'lastName': " ",
-                   'twitter': "http://",
-                   'flickr': "http://",
-                   'instagram': "http://",
                    'role': 6
                    }
 
@@ -445,9 +403,6 @@ class TestUser:
         assert r.json['message']['password'] == ["Shorter than minimum length 6."]
         assert r.json['message']['firstName'] == ["String does not match expected pattern."]
         assert r.json['message']['lastName'] == ["String does not match expected pattern."]
-        assert r.json['message']['twitter'] == ["String does not match expected pattern."]
-        assert r.json['message']['flickr'] == ["String does not match expected pattern."]
-        assert r.json['message']['instagram'] == ["String does not match expected pattern."]
         assert r.json['message']['role'] == ["Must be between 1 and 4."]
 
     def test_update_user_not_exists_user(self, client):
@@ -478,8 +433,6 @@ class TestUser:
         assert r.json['status'] == 'success'
         assert r.json['token'] != ''
 
-        _remove_files(json.loads(User.get_by_id(2).avatar))
-
     def test_update_user_without_access(self, client):
         _, token, pseudo_admin_json = _create_user(email='bar@foo.com', role=2)
 
@@ -500,26 +453,6 @@ class TestUser:
 
         assert r.status_code == 401
         assert r.json['message'] == 'Not enough privileges'
-
-    def test_update_user_avatar_updated(self, client):
-        _, token, _ = _create_user()
-
-        client.put(_url, data=_params({"firstName": "name"}, 1), headers=_auth_header(token))
-        old_avatar = json.loads(User.get_by_id(1).avatar)[0]
-
-        r = client.put(_url, data=_params({"firstName": "newName"}, 1), headers=_auth_header(token))
-        avatar = json.loads(User.get_by_id(1).avatar)[0]
-
-        assert r.status_code == 200
-        assert r.json['status'] == 'success'
-
-        file_path = os.path.join(flask.current_app.root_path, flask.current_app.config['UPLOAD_FOLDER'])
-
-        assert not os.path.isfile(os.path.join(file_path, old_avatar))
-        assert os.path.isfile(os.path.join(file_path, avatar))
-
-        _remove_files([avatar])
-
 
     #
     # Delete
@@ -564,18 +497,3 @@ class TestUser:
 
         assert r.status_code == 401
         assert r.json['message'] == "Not enough privileges"
-
-    def test_delete_user_avatar(self, client):
-        _, token, _ = _create_user()
-
-        client.put(_url, data=_params({"firstName": "newName"}, 1), headers=_auth_header(token))
-        avatar = json.loads(User.get_by_id(1).avatar)[0]
-
-        r = client.delete(_url, data={"id": 1, "avatar": True}, headers=_auth_header(token))
-
-        assert r.status_code == 200
-        assert r.json['status'] == 'success'
-
-        file_path = os.path.join(flask.current_app.root_path, flask.current_app.config['UPLOAD_FOLDER'])
-
-        assert not os.path.isfile(os.path.join(file_path, avatar))
