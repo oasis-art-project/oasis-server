@@ -44,20 +44,6 @@ def params(request):
     return parameters
 
 
-#
-# Remove files after a test
-#
-def remove_files(files):
-    """
-    Removes files. Usually after a test
-
-    :param files: list of files to remove
-    """
-    file_path = os.path.join(flask.current_app.root_path, flask.current_app.config['IMAGE_UPLOAD_FOLDER'])
-
-    for file in files:
-        os.remove(os.path.join(file_path, file))
-
 ###
 # All methods below create according objects into the DB rather than make a request, return created objects
 ###
@@ -181,3 +167,8 @@ def create_event(place, artists=None, **kwargs):
     event.save()
 
     return event
+
+
+#
+# Images
+#

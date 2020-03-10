@@ -14,7 +14,6 @@ import flask
 from src.backend.models.placeModel import Place
 from src.backend.tests.helpers import \
     params as _params, \
-    remove_files as _remove_files, \
     create_user as _create_user, \
     auth_header as _auth_header, \
     create_place as _create_place, \

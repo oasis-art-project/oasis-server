@@ -16,7 +16,7 @@ from src.backend.commands import test, seed
 from src.backend.extensions import db, migrate, jwt, ma, manager, api_bp, api, storage
 from src.backend.jwt import jwt_identity, identity_loader
 from src.backend.router import init_router
-from src.config import ProductionConfig
+from src.config import ProductionConfig, TestConfig
 
 def create_app(conf=ProductionConfig):
     app = Flask(__name__,
@@ -34,7 +34,11 @@ def create_app(conf=ProductionConfig):
 
     if not app.config['IMAGE_UPLOAD_FOLDER']:
         # Default local image upload folder
-        app.config['IMAGE_UPLOAD_FOLDER'] = os.path.join(app.root_path, "public/imgs")
+        if conf == ProductionConfig:
+            app.config['IMAGE_UPLOAD_FOLDER'] = os.path.join(app.root_path, "public/imgs")
+        elif conf == TestConfig:
+            app.config['IMAGE_UPLOAD_FOLDER'] = os.path.join(app.root_path, "backend/tests/uploads")
+
     upload_folder = os.path.expanduser(app.config['IMAGE_UPLOAD_FOLDER'])
     if not os.path.exists(upload_folder):
         os.makedirs(upload_folder)

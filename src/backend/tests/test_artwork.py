@@ -15,7 +15,6 @@ from src.backend.models.artworkModel import Artwork
 
 from src.backend.tests.helpers import \
     params as _params, \
-    remove_files as _remove_files, \
     create_user as _create_user, \
     auth_header as _auth_header, \
     create_artwork as _create_artwork, \

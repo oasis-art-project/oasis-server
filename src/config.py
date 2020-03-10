@@ -47,6 +47,9 @@ class TestConfig(Config):
     DEBUG = True
     TESTING = True
 
-    # In memory
+    # Store DB in memory using SQLite
     SQLALCHEMY_DATABASE_URI = 'sqlite:///'
+
+    # Discard environmental variable
+    IMAGE_UPLOAD_FOLDER = ''
 

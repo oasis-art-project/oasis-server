@@ -16,7 +16,6 @@ from src.backend.controllers.userController import user_schema as _user_schema
 from src.backend.models.userModel import User
 from src.backend.tests.helpers import \
     params as _params, \
-    remove_files as _remove_files, \
     create_user as _create_user, \
     user_json as _user_json, \
     auth_header as _auth_header
