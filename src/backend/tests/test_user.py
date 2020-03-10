@@ -197,7 +197,7 @@ class TestUser:
     # Create
     #
     def test_create_user(self, client):
-        r = client.post(_url, data=_params(_user_json(), 1))
+        r = client.post(_url, data=_params(_user_json()))
 
         assert r.status_code == 201
         assert r.json['status'] == 'success'
@@ -283,7 +283,7 @@ class TestUser:
             'instagram': 'anotherInstagram'
         }
 
-        r = client.put(_url, data=_params(updates, 1), headers=_auth_header(token))
+        r = client.put(_url, data=_params(updates), headers=_auth_header(token))
 
         updated_user = User.get_by_id(user.id)
 
@@ -314,7 +314,7 @@ class TestUser:
             'instagram': 'anotherInstagram'
         }
 
-        r = client.put(_url, data=_params(updates, 1), headers=_auth_header(admin_token))
+        r = client.put(_url, data=_params(updates), headers=_auth_header(admin_token))
 
         updated_user = User.get_by_id(user.id)
 
@@ -427,7 +427,7 @@ class TestUser:
         dump['instagram'] = 'anotherInstagram'
         dump['role'] = 1
 
-        r = client.put(_url, data=_params(dump, 1), headers=_auth_header(token))
+        r = client.put(_url, data=_params(dump), headers=_auth_header(token))
 
         assert r.status_code == 200
         assert r.json['status'] == 'success'

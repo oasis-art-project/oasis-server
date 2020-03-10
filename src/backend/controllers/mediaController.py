@@ -153,7 +153,7 @@ class MediaResource(Resource):
             return {'message': 'The requested %s does not exist' % (resource_kind)}, 400
 
         try:
-            storage.delete_image(resource_kind, resource_id, file_name)
+            storage.delete_image_file(resource_kind, resource_id, file_name)
 
             return {'status': "success"}, 200
 

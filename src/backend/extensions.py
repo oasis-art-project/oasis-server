@@ -15,7 +15,7 @@ from flask_restplus import Api
 from flask_script import Manager
 from flask_sqlalchemy import SQLAlchemy, Model
 
-from os.path import join, expanduser
+from os.path import exists, join, expanduser
 from os import listdir, remove, makedirs
 from shutil import copy, rmtree
 from geopy.geocoders import Nominatim
@@ -88,16 +88,7 @@ class Storage(object):
         self.bucket = self.resource.Bucket(self.bucket_name)
 
     def file_upload(self, resource_kind, resource_id, file_object, content_type, dest_name):
-        prefix = ''
-        if resource_kind == 'user':
-            prefix = "users"
-        elif resource_kind == 'place':
-            prefix = "places"
-        elif resource_kind == 'event':
-            prefix = "events"
-        elif resource_kind == 'artwork':
-            prefix = "artworks"
-
+        prefix = resource_kind + 's'
         dest_path = '%s/%d/%s' % (prefix, resource_id, dest_name)
 
         if self.local: 
@@ -160,84 +151,60 @@ class Storage(object):
         return images
 
     def create_user_folder(self, uid):
-        folder_path = "users/" + str(uid) + "/"
-        if self.local:
-            makedirs(join(self.upload_folder, folder_path))
-        else:
-            status = self.bucket.put_object(Key=folder_path)
-            return status
+        return self.create_folder("users/" + str(uid) + "/")
 
     def create_place_folder(self, pid):
-        folder_path = "places/" + str(pid) + "/"
-        if self.local:
-            makedirs(join(self.upload_folder, folder_path))
-        else:
-            status = self.bucket.put_object(Key=folder_path)
-            return status
+        return self.create_folder("places/" + str(pid) + "/")
 
     def create_event_folder(self, eid):
-        folder_path = "events/" + str(eid) + "/"
-        if self.local:
-            makedirs(join(self.upload_folder, folder_path))
-        else:
-            status = self.bucket.put_object(Key=folder_path)
-            return status
+        return self.create_folder("events/" + str(eid) + "/")
 
     def create_artwork_folder(self, aid):
-        folder_path = "artworks/" + str(aid) + "/"
+        return self.create_folder("artworks/" + str(aid) + "/")
+
+    def delete_user_folder(self, uid):
+        return self.delete_folder("users/" + str(uid) + "/")
+
+    def delete_place_folder(self, pid):
+        return self.delete_folder("places/" + str(pid) + "/")
+
+    def delete_event_folder(self, eid):
+        return self.delete_folder("events/" + str(eid) + "/")
+
+    def delete_artwork_folder(self, aid):
+        return self.delete_folder("artworks/" + str(aid) + "/")
+
+    def create_folder(self, folder_path):
         if self.local:
-            makedirs(join(self.upload_folder, folder_path))
+            fpath = join(self.upload_folder, folder_path)
+            if not os.path.exists(fpath):
+                makedirs(fpath)
+            return None    
         else:
             status = self.bucket.put_object(Key=folder_path)
-            return status
+            return status  
 
-    def delete_folder(self, folder):
+    def delete_folder(self, folder_path):
         if self.local:
-            return rmtree(folder)
+            if os.path.exists(folder_path):
+                return rmtree(folder_path)
+            return None    
         else:    
             try:
-                self.resource.Object(self.bucket_name, folder).load()
+                self.resource.Object(self.bucket_name, folder_path).load()
             except botocore.exceptions.ClientError as e:
                 if e.response['Error']['Code'] == "404":
                     return None
             except Exception as e:
                 raise e
 
-            objects_to_delete = self.resource.meta.client.list_objects(Bucket=self.bucket_name, Prefix=folder)
+            objects_to_delete = self.resource.meta.client.list_objects(Bucket=self.bucket_name, Prefix=folder_path)
             delete_keys = {'Objects' : []}
             delete_keys['Objects'] = [{'Key' : k} for k in [obj['Key'] for obj in objects_to_delete.get('Contents', [])]]
             status = self.resource.meta.client.delete_objects(Bucket=self.bucket_name, Delete=delete_keys)
             return status
 
-    def delete_user_folder(self, uid):
-        folder_path = "users/" + str(uid) + "/"
-        if self.local: 
-            return rmtree(join(self.upload_folder, folder_path))
-        else:
-            return self.delete_folder(folder=folder_path)
-
-    def delete_place_folder(self, pid):
-        folder_path = "places/" + str(pid) + "/"
-        if self.local: 
-            return rmtree(join(self.upload_folder, folder_path))
-        else:
-            return self.delete_folder(folder=folder_path)
-
-    def delete_event_folder(self, eid):
-        folder_path = "events/" + str(eid) + "/"
-        if self.local:
-            return rmtree(join(self.upload_folder, folder_path))
-        else:
-            return self.delete_folder(folder=folder_path)
-
-    def delete_artwork_folder(self, aid):
-        folder_path = "artworks/" + str(aid) + "/"
-        if self.local: 
-            return rmtree(join(self.upload_folder, folder_path))
-        else:
-            return self.delete_folder(folder=folder_path)
-
-    def delete_image(self, res, rid, fn):
+    def delete_image_file(self, res, rid, fn):
         prefix = res + 's'
         full_path = '%s/%d/%s' % (prefix, rid, fn)
 

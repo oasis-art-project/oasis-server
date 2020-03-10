@@ -124,7 +124,7 @@ class TestPlace:
     def test_create_place(self, client):
         _, host_token, host_dump = _create_user(role=2)
 
-        r = client.post(_url, data=_params(_place_json(host_dump), 2), headers=_auth_header(host_token))
+        r = client.post(_url, data=_params(_place_json(host_dump)), headers=_auth_header(host_token))
 
         assert r.status_code == 201
         assert r.json['status'] == 'success'
@@ -133,7 +133,7 @@ class TestPlace:
         _, _, _ = _create_user(role=2)
         _, admin_token, _ = _create_user(email='bar@foo.com', role=1)
 
-        r = client.post(_url, data=_params(_place_json({"id": 1}), 2), headers=_auth_header(admin_token))
+        r = client.post(_url, data=_params(_place_json({"id": 1})), headers=_auth_header(admin_token))
         # TODO: !!! check in db if code 200 or 201 everywhere. Like in updated
         assert r.status_code == 201
         assert r.json['status'] == 'success'
@@ -158,7 +158,7 @@ class TestPlace:
     def test_create_place_without_access(self, client):
         _, not_host_token, pseudo_host_dump = _create_user(role=4)
 
-        r = client.post(_url, data=_params(_place_json(pseudo_host_dump), 2), headers=_auth_header(not_host_token))
+        r = client.post(_url, data=_params(_place_json(pseudo_host_dump)), headers=_auth_header(not_host_token))
 
         assert r.status_code == 401
         assert r.json['message'] == "Not enough privileges"
@@ -175,7 +175,7 @@ class TestPlace:
         fake_host = {'firstName': "FakeFirstName", 'lastName': "FakeLastName"}
         host_dump.update(fake_host)
 
-        r = client.post(_url, data=_params(_place_json(host_dump), 2), headers=_auth_header(host_token))
+        r = client.post(_url, data=_params(_place_json(host_dump)), headers=_auth_header(host_token))
 
         place = Place.get_by_id(1)
 
@@ -198,7 +198,7 @@ class TestPlace:
             'address': "updated address"
         }
 
-        r = client.put(_url, data=_params(place_dump, 2), headers=_auth_header(host_token))
+        r = client.put(_url, data=_params(place_dump), headers=_auth_header(host_token))
 
         updated_place = Place.get_by_id(place.id)
 
@@ -268,7 +268,7 @@ class TestPlace:
             'address': "updated address"
         }
 
-        r = client.put(_url, data=_params(place_dump, 2), headers=_auth_header(host_token))
+        r = client.put(_url, data=_params(place_dump), headers=_auth_header(host_token))
 
         assert r.status_code == 400
         assert r.json['message'] == 'Id is missing'
@@ -286,7 +286,7 @@ class TestPlace:
             'address': "updated address"
         }
 
-        r = client.put(_url, data=_params(place_dump, 2), headers=_auth_header(admin_token))
+        r = client.put(_url, data=_params(place_dump), headers=_auth_header(admin_token))
 
         updated_place = Place.get_by_id(place.id)
 
@@ -303,7 +303,7 @@ class TestPlace:
 
         place_dump = {'id': 2, 'name': "new name"}
 
-        r = client.put(_url, data=_params(place_dump, 2), headers=_auth_header(token))
+        r = client.put(_url, data=_params(place_dump), headers=_auth_header(token))
 
         assert r.status_code == 400
         assert r.json['message'] == "Place does not exist"
@@ -314,7 +314,7 @@ class TestPlace:
 
         place_dump = {'id': 1, 'name': 'new name'}
 
-        r = client.put(_url, data=_params(place_dump, 2), headers=_auth_header(token))
+        r = client.put(_url, data=_params(place_dump), headers=_auth_header(token))
 
         assert r.status_code == 401
         assert r.json['message'] == "Not enough privileges"
@@ -324,7 +324,7 @@ class TestPlace:
 
         host_place_dump = {'id': 1, 'name': 'new name'}
 
-        r = client.put(_url, data=_params(host_place_dump, 2), headers=_auth_header(token))
+        r = client.put(_url, data=_params(host_place_dump), headers=_auth_header(token))
 
         assert r.status_code == 401
         assert r.json['message'] == 'Not enough privileges'

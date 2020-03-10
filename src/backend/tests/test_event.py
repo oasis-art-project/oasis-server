@@ -178,7 +178,7 @@ class TestEvent:
         _, _, artist2_dump = _create_user(email='bar2@foo.com')
 
         r = client.post(_url,
-                        data=_params(_event_json({"id": place.id}, [{"id": 2}, {"id": 3}]), 2),
+                        data=_params(_event_json({"id": place.id}, [{"id": 2}, {"id": 3}])),
                         headers=_auth_header(token))
 
         assert r.status_code == 201
@@ -193,7 +193,7 @@ class TestEvent:
 
         _, admin_token, _ = _create_user(email='bar3@foo.com', role=1)
 
-        r = client.post(_url, data=_params(_event_json({"id": place.id}, [{"id": 2}, {"id": 3}]), 2),
+        r = client.post(_url, data=_params(_event_json({"id": place.id}, [{"id": 2}, {"id": 3}])),
                         headers=_auth_header(admin_token))
 
         assert r.status_code == 201
@@ -246,7 +246,7 @@ class TestEvent:
         event_json = _event_json({"id": place.id})
         del event_json['endTime']
 
-        r = client.post(_url, data=_params(event_json, 2), headers=_auth_header(token))
+        r = client.post(_url, data=_params(event_json), headers=_auth_header(token))
 
         event = Event.get_by_id(1)
 
@@ -285,7 +285,7 @@ class TestEvent:
         fake_host = {'firstName': "FakeFirstName", 'lastName': "FakeLastName"}
         host_dump.update(fake_host)
 
-        r = client.post(_url, data=_params(_event_json(host_dump), 2), headers=_auth_header(host_token))
+        r = client.post(_url, data=_params(_event_json(host_dump)), headers=_auth_header(host_token))
 
         event = Event.get_by_id(1)
 
@@ -317,7 +317,7 @@ class TestEvent:
             'endTime': "2020-01-03T08:00:00"
         }
 
-        r = client.put(_url, data=_params(event_dump, 2), headers=_auth_header(token))
+        r = client.put(_url, data=_params(event_dump), headers=_auth_header(token))
 
         updated_event = Event.get_by_id(event.id)
 
@@ -361,7 +361,7 @@ class TestEvent:
             'name': "updated name"
         }
 
-        r = client.put(_url, data=_params(event_dump, 2), headers=_auth_header(token))
+        r = client.put(_url, data=_params(event_dump), headers=_auth_header(token))
 
         assert r.status_code == 200
         assert r.json['status'] == 'success'
@@ -422,7 +422,7 @@ class TestEvent:
             'endTime': "2020-01-03T08:00:00"
         }
 
-        r = client.put(_url, data=_params(event_dump, 2), headers=_auth_header(admin_token))
+        r = client.put(_url, data=_params(event_dump), headers=_auth_header(admin_token))
 
         updated_event = Event.get_by_id(event.id)
 

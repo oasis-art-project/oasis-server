@@ -29,19 +29,15 @@ def create_app(conf=ProductionConfig):
     CORS(app)
 
     # Ensure the instance and upload folder exists
-    try:
+    if not os.path.exists(app.instance_path):
         os.makedirs(app.instance_path)
-    except OSError:
-        pass
 
-    try:
-        if not app.config['IMAGE_UPLOAD_FOLDER']:
-            # Default local image upload folder
-            app.config['IMAGE_UPLOAD_FOLDER'] = os.path.join(app.root_path, "public/imgs")
-        upload_folder = os.path.expanduser(app.config['IMAGE_UPLOAD_FOLDER'])
+    if not app.config['IMAGE_UPLOAD_FOLDER']:
+        # Default local image upload folder
+        app.config['IMAGE_UPLOAD_FOLDER'] = os.path.join(app.root_path, "public/imgs")
+    upload_folder = os.path.expanduser(app.config['IMAGE_UPLOAD_FOLDER'])
+    if not os.path.exists(upload_folder):
         os.makedirs(upload_folder)
-    except OSError:
-        pass
 
     # Initializers
     db.init_app(app)

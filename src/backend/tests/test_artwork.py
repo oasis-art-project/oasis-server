@@ -116,7 +116,7 @@ class TestArtwork:
     def test_create_artwork(self, client):
         _, artist_token, artist_dump = _create_user(role=3)
 
-        r = client.post(_url, data=_params(_artwork_json(artist_dump), 2), headers=_auth_header(artist_token))
+        r = client.post(_url, data=_params(_artwork_json(artist_dump)), headers=_auth_header(artist_token))
 
         assert r.status_code == 201
         assert r.json['status'] == 'success'
@@ -125,7 +125,7 @@ class TestArtwork:
         _, _, _ = _create_user(role=2)
         _, admin_token, _ = _create_user(email='bar@foo.com', role=1)
 
-        r = client.post(_url, data=_params(_artwork_json({"id": 1}), 2), headers=_auth_header(admin_token))
+        r = client.post(_url, data=_params(_artwork_json({"id": 1})), headers=_auth_header(admin_token))
 
         assert r.status_code == 201
         assert r.json['status'] == 'success'
@@ -155,7 +155,7 @@ class TestArtwork:
     def test_create_artwork_without_access(self, client):
         _, not_artist_token, pseudo_artist_dump = _create_user(role=4)
 
-        r = client.post(_url, data=_params(_artwork_json(pseudo_artist_dump), 2),
+        r = client.post(_url, data=_params(_artwork_json(pseudo_artist_dump)),
                         headers=_auth_header(not_artist_token))
 
         assert r.status_code == 401
@@ -167,7 +167,7 @@ class TestArtwork:
         fake_host = {'firstName': "FakeFirstName", 'lastName': "FakeLastName"}
         artist_dump.update(fake_host)
 
-        r = client.post(_url, data=_params(_artwork_json(artist_dump), 2), headers=_auth_header(artist_token))
+        r = client.post(_url, data=_params(_artwork_json(artist_dump)), headers=_auth_header(artist_token))
 
         artwork = Artwork.get_by_id(1)
 
@@ -189,7 +189,7 @@ class TestArtwork:
             'description': "updated description"
         }
 
-        r = client.put(_url, data=_params(artwork_dump, 2), headers=_auth_header(artist_token))
+        r = client.put(_url, data=_params(artwork_dump), headers=_auth_header(artist_token))
 
         updated_artwork = Artwork.get_by_id(artwork.id)
 
@@ -256,7 +256,7 @@ class TestArtwork:
             'description': "updated description"
         }
 
-        r = client.put(_url, data=_params(artwork_dump, 2), headers=_auth_header(artist_token))
+        r = client.put(_url, data=_params(artwork_dump), headers=_auth_header(artist_token))
 
         assert r.status_code == 400
         assert r.json['message'] == 'Id is missing'
@@ -273,7 +273,7 @@ class TestArtwork:
             'description': "updated description"
         }
 
-        r = client.put(_url, data=_params(artwork_dump, 2), headers=_auth_header(admin_token))
+        r = client.put(_url, data=_params(artwork_dump), headers=_auth_header(admin_token))
 
         updated_artwork = Artwork.get_by_id(artwork.id)
 

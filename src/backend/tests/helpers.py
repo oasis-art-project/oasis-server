@@ -32,31 +32,14 @@ def auth_header(token):
 #
 # Params
 #
-def params(request, num_files=0):
+def params(request):
     """
     Prepares request
 
     :param request: string request
-    :param num_files: how many files to send simultaneously (0-2)
     :return: processed json
     """
     parameters = {"request": json.dumps(request)}
-
-    # Prepare files for sending
-    if num_files > 0:
-        if num_files == 1:
-            files = ("test1.png", )
-        elif num_files == 2:
-            files = ("test1.png", "test2.png")
-        else:
-            raise ValueError("Can be only 1 or 2")
-
-        # Read files from the disk, open into File instances...
-        dir_path = os.path.dirname(os.path.realpath(__file__))
-        files = {"files": [open(os.path.join(dir_path, file), 'rb') for file in files]}
-
-        # ... and save it in parameters json
-        parameters.update(files)
 
     return parameters
 
