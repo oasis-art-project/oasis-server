@@ -1,23 +1,23 @@
-email,password,first name,last name,twitter,flickr,instagram,interests,role,bio,tags
-maggiem@oasis.art,123456,Maggie,Maden,maggiem,mmmag,mmmag,"painting, illustration, photography",2,"Art manager at the local coffee shop chain Nuclear Bean, with branches in Cambridgeport, Brookline, and Kendall Sq. She has been curating shows of painters in the neighborhoods of the respective branches for the past. three years.",host;oasis
-ksian@oasis.art,123456,Sian,Keani,chattersian,sian123,ksian99,"illustration, sculpture, video, textiles",2,"Owner of CREATE, a makerspace in Somerville.",host;oasis
-alizar@oasis.art,123456,Aliza,Reyez,reyez1,reyez2,arey,"illustration, painting, photography",2,"Manager of Runners Paradise, a sports clothing store in the South End.",host;oasis
-ppeter@gmail.com,123456,Peter,Pow,powpow,powpow,powpowpow,"mural, graffiti",2,"Owner of a mixed-use building in Central Square, graffiti fan.",host;oasis
-romeog@hotmail.com,123456,Gina,Romeo,ginatweets,natural,ginapics,sculpture,2,Friendly neighbor in Beacon Hill. Her front yard is available to install sculptures from creators in her neighborhood.,host;oasis
-blee@purpleturtle.info,123456,Brandon,Lee,branlee,blee,bleee,"video, digital art",2,"Event manager of Purple Turtle, cool spot in Union Square.",host;oasis
-robbiek@oasis.art,123456,Rob,Krishna,robk,robk,robk,landscape painting,3,"Landscape painter based in Cambridge, where he has been working for more than 10 years inspired by the urban scenes in the city",artist;oasis
-melissat@oasis.art,123456,Melissa,Tarik,tmif,noisssseee,tmif,generative videos,3,"Recently graduated from Northeastern University, and she is working with computer code to make generative abstract videos. She is looking for places where to show her first pieces.",artist;oasis
-llia@oasis.art,123456,Lia,Latorre,llia,ltorre,llia,sculpture,3,"I create delicate sculptures using discarded metal scraps, and live in the South End.",artist;oasis
-ronie@ronie.com,123456,Ronie,Buono,rbuono3,citywndrr,ronieflicks,"short film, documentary",3,"I'm a documentary filmmaker, who uses smartphones as his main recording device to create short films from everyday scenes in my rapidly-changing neighborhood, East Cambridge.",artist;oasis
-bmedei@gmail.com,123456,Brenda,Medeiros,medei,medei,medei,"watercolor, ink",3,I am a young painter from Boston. I make exquisite portraits using watercolor and ink.,artist;oasis
-jane.hubot@oasis.art,123456,Jane,Hubot,jhubot,jjjhub,glassjane,"sculpture, glass",3,"I'm an artist based in South Boston that creates glass structures that then serve as the support for growing plants, the result is a living sculptures",artist;oasis
-demarco@oasis.art,123456,John,Demarco,demarc11,demarco,demarco,abstract paints,3,Abstract painter who originally studied architecture and lives in Cambridge.,artist;oasis
-yo@streetgrit.com,123456,Street,Grit,streetgrit,streetgrit,streetgrit,graffiti,3,Recent group formed by young graffiti artists from the greater Boston area. They create wall paintings denouncing the increasing inequality in our society.,artist;oasis
-info@mldance.com,123456,MaryLynn,Duncan,mktw,mlphoto,mldance,"dance, video installation",3,Dancer and choreographer who makes video installations from the performances of her dance group.,artist;oasis
-marcusb@naturephoto.com,123456,Marcus,Bathasi,narcus5,bathasim,naturephoto,nature photography,3,Nature photographer from Boston who documents his trips to outdoor locations around the world.,artist;oasis
-jjk@vvvvv.org,123456,JJ,K,jjk,jjk,jjjjjk,"illustraton, comics",3,Somerville-based illustrator and comic book artist who creates characters with unusually large eyes and long arms.,artist;oasis
-tanitf@art.com,123456,Tanit,Ferro,ferrot,tanitf,ferrot,"tapestries, textiles",3,"She knits large colorful tapestries that depict surreal landscapes and animals. She is originally from Barcelona, but has been living in Brookline for the past three years",artist;oasis
-colins@gmail.com,123456,Colin,Sanders,sandcol,sandcol,sandcol,"3D printing, sculpture, photography",3,"I use 3D printing to design and create gravity-defying, anthropomorphic sculptures. I also take pictures of my sculptures. I live in Medford",artist;oasis
-veranova@deviantart.com,123456,Alina,Veranova,veranova,novavera,veranova,animation,3,Alina uses lights to create dreamlike animations that she shares on social media. She works and lives in Winter Hill,artist;oasis
-pbraca@oasis.net,123456,Patrick,Bracamonte,braca,patrick,braca,portrait,3,Patrick is a portrait painter who has been working in Cambridge for almost two decades.,artist;oasis
-linzzz@media.net,123456,Lindsey,Z,lindz,lindsayz,linzz,murals,3,Lindsey is a mural painter from Somerville. She paints geometric compositions that look like a second skin on the city's walls.  ,artist;oasis
+email,password,first name,last name,twitter,flickr,instagram,role,bio,tags
+maggiem@oasis.art,123456,Maggie,Maden,maggiem,mmmag,mmmag,2,"Art manager at the local coffee shop chain Nuclear Bean, with branches in Cambridgeport, Brookline, and Kendall Sq. She has been curating shows of painters in the neighborhoods of the respective branches for the past. three years.",painting;illustration;photography
+ksian@oasis.art,123456,Sian,Keani,chattersian,sian123,ksian99,2,"Owner of CREATE, a makerspace in Somerville.",illustration;sculpture;video;textiles
+alizar@oasis.art,123456,Aliza,Reyez,reyez1,reyez2,arey,2,"Manager of Runners Paradise, a sports clothing store in the South End.",illustration;painting;photography
+ppeter@gmail.com,123456,Peter,Pow,powpow,powpow,powpowpow,2,"Owner of a mixed-use building in Central Square, graffiti fan.",mural;graffiti
+romeog@hotmail.com,123456,Gina,Romeo,ginatweets,natural,ginapics,2,Friendly neighbor in Beacon Hill. Her front yard is available to install sculptures from creators in her neighborhood.,sculpture
+blee@purpleturtle.info,123456,Brandon,Lee,branlee,blee,bleee,2,"Event manager of Purple Turtle, cool spot in Union Square.",video;digital art
+robbiek@oasis.art,123456,Rob,Krishna,robk,robk,robk,3,"Landscape painter based in Cambridge, where he has been working for more than 10 years inspired by the urban scenes in the city",landscape painting
+melissat@oasis.art,123456,Melissa,Tarik,tmif,noisssseee,tmif,3,"Recently graduated from Northeastern University, and she is working with computer code to make generative abstract videos. She is looking for places where to show her first pieces.",generative videos
+llia@oasis.art,123456,Lia,Latorre,llia,ltorre,llia,3,"I create delicate sculptures using discarded metal scraps, and live in the South End.",sculpture
+ronie@ronie.com,123456,Ronie,Buono,rbuono3,citywndrr,ronieflicks,3,"I'm a documentary filmmaker, who uses smartphones as his main recording device to create short films from everyday scenes in my rapidly-changing neighborhood, East Cambridge.",short film;documentary
+bmedei@gmail.com,123456,Brenda,Medeiros,medei,medei,medei,3,I am a young painter from Boston. I make exquisite portraits using watercolor and ink.,watercolor;ink
+jane.hubot@oasis.art,123456,Jane,Hubot,jhubot,jjjhub,glassjane,3,"I'm an artist based in South Boston that creates glass structures that then serve as the support for growing plants, the result is a living sculptures",sculpture;glass
+demarco@oasis.art,123456,John,Demarco,demarc11,demarco,demarco,3,Abstract painter who originally studied architecture and lives in Cambridge.,abstract paints
+yo@streetgrit.com,123456,Street,Grit,streetgrit,streetgrit,streetgrit,3,Recent group formed by young graffiti artists from the greater Boston area. They create wall paintings denouncing the increasing inequality in our society.,graffiti
+info@mldance.com,123456,MaryLynn,Duncan,mktw,mlphoto,mldance,3,Dancer and choreographer who makes video installations from the performances of her dance group.,dance;video installation
+marcusb@naturephoto.com,123456,Marcus,Bathasi,narcus5,bathasim,naturephoto,3,Nature photographer from Boston who documents his trips to outdoor locations around the world.,nature photography
+jjk@vvvvv.org,123456,JJ,K,jjk,jjk,jjjjjk,3,Somerville-based illustrator and comic book artist who creates characters with unusually large eyes and long arms.,illustraton;comics
+tanitf@art.com,123456,Tanit,Ferro,ferrot,tanitf,ferrot,3,"She knits large colorful tapestries that depict surreal landscapes and animals. She is originally from Barcelona, but has been living in Brookline for the past three years",tapestries;textiles
+colins@gmail.com,123456,Colin,Sanders,sandcol,sandcol,sandcol,3,"I use 3D printing to design and create gravity-defying, anthropomorphic sculptures. I also take pictures of my sculptures. I live in Medford",3D printing;sculpture;photography
+veranova@deviantart.com,123456,Alina,Veranova,veranova,novavera,veranova,3,Alina uses lights to create dreamlike animations that she shares on social media. She works and lives in Winter Hill,animation
+pbraca@oasis.net,123456,Patrick,Bracamonte,braca,patrick,braca,3,Patrick is a portrait painter who has been working in Cambridge for almost two decades.,portrait
+linzzz@media.net,123456,Lindsey,Z,lindz,lindsayz,linzz,3,Lindsey is a mural painter from Somerville. She paints geometric compositions that look like a second skin on the city's walls.  ,murals

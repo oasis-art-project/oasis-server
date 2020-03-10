@@ -28,9 +28,9 @@ def user_json(row):
         "twitter": row[4],
         "flickr": row[5],
         "instagram": row[6],
-        "role": row[8],
-        "bio": row[9],
-        "tags": row[10]
+        "role": row[7],
+        "bio": row[8],
+        "tags": row[9]
     }
 
 def host_json(id, user):
