@@ -17,8 +17,9 @@ The server can be run locally with the following steps:
 
 4. Image data can be stored locally as well, or in AWS S3 bucket <br>
 
-    - Unset the S3_BUCKET environmental variable <br>
+    - Add the location of the image upload folder AND unset the S3_BUCKET environmental variable if previously set <br>
     `unset S3_BUCKET` <br>
+    `export IMAGE_UPLOAD_FOLDER=<path to local image storage folder>` <br>
 
     - Add AWS credentials to environment <br>
     `export S3_BUCKET=<name of S3 bucket>` <br>
@@ -46,15 +47,12 @@ The server can be run locally with the following steps:
 11. Start server <br>
 `flask run`
 
-12. Populate db with dummy data using the provided utility script. <br>
+12. Server should be ready now, by default at http://127.0.0.1:5000
 
-    - If using the local drive as the storage for the images, run <br>
-    `python scripts/populate.py --local --images <storage folder>` <br>
+13. Populate db with dummy data using the provided utility script <br>
 
-    - If using AWS as the storage for the images, simply run (remember to set AWS credentials as shown in step 4) <br>
-    `python scripts/populate.py` <br>
-
-Server should be ready now, by default at http://127.0.0.1:5000
+`python scripts/populate.py` <br>
+`python scripts/populate.py -url <server URL>` <br>
 
 ### Quick db restart
 
@@ -74,7 +72,7 @@ If it is needed to clear the db and images, and restart the server, run the foll
 
 ### Heroku installation
 
-The server has been tested on Heroku. General steps involve
+The server has been tested on Heroku. General steps involve the following
 
 1. Create Heroku app <br>
 `heroku create server-oasis` <br>
@@ -89,6 +87,8 @@ The server has been tested on Heroku. General steps involve
 
 4. Populate DB and AWS <br>
 `python scripts/populate.py` <br>
+
+For more information, check the [wiki entry](https://github.com/codeanticode/oasis-server/wiki/Server-deployment).
 
 ### Stand-alone WSGI server
 
