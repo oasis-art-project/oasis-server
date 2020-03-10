@@ -4,7 +4,6 @@ import os
 import sys
 import csv
 import argparse
-import shutil
 from os.path import join
 
 def make_data_request(data):
@@ -36,22 +35,12 @@ def delete_image(rid, rkind, fn, user):
 
 parser = argparse.ArgumentParser(description='Deletes OASIS images stored in AWS.')
 parser.add_argument('-a', '--admin', action='store', default='Admin Oasis', help='admin username')
-parser.add_argument('-i', '--images', action='store', default='~/code/oasis/webapp/public/imgs/', help='local images folder')
 parser.add_argument('-u', '--url', action='store', default='http://127.0.0.1:5000', help='set server url')
-parser.add_argument('-l', '--local', action='store_true', help='store images locally')
 args = parser.parse_args()
 
 server_url = args.url
 data_dir = join(sys.path[0], "dummy_data")
 admin_name = args.admin
-delete_images_locally = args.local
-local_images_dir = args.images
-
-if delete_images_locally:
-    print("Deleting local image data...")
-    shutil.rmtree(os.path.expanduser(local_images_dir))
-    print("Done. Bye!")
-    sys.exit()
 
 # Need to get the email and password from the csv, the server will not return this information :-)
 in_csv = os.path.join(data_dir, "user_list.csv")
@@ -117,3 +106,19 @@ for event in events:
     j = r.json() 
     for img in j["images"]: 
         delete_image(eid, "event", os.path.split(img)[1], user)
+
+r = requests.get(server_url + '/api/artwork/')
+if r.status_code != 200:
+    raise Exception(r.status_code)
+artworks = r.json()['artworks']
+for artwork in artworks:
+    aid = artwork['id']
+    artist = artwork['artist']
+    user = user_dict[artist['firstName'] + ' ' + artist['lastName']]    
+    print("Images for artwork", artwork['name'])
+    r = requests.get(server_url + '/api/media/' + str(aid) +'?resource-kind=artwork')
+    if r.status_code != 200:
+        raise Exception(r.status_code)
+    j = r.json() 
+    for img in j["images"]: 
+        delete_image(aid, "artwork", os.path.split(img)[1], user)

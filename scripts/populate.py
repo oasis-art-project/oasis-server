@@ -5,14 +5,10 @@ import os
 import csv
 import argparse
 import mimetypes
-import imghdr
-import uuid
 from datetime import *
 import dateutil.parser
-from os import listdir, makedirs
-from os.path import isfile, join, exists, expanduser
-from shutil import copy, rmtree
-from PIL import Image
+from os import listdir
+from os.path import isfile, join
 
 def make_data_request(data):
     request = {"request": json.dumps(data)}
@@ -76,94 +72,6 @@ def event_json(place, artists, row):
         "endTime": row[5],
         "tags": row[6]
     }
-
-def copy_image(bdir, fn, rkind, rid, ddir):
-    copy_images([join(bdir, fn)], rkind, rid, ddir)
-
-def copy_images_from_folder(bdir, rkind, rid, ddir):
-    all_files = []
-    for f in listdir(bdir):
-        path = join(bdir, f)
-        if not isfile(path) or not imghdr.what(path): continue
-        all_files += [path]
-    copy_images(all_files, rkind, rid, ddir)
-
-def copy_images_from_list(bdir, fnlist, rkind, rid, ddir):
-    all_files = []
-    for f in fnlist:
-        path = join(bdir, f)
-        if not isfile(path) or not imghdr.what(path): continue
-        all_files += [path]
-    copy_images(all_files, rkind, rid, ddir)
-
-def copy_images(lst, rkind, rid, ddir):
-    dpath = join(expanduser(ddir), rkind + 's', str(rid))
-    if not exists(dpath):
-        makedirs(dpath)    
-
-    for fn in lst:
-        dst_name = ''
-        make_unique = False
-        if rkind == 'user':
-            dst_name = "profile"
-        elif rkind == 'place':
-            dst_name = "place"
-            make_unique = True
-        elif rkind == 'event':
-            dst_name = "event"
-        elif rkind == 'artwork':
-            dst_name = "artwork"
-            make_unique = True
-
-        image_type = imghdr.what(fn)
-        tmp_path = None
-        if image_type and image_type != 'jpeg':
-            print("  Converting", fn, "to jpeg")
-            sub_folder = str(uuid.uuid4())
-            tmp_path = join(expanduser(temp_dir), sub_folder)
-            os.makedirs(tmp_path)
-
-             # Convert the image
-            src_img = Image.open(fn)
-            rgb_img = src_img.convert('RGB')
-            conv_fn = join(tmp_path, dst_name + ".jpg")
-            rgb_img.save(conv_fn)
-            fn = conv_fn
-
-        if make_unique:
-            dst_name = create_unique_filename(dpath, dst_name)
-
-        destfn = join(dpath, dst_name + ".jpg")
-        print("  ", fn, "to", destfn)        
-        copy(fn, destfn)
-
-        if tmp_path:
-            try:
-                rmtree(tmp_path)
-            except OSError as e:
-                print ("Error: %s - %s." % (e.filename, e.strerror))
-
-def create_unique_filename(filepath, filename):
-    lst = listdir(filepath)
-
-    parts = filename.split('.')
-    if not parts: 
-        return filename
-    name0 = parts[0].lower()
-
-    count = 0
-    for fn in lst:
-        bname = os.path.basename(fn)
-        parts = bname.split('.')
-        if parts:
-            name = parts[0].lower()
-            name = name.rsplit("-")[0]
-            if name == name0:
-                count += 1
-
-    res = name0 + "-" + str(count)
-
-    return res
 
 def upload_image(bdir, fn, rkind, rid, user):
     upload_images_from_list(bdir, [fn], rkind, rid, user)
@@ -231,18 +139,13 @@ def upload_images_from_list(bdir, fnlist, rkind, rid, user):
 # Parsing command line arguments
 parser = argparse.ArgumentParser(description='Upload dummy data to OASIS server.')
 parser.add_argument('-u', '--url', action='store', default='http://127.0.0.1:5000', help='set server url')
-parser.add_argument('-t', '--temp', action='store', default='~/Temp', help='temporary folder')
-parser.add_argument('-i', '--images', action='store', default='~/code/oasis/webapp/public/imgs/', help='local images folder')
 parser.add_argument('-a', '--admin', action='store', default='Admin Oasis', help='admin username')
-parser.add_argument('-l', '--local', action='store_true', help='store images locally')
 args = parser.parse_args()
 
 server_url = args.url
 admin_name = args.admin
-save_images_locally = args.local
+
 data_dir = join(sys.path[0], "dummy_data")
-temp_dir = args.temp
-local_images_dir = args.images
 
 mimetypes.init()
 
@@ -289,12 +192,8 @@ for user in users:
         base_path = data_dir + "/images/users/hosts/" + user['email']
     elif role == 3:
         base_path = data_dir + "/images/users/artists/" + user['email']
-    if save_images_locally:
-        print("Copying images for user", user["firstName"], user["lastName"])
-        copy_images_from_folder(base_path, "user", uid, local_images_dir)
-    else:
-        print("Uploading images for user", user["firstName"], user["lastName"])
-        upload_images_from_folder(base_path, "user", uid, user)
+    print("Uploading images for user", user["firstName"], user["lastName"])
+    upload_images_from_folder(base_path, "user", uid, user)
 
 print("Populating artworks...")
 in_csv = join(data_dir, "artwork_list.csv")
@@ -346,12 +245,8 @@ for artwork in artworks:
     user = user_dict[artist['firstName'] + ' ' + artist['lastName']]
     base_path = data_dir + "/images/artworks/" + user["email"]
     images = artwork_images[pid]
-    if save_images_locally:
-        print("Copying images for artwork", artwork["name"])
-        copy_images_from_list(base_path, images, "artwork", pid, local_images_dir)
-    else:
-        print("Uploading images for artwork", artwork["name"])
-        upload_images_from_list(base_path, images, "artwork", pid, user)
+    print("Uploading images for artwork", artwork["name"])
+    upload_images_from_list(base_path, images, "artwork", pid, user)
 
 print("Populating places...")
 in_csv = join(data_dir, "place_list.csv")
@@ -400,12 +295,8 @@ for place in places:
     host = place['host']
     user = user_dict[host['firstName'] + ' ' + host['lastName']]
     base_path = data_dir + "/images/places/" + place["name"]
-    if save_images_locally:
-        print("Copying images for place", place["name"])
-        copy_images_from_folder(base_path, "place", pid, local_images_dir)
-    else:
-        print("Uploading images for place", place["name"])
-        upload_images_from_folder(base_path, "place", pid, user)
+    print("Uploading images for place", place["name"])
+    upload_images_from_folder(base_path, "place", pid, user)
 
 print("Populating events...")
 in_csv = join(data_dir, "event_list.csv")
@@ -486,9 +377,5 @@ for event in events:
     host = event['place']['host']
     user = user_dict[host['firstName'] + ' ' + host['lastName']]
     fn = event_extra[event['name']]['image']
-    if save_images_locally:
-        print("Copying images for event", event["name"])
-        copy_image(data_dir + "/images/events", fn, "event", eid, local_images_dir)
-    else:        
-        print("Uploading images for event", event["name"])
-        upload_image(data_dir + "/images/events", fn, "event", eid, user)
+    print("Uploading images for event", event["name"])
+    upload_image(data_dir + "/images/events", fn, "event", eid, user)

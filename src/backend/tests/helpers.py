@@ -70,7 +70,7 @@ def remove_files(files):
 
     :param files: list of files to remove
     """
-    file_path = os.path.join(flask.current_app.root_path, flask.current_app.config['UPLOAD_FOLDER'])
+    file_path = os.path.join(flask.current_app.root_path, flask.current_app.config['IMAGE_UPLOAD_FOLDER'])
 
     for file in files:
         os.remove(os.path.join(file_path, file))

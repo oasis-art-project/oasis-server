@@ -12,7 +12,6 @@ from src.backend.controllers.artworkController import ArtworkResource
 from src.backend.controllers.placeController import PlaceResource
 from src.backend.controllers.eventController import EventResource
 from src.backend.controllers.mediaController import MediaResource
-from src.backend.controllers.s3Controller import S3Resource
 
 def init_router(api):
     """
@@ -34,7 +33,4 @@ def init_router(api):
     api.add_resource(EventResource, '/event/<string:event_date>', endpoint='event_date')
     api.add_resource(EventResource, '/event/place/<int:place_event_id>', endpoint='place_event_id')
     api.add_resource(MediaResource, '/media/')
-    api.add_resource(MediaResource, '/media/<int:resource_id>', endpoint='media_id')
-    api.add_resource(S3Resource, '/s3/')
-    api.add_resource(S3Resource, '/s3/sign/<int:resource_id>', endpoint='s3_sign_id')
-    
+    api.add_resource(MediaResource, '/media/<int:resource_id>', endpoint='media_id')    

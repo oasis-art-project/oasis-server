@@ -17,8 +17,8 @@ The server can be run locally with the following steps:
 
 4. Image data can be stored locally as well, or in AWS S3 bucket <br>
 
-    - Set the AWS_DISABLED environmental variable to True <br>
-    `export AWS_DISABLED=True` <br>
+    - Unset the S3_BUCKET environmental variable <br>
+    `unset S3_BUCKET` <br>
 
     - Add AWS credentials to environment <br>
     `export S3_BUCKET=<name of S3 bucket>` <br>

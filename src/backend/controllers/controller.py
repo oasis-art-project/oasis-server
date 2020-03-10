@@ -70,8 +70,8 @@ def upload_images(request, resource_kind, resource_id):
                 image_type = imghdr.what(file_object)
  
                 # If image type is not in the list of allowed extensions, raise the error
-                if image_type is None or image_type not in flask.current_app.config['ALLOWED_EXTENSIONS']:
-                    raise IOError("Only {} files are allowed".format(", ".join(flask.current_app.config['ALLOWED_EXTENSIONS'])))
+                if image_type is None or image_type not in flask.current_app.config['ALLOWED_IMAGE_EXTENSIONS']:
+                    raise IOError("Only {} files are allowed".format(", ".join(flask.current_app.config['ALLOWED_IMAGE_EXTENSIONS'])))
 
                 src_filename = secure_filename(file_object.filename)
                 dst_name = ''
@@ -102,7 +102,7 @@ def upload_images(request, resource_kind, resource_id):
                 if make_unique:
                     dst_name = storage.create_unique_filename(resource_kind, resource_id, dst_name)
 
-                url = storage.passthrough_upload(resource_kind, resource_id, file_object, 'image/jpeg', dst_name + ".jpg")
+                url = storage.file_upload(resource_kind, resource_id, file_object, 'image/jpeg', dst_name + ".jpg")
                 uploaded_images[src_filename] = {'url':url, 'type':file_object.mimetype}
 
             return uploaded_images

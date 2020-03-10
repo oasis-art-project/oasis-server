@@ -15,6 +15,9 @@ from flask_restplus import Api
 from flask_script import Manager
 from flask_sqlalchemy import SQLAlchemy, Model
 
+from os.path import join, expanduser
+from os import listdir, remove, makedirs
+from shutil import copy, rmtree
 from geopy.geocoders import Nominatim
 import boto3
 import botocore
@@ -58,60 +61,33 @@ class CustomApi(Api):
 # Object wrapping an S3 bucket to store user resources
 class Storage(object):
     def __init__(self):
-        self.disabled = False
+        self.local = False
+        self.upload_folder = ''
         self.resource = None
         self.client = None
         self.bucket_name = ''
         self.bucket = None
 
     def init_app(self, app):
-        v = app.config["AWS_DISABLED"]        
-        self.disabled = v != None and v.upper() == "TRUE"
-        if self.disabled: return
+        self.local = not app.config["S3_BUCKET"] or not app.config["AWS_ACCESS_KEY_ID"] or not app.config["AWS_SECRET_ACCESS_KEY"]
+        if self.local: 
+            self.upload_folder = expanduser(app.config["IMAGE_UPLOAD_FOLDER"])
+            return
 
         self.resource = boto3.resource(
             "s3",
             aws_access_key_id = app.config["AWS_ACCESS_KEY_ID"],
             aws_secret_access_key = app.config["AWS_SECRET_ACCESS_KEY"])
+        
         self.client = boto3.client(
             "s3",
             aws_access_key_id = app.config["AWS_ACCESS_KEY_ID"],
             aws_secret_access_key = app.config["AWS_SECRET_ACCESS_KEY"])
+        
         self.bucket_name = app.config["S3_BUCKET"]
         self.bucket = self.resource.Bucket(self.bucket_name)
 
-    def generate_presigned_post(self, resource_kind, resource_id, file_name, file_type):
-        if self.disabled: return None
-
-        post_data = self.client.generate_presigned_post(
-            Bucket = self.bucket_name,
-            Key = file_name,
-            Fields = {"acl": "public-read", "Content-Type": file_type},
-            Conditions = [
-                {"acl": "public-read"},
-                {"Content-Type": file_type}
-            ],
-            ExpiresIn = 3600
-        )
-        
-        prefix = ''
-        if resource_kind == 'user':
-            prefix = "users"
-        elif resource_kind == 'place':
-            prefix = "places"
-        elif resource_kind == 'event':
-            prefix = "events"
-        elif resource_kind == 'artwork':
-            prefix = "artworks"
-
-        return {    
-            'data': post_data,
-            'url': 'https://%s.s3.amazonaws.com/%s/%d/%s' % (self.bucket_name, prefix, resource_id, file_name)
-        }
-
-    def passthrough_upload(self, resource_kind, resource_id, file_object, content_type, dest_name):
-        if self.disabled: return None
-
+    def file_upload(self, resource_kind, resource_id, file_object, content_type, dest_name):
         prefix = ''
         if resource_kind == 'user':
             prefix = "users"
@@ -124,23 +100,28 @@ class Storage(object):
 
         dest_path = '%s/%d/%s' % (prefix, resource_id, dest_name)
 
-        self.client.upload_fileobj(
-            Fileobj = file_object,
-            Bucket = self.bucket_name,
-            Key = dest_path,
-            ExtraArgs={
-                "ACL": "public-read",
-                "ContentType": content_type
-            }
-        )
+        if self.local: 
+            fn = file_object
+            url = join(self.upload_folder, dest_path)
+            # copy(fn, url)
+            with open(url, 'wb') as out: ## Open temporary file as bytes
+                out.write(file_object.stream.read())            
+        else:
+            self.client.upload_fileobj(
+                Fileobj = file_object,
+                Bucket = self.bucket_name,
+                Key = dest_path,
+                ExtraArgs={
+                    "ACL": "public-read",
+                    "ContentType": content_type
+                }
+            )
+            url = 'https://%s.s3.amazonaws.com/%s' % (self.bucket_name, dest_path)
 
-        url = 'https://%s.s3.amazonaws.com/%s' % (self.bucket_name, dest_path)
         return url
 
     def create_unique_filename(self, resource_kind, resource_id, filename):
-        if self.disabled: return None
-
-        lst = self.list_folder_contents(resource_kind, resource_id)
+        lst = self.list_folder_contents(resource_kind, resource_id)    
 
         parts = filename.split('.')
         if not parts: 
@@ -162,102 +143,114 @@ class Storage(object):
         return res
 
     def list_folder_contents(self, resource_kind, resource_id):
-        if self.disabled: return None
-
-        prefix = ''
-        if resource_kind == 'user':
-            prefix = "users"
-        elif resource_kind == 'place':
-            prefix = "places"
-        elif resource_kind == 'event':
-            prefix = "events"
-        elif resource_kind == 'artwork':
-            prefix = "artworks"
-        
+        prefix = resource_kind + 's'
         folder_path = '%s/%d/' % (prefix, resource_id)
 
-        res = self.bucket.objects.filter(Prefix=folder_path)
-        images = []
-        for it in res:
-            if it.key == folder_path: continue
-            url = 'https://%s.s3.amazonaws.com/%s' % (self.bucket_name, it.key)
-            images += [url]
+        if self.local: 
+            full_path = join(self.upload_folder, folder_path)
+            images = listdir(full_path)
+        else:
+            res = self.bucket.objects.filter(Prefix=folder_path)
+            images = []
+            for it in res:
+                if it.key == folder_path: continue
+                url = 'https://%s.s3.amazonaws.com/%s' % (self.bucket_name, it.key)
+                images += [url]
 
         return images
 
     def create_user_folder(self, uid):
-        if self.disabled: return None
-        status = self.bucket.put_object(Key="users/" + str(uid) + "/")
-        return status
+        folder_path = "users/" + str(uid) + "/"
+        if self.local:
+            makedirs(join(self.upload_folder, folder_path))
+        else:
+            status = self.bucket.put_object(Key=folder_path)
+            return status
 
     def create_place_folder(self, pid):
-        if self.disabled: return None
-        status = self.bucket.put_object(Key="places/" + str(pid) + "/")
-        return status
+        folder_path = "places/" + str(pid) + "/"
+        if self.local:
+            makedirs(join(self.upload_folder, folder_path))
+        else:
+            status = self.bucket.put_object(Key=folder_path)
+            return status
 
     def create_event_folder(self, eid):
-        if self.disabled: return None
-        status = self.bucket.put_object(Key="events/" + str(eid) + "/")
-        return status
+        folder_path = "events/" + str(eid) + "/"
+        if self.local:
+            makedirs(join(self.upload_folder, folder_path))
+        else:
+            status = self.bucket.put_object(Key=folder_path)
+            return status
 
     def create_artwork_folder(self, aid):
-        if self.disabled: return None
-        status = self.bucket.put_object(Key="artworks/" + str(aid) + "/")
-        return status
+        folder_path = "artworks/" + str(aid) + "/"
+        if self.local:
+            makedirs(join(self.upload_folder, folder_path))
+        else:
+            status = self.bucket.put_object(Key=folder_path)
+            return status
 
     def delete_folder(self, folder):
-        if self.disabled: return None
-        try:
-            self.resource.Object(self.bucket_name, folder).load()
-        except botocore.exceptions.ClientError as e:
-            if e.response['Error']['Code'] == "404":
-                return None
-        except Exception as e:
-            raise e
+        if self.local:
+            return rmtree(folder)
+        else:    
+            try:
+                self.resource.Object(self.bucket_name, folder).load()
+            except botocore.exceptions.ClientError as e:
+                if e.response['Error']['Code'] == "404":
+                    return None
+            except Exception as e:
+                raise e
 
-        objects_to_delete = self.resource.meta.client.list_objects(Bucket=self.bucket_name, Prefix=folder)
-        delete_keys = {'Objects' : []}
-        delete_keys['Objects'] = [{'Key' : k} for k in [obj['Key'] for obj in objects_to_delete.get('Contents', [])]]
-        status = self.resource.meta.client.delete_objects(Bucket=self.bucket_name, Delete=delete_keys)
-        return status
+            objects_to_delete = self.resource.meta.client.list_objects(Bucket=self.bucket_name, Prefix=folder)
+            delete_keys = {'Objects' : []}
+            delete_keys['Objects'] = [{'Key' : k} for k in [obj['Key'] for obj in objects_to_delete.get('Contents', [])]]
+            status = self.resource.meta.client.delete_objects(Bucket=self.bucket_name, Delete=delete_keys)
+            return status
 
     def delete_user_folder(self, uid):
-        if self.disabled: return None
-        return self.delete_folder(folder="users/" + str(uid) + "/")
+        folder_path = "users/" + str(uid) + "/"
+        if self.local: 
+            return rmtree(join(self.upload_folder, folder_path))
+        else:
+            return self.delete_folder(folder=folder_path)
 
     def delete_place_folder(self, pid):
-        if self.disabled: return None
-        return self.delete_folder(folder="places/" + str(pid) + "/")
+        folder_path = "places/" + str(pid) + "/"
+        if self.local: 
+            return rmtree(join(self.upload_folder, folder_path))
+        else:
+            return self.delete_folder(folder=folder_path)
 
     def delete_event_folder(self, eid):
-        if self.disabled: return None
-        return self.delete_folder(folder="events/" + str(eid) + "/")
+        folder_path = "events/" + str(eid) + "/"
+        if self.local:
+            return rmtree(join(self.upload_folder, folder_path))
+        else:
+            return self.delete_folder(folder=folder_path)
 
     def delete_artwork_folder(self, aid):
-        if self.disabled: return None
-        return self.delete_folder(folder="artworks/" + str(aid) + "/")
+        folder_path = "artworks/" + str(aid) + "/"
+        if self.local: 
+            return rmtree(join(self.upload_folder, folder_path))
+        else:
+            return self.delete_folder(folder=folder_path)
 
     def delete_image(self, res, rid, fn):
-        if self.disabled: return None
-        prefix = ''
-        if res == 'user':
-            prefix = "users"
-        elif res == 'place':
-            prefix = "places"
-        elif res == 'event':
-            prefix = "events"
-        elif res == 'artwork':
-            prefix = "artworks"
-
+        prefix = res + 's'
         full_path = '%s/%d/%s' % (prefix, rid, fn)
 
-        try:
-            self.resource.Object(self.bucket_name, full_path).delete()
-        except botocore.exceptions.ClientError as e:
-            if e.response['Error']['Code'] == "404":
-                return None
-        except Exception as e:
-            raise e
+        if self.local: 
+            remove(join(self.upload_folder, full_path))
+        else:
+            try:
+                self.resource.Object(self.bucket_name, full_path).delete()
+            except botocore.exceptions.ClientError as e:
+                if e.response['Error']['Code'] == "404":
+                    return None
+            except Exception as e:
+                raise e
 
 # Create extension instances
 db = SQLAlchemy(model_class=CRUDMixin)

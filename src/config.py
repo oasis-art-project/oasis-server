@@ -9,7 +9,6 @@ License Artistic-2.0
 import os
 from datetime import timedelta
 
-
 class Config(object):
     """
     Base configuration
@@ -24,15 +23,14 @@ class Config(object):
     SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
 
     # AWS configuration
-    AWS_DISABLED = os.environ.get("AWS_DISABLED")
     S3_BUCKET = os.environ.get("S3_BUCKET")
     AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
     AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
 
     # Upload data conf
-    MAX_IMAGE_SIZE = 2024 * 2048
-    UPLOAD_FOLDER = 'public/uploads/'
-    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+    MAX_IMAGE_SIZE = 2048 * 2048
+    IMAGE_UPLOAD_FOLDER = os.environ.get("IMAGE_UPLOAD_FOLDER")
+    ALLOWED_IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
     # JWT
     JWT_SECRET_KEY = 'jwt-secret-string'

@@ -10,7 +10,7 @@ migrations/
 .coverage
 htmlcov/
 
-src/public/uploads/
+src/public/imgs
 
 env/
 dist/

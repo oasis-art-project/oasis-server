@@ -8,7 +8,7 @@ License Artistic-2.0
 
 import os
 
-from flask import Flask, render_template
+from flask import Flask, render_template, current_app
 from flask_migrate import MigrateCommand
 from flask_cors import CORS
 
@@ -27,6 +27,21 @@ def create_app(conf=ProductionConfig):
     app.config.from_object(conf)
     # Enabled cors
     CORS(app)
+
+    # Ensure the instance and upload folder exists
+    try:
+        os.makedirs(app.instance_path)
+    except OSError:
+        pass
+
+    try:
+        if not app.config['IMAGE_UPLOAD_FOLDER']:
+            # Default local image upload folder
+            app.config['IMAGE_UPLOAD_FOLDER'] = os.path.join(app.root_path, "public/imgs")
+        upload_folder = os.path.expanduser(app.config['IMAGE_UPLOAD_FOLDER'])
+        os.makedirs(upload_folder)
+    except OSError:
+        pass
 
     # Initializers
     db.init_app(app)
@@ -60,18 +75,5 @@ def create_app(conf=ProductionConfig):
     def files():
         summaries = storage.bucket.objects.all()
         return render_template('files.html', my_bucket=storage.bucket, files=summaries)
-
-
-    # Ensure the instance and upload folder exists
-    try:
-        os.makedirs(app.instance_path)
-    except OSError:
-        pass
-
-    try:
-        upload_folder = os.path.join(app.root_path, app.config['UPLOAD_FOLDER'])
-        os.makedirs(upload_folder)
-    except OSError:
-        pass
 
     return app
