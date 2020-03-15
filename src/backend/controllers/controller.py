@@ -114,6 +114,6 @@ def upload_images(request, resource_kind, resource_id):
         raise ValueError('Request does not contain images')
 
 
-def list_images(request, resource_kind, resource_id):
+def list_images(resource_kind, resource_id):
     res = storage.list_folder_contents(resource_kind, resource_id)
     return res

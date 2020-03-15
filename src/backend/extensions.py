@@ -137,9 +137,12 @@ class Storage(object):
         prefix = resource_kind + 's'
         folder_path = '%s/%d/' % (prefix, resource_id)
 
-        if self.local: 
+        if self.local:
             full_path = join(self.upload_folder, folder_path)
-            images = listdir(full_path)
+            if not os.path.exists(full_path):
+                images = []
+            else:
+                images = [join(full_path, fn) for fn in listdir(full_path)]
         else:
             res = self.bucket.objects.filter(Prefix=folder_path)
             images = []

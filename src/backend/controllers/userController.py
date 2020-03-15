@@ -16,6 +16,7 @@ from src.backend.controllers.controller import load_request
 from src.backend.models.tokenModel import Token
 from src.backend.models.userModel import User, UserSchema
 from src.backend.extensions import storage
+from src.backend.controllers.controller import list_images
 
 user_schema = UserSchema()
 
@@ -31,10 +32,11 @@ class UserResource(Resource):
             if not user_id and not user_email:
                 users = User.query.all()
                 if current_user and current_user.is_admin():
-                    return {"status": 'success', 'users': UserSchema(many=True).dump(users).data}, 200
+                    data = UserSchema(many=True).dump(users).data                    
                 else:
-                    return {"status": 'success',
-                            'users': UserSchema(many=True, exclude=('email',)).dump(users).data}, 200
+                    data = UserSchema(many=True, exclude=('email',)).dump(users).data
+                for d in data: d["images"] = list_images('user', d['id'])
+                return {"status": 'success', 'users': data}, 200
 
             # Get a specific user by id
             if user_id:
@@ -44,9 +46,11 @@ class UserResource(Resource):
                     return {'message': 'User does not exist'}, 400
 
                 if current_user and current_user.is_admin():
-                    return {"status": 'success', 'user': user_schema.dump(user).data}, 200
+                    data = user_schema.dump(user).data
                 else:
-                    return {"status": 'success', 'user': UserSchema(exclude=('email',)).dump(user).data}, 200
+                    data = UserSchema(exclude=('email',)).dump(user).data
+                data["images"] = list_images('user', data['id'])
+                return {"status": 'success', 'user': data}, 200
 
             # Get a specific user by email
             if user_email:
@@ -58,7 +62,9 @@ class UserResource(Resource):
                 if not user:
                     return {'message': 'User does not exist'}, 400
 
-                return {"status": 'success', 'user': user_schema.dump(user).data}, 200
+                data = user_schema.dump(user).data
+                data["images"] = list_images('user', data['id'])
+                return {"status": 'success', 'user': data}, 200
 
         except OperationalError:
             return {'message': 'Database error'}, 500

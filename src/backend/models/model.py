@@ -19,7 +19,7 @@ class SurrogatePK(object):
     __table_args__ = {'extend_existing': True}
 
     id = db.Column(db.Integer, primary_key=True)
-    tags = db.Column(db.String(50), nullable=True)
+    tags = db.Column(db.String(100), nullable=True)
 
     @classmethod
     def get_by_id(cls, record_id):
@@ -46,4 +46,4 @@ class BaseSchema(ModelSchema):
     OPTIONS_CLASS = BaseOpts
     
     # Overwritten fields
-    tags = fields.Str(allow_none=True, validate=validate.Length(max=50))
+    tags = fields.Str(allow_none=True, validate=validate.Length(max=100))

@@ -51,10 +51,10 @@ class MediaResource(Resource):
 
         # If not exists, raise an error
         if not resource:
-            return {'message': 'The requested %s does not exist' % (resource_kind)}, 400      
+            return {'message': 'The requested %s does not exist' % (resource_kind)}, 400
 
         try:
-            images_list = list_images(request, resource_kind, resource_id)            
+            images_list = list_images(resource_kind, resource_id)
             return {"status": 'success', "images": images_list}, 200 
 
         except Exception as e:
