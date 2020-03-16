@@ -139,10 +139,14 @@ class Storage(object):
 
         if self.local:
             full_path = join(self.upload_folder, folder_path)
+
+            # Assuming the tail of the upload folder is inside the public folder of the client
+            tail = self.upload_folder.strip(os.sep).split(os.sep)[-1]
+            
             if not os.path.exists(full_path):
                 images = []
             else:
-                images = [join(full_path, fn) for fn in listdir(full_path)]
+                images = [join(tail, folder_path, fn) for fn in listdir(full_path)]
         else:
             res = self.bucket.objects.filter(Prefix=folder_path)
             images = []
