@@ -193,8 +193,9 @@ class Storage(object):
 
     def delete_folder(self, folder_path):
         if self.local:
-            if os.path.exists(folder_path):
-                return rmtree(folder_path)
+            full_path = join(self.upload_folder, folder_path)
+            if os.path.exists(full_path):
+                return rmtree(full_path)
             return None    
         else:    
             try:
