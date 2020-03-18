@@ -19,7 +19,7 @@ from src.backend.controllers.controller import load_request
 from src.backend.models.eventModel import EventSchema, Event
 from src.backend.models.placeModel import Place
 from src.backend.extensions import storage
-from src.backend.controllers.controller import list_images
+from src.backend.controllers.controller import build_image_list
 
 event_schema = EventSchema()
 
@@ -43,8 +43,8 @@ class EventResource(Resource):
                 upcoming_events = Event.query.filter(date0<Event.startTime).all()
                 current_data = event_schema.dump(current_events, many=True).data
                 upcoming_data = event_schema.dump(upcoming_events, many=True).data
-                for d in current_data: d["images"] = list_images('event', d['id'])
-                for d in upcoming_data: d["images"] = list_images('event', d['id'])
+                for d in current_data: d["images"] = build_image_list('event', d['id'], d['files'])
+                for d in upcoming_data: d["images"] = build_image_list('event', d['id'], d['files'])
                 return {"status": "success", "current_events": current_data,
                                              "upcoming_events": upcoming_data}, 200
 
@@ -52,7 +52,7 @@ class EventResource(Resource):
             if event_id:
                 event = Event.query.options(joinedload("place")).filter_by(id=event_id).first()
                 data = event_schema.dump(event).data
-                data["images"] = list_images('event', data['id'])
+                data["images"] = build_image_list('event', data['id'], data['files'])
                 if not event:
                     return {'message': 'Event does not exist'}, 400
 
@@ -62,7 +62,7 @@ class EventResource(Resource):
             else:
                 events = Event.query.options(joinedload("place")).all()
                 data = EventSchema(many=True).dump(events).data
-                for d in data: d["images"] = list_images('event', d['id'])
+                for d in data: d["images"] = build_image_list('event', d['id'], d['files'])
                 return {"status": "success", 'events': data}, 200
 
         except OperationalError:

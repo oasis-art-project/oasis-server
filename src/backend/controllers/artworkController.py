@@ -17,7 +17,7 @@ from sqlalchemy.orm import joinedload
 from src.backend.controllers.controller import load_request
 from src.backend.models.artworkModel import Artwork, ArtworkSchema
 from src.backend.extensions import storage
-from src.backend.controllers.controller import list_images
+from src.backend.controllers.controller import build_image_list
 
 artwork_schema = ArtworkSchema()
 
@@ -32,14 +32,14 @@ class ArtworkResource(Resource):
             if artist_id:
                 user_artworks = Artwork.query.filter_by(artist_id=artist_id).all()
                 data = artwork_schema.dump(user_artworks, many=True).data
-                for d in data: d["images"] = list_images('artwork', d['id'])
+                for d in data: d["images"] = build_image_list('artwork', d['id'], d['files'])
                 return {"status": "success", 'artworks': data}, 200
 
             # Return a specific artwork with ID artwork_id
             if artwork_id:
                 artwork = Artwork.query.options(joinedload("artist")).filter_by(id=artwork_id).first()
                 data = artwork_schema.dump(artwork).data
-                data["images"] = list_images('artwork', data['id'])
+                data["images"] = build_image_list('artwork', data['id'], data['files'])
                 if not artwork:
                     return {'message': 'Artwork does not exist'}, 400
 
@@ -49,7 +49,7 @@ class ArtworkResource(Resource):
             else:
                 artworks = Artwork.query.options(joinedload("artist")).all()
                 data = ArtworkSchema(many=True).dump(artworks).data
-                for d in data: d["images"] = list_images('artwork', d['id'])
+                for d in data: d["images"] = build_image_list('artwork', d['id'], d['files'])
                 return {"status": "success", 'artworks': data}, 200
 
         except OperationalError:

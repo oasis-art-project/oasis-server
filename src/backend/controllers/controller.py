@@ -117,3 +117,13 @@ def upload_images(request, resource_kind, resource_id):
 def list_images(resource_kind, resource_id):
     res = storage.list_folder_contents(resource_kind, resource_id)
     return res
+    
+def build_image_list(resource_kind, resource_id, resource_files):
+    if not resource_files: return []
+    prefix = resource_kind + 's'
+    res = []
+    filenames = resource_files.split(":")
+    for fn in filenames:
+        image_path = '%s/%d/%s' % (prefix, resource_id, fn)
+        res.append(image_path)
+    return res

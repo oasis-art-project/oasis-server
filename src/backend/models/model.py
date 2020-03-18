@@ -19,6 +19,7 @@ class SurrogatePK(object):
     __table_args__ = {'extend_existing': True}
 
     id = db.Column(db.Integer, primary_key=True)
+    files = db.Column(db.String(1000), nullable=True)
     tags = db.Column(db.String(100), nullable=True)
 
     @classmethod
@@ -46,4 +47,5 @@ class BaseSchema(ModelSchema):
     OPTIONS_CLASS = BaseOpts
     
     # Overwritten fields
+    files = fields.Str(allow_none=True, validate=validate.Length(max=1000))
     tags = fields.Str(allow_none=True, validate=validate.Length(max=100))

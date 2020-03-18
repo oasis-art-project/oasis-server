@@ -18,6 +18,7 @@ from src.backend.controllers.controller import upload_images
 from src.backend.extensions import storage
 
 import json
+import os
 
 class MediaResource(Resource):
     @jwt_optional
@@ -50,7 +51,7 @@ class MediaResource(Resource):
             return {'message': 'Request contains an invalid argument'}, 400
 
         # If not exists, raise an error
-        if not resource:
+        if not resource:            
             return {'message': 'The requested %s does not exist' % (resource_kind)}, 400
 
         try:
@@ -103,6 +104,17 @@ class MediaResource(Resource):
 
         try:
             upload_dict = upload_images(request, resource_kind, resource_id)
+            
+            # Adding files resource record in DB
+            for key in upload_dict:
+                url = upload_dict[key]["url"]
+                _, fn = os.path.split(url)
+                if not resource.files:
+                    resource.files = fn
+                else:
+                    resource.files += ":" + fn
+            resource.save()
+
             return {"status": 'success', "images": json.dumps(upload_dict)}, 200
 
         except Exception as e:
@@ -153,6 +165,11 @@ class MediaResource(Resource):
             return {'message': 'The requested %s does not exist' % (resource_kind)}, 400
 
         try:
+            tmp = resource.files
+            tmp = tmp.replace(file_name, "")
+            tmp = tmp.replace("::", "")
+            resource.files = tmp
+            resource.save()
             storage.delete_image_file(resource_kind, resource_id, file_name)
 
             return {'status': "success"}, 200

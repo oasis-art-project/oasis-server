@@ -16,7 +16,7 @@ from src.backend.controllers.controller import load_request
 from src.backend.models.tokenModel import Token
 from src.backend.models.userModel import User, UserSchema
 from src.backend.extensions import storage
-from src.backend.controllers.controller import list_images
+from src.backend.controllers.controller import build_image_list
 
 user_schema = UserSchema()
 
@@ -35,7 +35,7 @@ class UserResource(Resource):
                     data = UserSchema(many=True).dump(users).data                    
                 else:
                     data = UserSchema(many=True, exclude=('email',)).dump(users).data
-                for d in data: d["images"] = list_images('user', d['id'])
+                for d in data:  d["images"] = build_image_list('user', d['id'], d['files'])
                 return {"status": 'success', 'users': data}, 200
 
             # Get a specific user by id
@@ -49,7 +49,7 @@ class UserResource(Resource):
                     data = user_schema.dump(user).data
                 else:
                     data = UserSchema(exclude=('email',)).dump(user).data
-                data["images"] = list_images('user', data['id'])
+                data["images"] = build_image_list('user', data['id'], data['files'])
                 return {"status": 'success', 'user': data}, 200
 
             # Get a specific user by email
@@ -63,7 +63,7 @@ class UserResource(Resource):
                     return {'message': 'User does not exist'}, 400
 
                 data = user_schema.dump(user).data
-                data["images"] = list_images('user', data['id'])
+                data["images"] = build_image_list('user', data['id'], data['files'])
                 return {"status": 'success', 'user': data}, 200
 
         except OperationalError:

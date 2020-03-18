@@ -17,7 +17,7 @@ from src.backend.controllers.controller import load_request
 from src.backend.models.placeModel import PlaceSchema, Place
 from src.backend.extensions import storage, geolocator
 from geopy.exc import GeocoderTimedOut
-from src.backend.controllers.controller import list_images
+from src.backend.controllers.controller import build_image_list
 
 place_schema = PlaceSchema()
 
@@ -41,14 +41,14 @@ class PlaceResource(Resource):
                     return {'message': 'Place does not exist'}, 400
 
                 data = place_schema.dump(place).data
-                data["images"] = list_images('place', data['id'])
+                data["images"] = build_image_list('place', data['id'], data['files'])
                 return {"status": "success", 'place': data}, 200
 
             # If no arguments passed, return all places
             else:
                 places = Place.query.options(joinedload("host")).all()
                 data = PlaceSchema(many=True).dump(places).data
-                for d in data: d["images"] = list_images('place', d['id'])
+                for d in data: d["images"] = build_image_list('place', d['id'], d['files'])
                 return {"status": "success", 'places': data}, 200
 
         except OperationalError:

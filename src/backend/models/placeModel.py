@@ -50,5 +50,5 @@ class PlaceSchema(BaseSchema):
             host = User.get_by_id(data['host']['id'])
             if not host:
                 raise ValueError
-            data['host'] = UserSchema(only=('id', 'tags', 'firstName', 'lastName', 'bio', 'twitter', 'flickr', 'instagram')).dump(host).data
+            data['host'] = UserSchema(only=('id', 'tags', 'firstName', 'lastName', 'bio', 'files', 'twitter', 'flickr', 'instagram')).dump(host).data
         return data
