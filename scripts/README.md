@@ -8,4 +8,4 @@ The populate script will create dummy data in the server DB and copy artwork ima
 
 `python populate.py --url <server url>`
 
-For more arguments, run ```pyhton populate.py -h```
+For more arguments, run ```python populate.py -h```
