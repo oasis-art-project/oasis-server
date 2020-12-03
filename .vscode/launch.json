@@ -29,7 +29,7 @@
                 "FLASK_ENV": "development",
                 "FLASK_DEBUG": "0",
                 "DATABASE_URL": "postgresql://localhost/oasis",
-                "IMAGE_UPLOAD_FOLDER": "",
+                "IMAGE_UPLOAD_FOLDER": "~/code/oasis/webapp/public/imgs/",
                 "S3_BUCKET": "",
                 "AWS_ACCESS_KEY_ID": "",
                 "AWS_SECRET_ACCESS_KEY": ""
