@@ -8,9 +8,11 @@ License Artistic-2.0
 
 import flask_bcrypt
 
-from marshmallow import validate, fields
+from marshmallow import fields, validate, post_dump
+
 from src.backend.extensions import db
 from src.backend.models.model import SurrogatePK, BaseSchema
+from src.backend.controllers.controller import build_image_list
 
 
 class User(SurrogatePK, db.Model):
@@ -75,3 +77,10 @@ class UserSchema(BaseSchema):
     class Meta:
         # BaseSchema automatically generates fields based on the model
         model = User
+
+    # dump list of images
+    @post_dump
+    def get(self, data):
+        if 'files' in data:
+            data['images'] = build_image_list('user', data['id'], data['files'])
+        return data

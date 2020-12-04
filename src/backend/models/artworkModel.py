@@ -11,6 +11,7 @@ from marshmallow import fields, validate, post_dump
 from src.backend.extensions import db
 from src.backend.models.model import BaseSchema, SurrogatePK
 from src.backend.models.userModel import UserSchema, User
+from src.backend.controllers.controller import build_image_list
 
 
 class Artwork(SurrogatePK, db.Model):
@@ -44,5 +45,8 @@ class ArtworkSchema(BaseSchema):
             host = User.get_by_id(data['artist']['id'])
             if not host:
                 raise ValueError
-            data['artist'] = UserSchema(only=('id', 'tags', 'firstName', 'lastName', 'bio', 'files', 'twitter', 'flickr', 'instagram')).dump(host).data
+            d = UserSchema(only=('id', 'tags', 'firstName', 'lastName', 'bio', 'files', 'twitter', 'flickr', 'instagram')).dump(host).data
+            data['artist'] = d
+        if 'files' in data:            
+            data['images'] = build_image_list('artwork', data['id'], data['files'])
         return data

@@ -12,6 +12,7 @@ from src.backend.extensions import db
 from src.backend.models.model import SurrogatePK, BaseSchema
 from src.backend.models.placeModel import PlaceSchema, Place
 from src.backend.models.userModel import UserSchema, User
+from src.backend.controllers.controller import build_image_list
 
 artists_association_table = db.Table("artists_association",
                                db.Column("artist", db.Integer, db.ForeignKey("users.id")),
@@ -50,7 +51,7 @@ class EventSchema(BaseSchema):
     # Since according to Nested schema loading is only with ID,
     # dump loads other non-sensitive data from DB, enumerated below
     @post_dump
-    def get(self, data):
+    def get(self, data):        
         if 'place' in data:
             place = Place.get_by_id(data['place']['id'])
             if not place:
@@ -62,6 +63,10 @@ class EventSchema(BaseSchema):
                 artist = User.get_by_id(data['artists'][index]['id'])
                 if not artist:
                     raise ValueError
-                data['artists'][index] = UserSchema(only=('id', 'tags', 'firstName', 'lastName', 'bio', 'files', 'twitter', 'flickr', 'instagram')).dump(artist).data
+                d = UserSchema(only=('id', 'tags', 'firstName', 'lastName', 'bio', 'files', 'twitter', 'flickr', 'instagram')).dump(artist).data
+                data['artists'][index] = d
+
+        if 'files' in data:
+            data['images'] = build_image_list('event', data['id'], data['files'])
 
         return data

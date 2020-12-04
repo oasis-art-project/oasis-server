@@ -12,6 +12,7 @@ from sqlalchemy.types import ARRAY
 from src.backend.extensions import db
 from src.backend.models.model import SurrogatePK, BaseSchema
 from src.backend.models.userModel import UserSchema, User
+from src.backend.controllers.controller import build_image_list
 
 
 class Place(SurrogatePK, db.Model):
@@ -50,5 +51,8 @@ class PlaceSchema(BaseSchema):
             host = User.get_by_id(data['host']['id'])
             if not host:
                 raise ValueError
-            data['host'] = UserSchema(only=('id', 'tags', 'firstName', 'lastName', 'bio', 'files', 'twitter', 'flickr', 'instagram')).dump(host).data
+            d = UserSchema(only=('id', 'tags', 'firstName', 'lastName', 'bio', 'files', 'twitter', 'flickr', 'instagram')).dump(host).data
+            data['host'] = d
+        if 'files' in data:
+            data['images'] = build_image_list('place', data['id'], data['files'])
         return data
