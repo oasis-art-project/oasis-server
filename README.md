@@ -59,13 +59,16 @@ The server can be run locally with the following steps:
 If it is needed to clear the db and images, and restart the server, run the following
 
 1. Recreate postgres db
+
 `./clear-db.sh; psql postgres -c "CREATE DATABASE oasis"` <br>
 
 2. Delete images (adding the local flag is using local storage)
+
 `python scripts/delete_images.py [--local]` <br>
 
 3. Repopulate the db
-`python scripts/populate.py [--local --images <storage folder>]` <br>
+
+`python scripts/populate.py -url <server URL>` <br>
 
 4. Restart server <br>
 `flask run`
