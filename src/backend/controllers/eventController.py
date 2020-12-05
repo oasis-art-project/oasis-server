@@ -152,7 +152,7 @@ class EventResource(Resource):
         event_id = request.form['id']
 
         try:
-            # Get artwork from db
+            # Get event from db
             event = Event.get_by_id(event_id)
 
             # If not exists, raise an error
