@@ -22,14 +22,14 @@ user_schema = UserSchema()
 
 class UserResource(Resource):
     @jwt_optional
-    def get(self, user_id=None, user_email=None):
+    def get(self, user_id=None, user_email=None, user_role=None):
         """
         Gets a list of users
         """
         try:
-            # Get all users
-            if not user_id and not user_email:
-                users = User.query.all()
+            # Return all users with the given role
+            if user_role:
+                users = User.query.filter_by(role=user_role).all()
                 if current_user and current_user.is_admin():
                     data = UserSchema(many=True).dump(users).data                    
                 else:
@@ -61,6 +61,16 @@ class UserResource(Resource):
 
                 data = user_schema.dump(user).data
                 return {"status": 'success', 'user': data}, 200
+
+            # If no arguments passed, return all users
+            else:
+                users = User.query.all()
+                if current_user and current_user.is_admin():
+                    data = UserSchema(many=True).dump(users).data                    
+                else:
+                    data = UserSchema(many=True, exclude=('email',)).dump(users).data
+                return {"status": 'success', 'users': data}, 200
+
 
         except OperationalError:
             return {'message': 'Database error'}, 500

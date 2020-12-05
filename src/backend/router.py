@@ -22,6 +22,7 @@ def init_router(api):
     api.add_resource(UserResource, '/user/')
     api.add_resource(UserResource, '/user/<int:user_id>', endpoint='user_id')
     api.add_resource(UserResource, '/user/<string:user_email>', endpoint='user_email')
+    api.add_resource(UserResource, '/user/role/<int:user_role>', endpoint='user_role')
     api.add_resource(ArtworkResource, '/artwork/')
     api.add_resource(ArtworkResource, '/artwork/<int:artwork_id>', endpoint='artwork_id')
     api.add_resource(ArtworkResource, '/artwork/artist/<int:artist_id>', endpoint='artist_id')
