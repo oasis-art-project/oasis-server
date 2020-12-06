@@ -12,12 +12,16 @@ from src.backend.extensions import db
 from src.backend.models.model import SurrogatePK, BaseSchema
 from src.backend.models.placeModel import PlaceSchema, Place
 from src.backend.models.userModel import UserSchema, User
+# from src.backend.models.artworkModel import ArtworkSchema, Artwork
 from src.backend.controllers.controller import build_image_list
 
 artists_association_table = db.Table("artists_association",
-                               db.Column("artist", db.Integer, db.ForeignKey("users.id")),
-                               db.Column("event", db.Integer, db.ForeignKey("events.id")))
+                                     db.Column("artist", db.Integer, db.ForeignKey("users.id")),
+                                     db.Column("event", db.Integer, db.ForeignKey("events.id")))
 
+# artworks_association_table = db.Table("artworks_association",
+#                                       db.Column("artwork", db.Integer, db.ForeignKey("artworks.id")),
+#                                       db.Column("event", db.Integer, db.ForeignKey("events.id")))
 
 class Event(SurrogatePK, db.Model):
     __tablename__ = 'events'
@@ -31,6 +35,9 @@ class Event(SurrogatePK, db.Model):
     artists = db.relationship('User',
                               secondary="artists_association",
                               backref=db.backref('artists'))
+    # artworks = db.relationship('Artwork',
+    #                            secondary="artworks_association",
+    #                            backref=db.backref('artworks'))
 
     def __init__(self, **kwargs):
         super(Event, self).__init__(**kwargs)
@@ -40,6 +47,7 @@ class EventSchema(BaseSchema):
     # Overwritten fields
     place = fields.Nested(PlaceSchema, only=('id',), required=True)
     artists = fields.Nested(UserSchema, many=True, only=('id',))
+    # artworks = fields.Nested(ArtworkSchema, many=True, only=('id',))
 
     name = fields.Str(required=True, validate=validate.Length(max=100))
     description = fields.Str(validate=validate.Length(max=1000))
@@ -65,6 +73,14 @@ class EventSchema(BaseSchema):
                     raise ValueError
                 d = UserSchema(only=('id', 'tags', 'firstName', 'lastName', 'bio', 'files', 'twitter', 'flickr', 'instagram')).dump(artist).data
                 data['artists'][index] = d
+
+        # if 'artworks' in data:
+        #     for index in range(len(data['artworks'])):
+        #         artwork = User.get_by_id(data['artworks'][index]['id'])
+        #         if not artwork:
+        #             raise ValueError
+        #         d = ArtworkSchema(many=True).dump(artwork).data
+        #         data['artworks'][index] = d
 
         if 'files' in data:
             data['images'] = build_image_list('event', data['id'], data['files'])

@@ -47,6 +47,6 @@ class ArtworkSchema(BaseSchema):
                 raise ValueError
             d = UserSchema(only=('id', 'tags', 'firstName', 'lastName', 'bio', 'files', 'twitter', 'flickr', 'instagram')).dump(host).data
             data['artist'] = d
-        if 'files' in data:            
+        if 'files' in data:
             data['images'] = build_image_list('artwork', data['id'], data['files'])
         return data
