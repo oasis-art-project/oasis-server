@@ -62,15 +62,16 @@ def artwork_json(row, artist):
         "tags": row[4]
     }
 
-def event_json(place, artists, row):
+def event_json(place, artists, artworks, row):
     return {
         "place": place,
         "artists": artists,
-        "name": row[2],
-        "description": row[3],
-        "startTime": row[4],
-        "endTime": row[5],
-        "tags": row[6]
+        "artworks": artworks,
+        "name": row[3],
+        "description": row[4],
+        "startTime": row[5],
+        "endTime": row[6],
+        "tags": row[7]
     }
 
 def upload_image(bdir, fn, rkind, rid, user):
@@ -234,14 +235,17 @@ for row in reader:
         
     print("  Logged out succesfully")        
 
-# Uploading user images
+# Uploading artwork images
+artwork_dict = {}
 r = requests.get(server_url + '/api/artwork/')
 if r.status_code != 200:
     raise Exception(r.status_code)
 artworks = r.json()['artworks']
-for artwork in artworks:
+for artwork in artworks:    
     pid = artwork['id']
+    name = artwork['name']
     artist = artwork['artist']
+    artwork_dict[name] = artwork
     user = user_dict[artist['firstName'] + ' ' + artist['lastName']]
     base_path = data_dir + "/images/artworks/" + user["email"]
     images = artwork_images[pid]
@@ -308,10 +312,10 @@ rows = []
 first_date = None
 date_format = '%Y-%m-%dT%H:%M:%S'
 for row in reader:
-    start_date = datetime.strptime(row[4], date_format)
-    end_date = datetime.strptime(row[5], date_format)
-    row[4] = start_date
-    row[5] = end_date
+    start_date = datetime.strptime(row[5], date_format)
+    end_date = datetime.strptime(row[6], date_format)
+    row[5] = start_date
+    row[6] = end_date
     if not first_date: first_date = start_date
     if start_date < first_date:
         first_date = start_date
@@ -321,22 +325,24 @@ NOW = datetime.now()
 diff = NOW - first_date
 
 for row in rows:
-    event_extra[row[2]] = {'image': row[7]}
-    print("Creating event", row[2], "...")
+    event_extra[row[3]] = {'image': row[8]}
+    print("Creating event", row[3], "...")
 
     # Normalizing dates using today as reference
-    start_date = row[4] + diff
-    end_date = row[5] + diff
-    row[4] = start_date.strftime(date_format)
-    row[5] = end_date.strftime(date_format)
+    start_date = row[5] + diff
+    end_date = row[6] + diff
+    row[5] = start_date.strftime(date_format)
+    row[6] = end_date.strftime(date_format)
 
     place = {"id": place_dict[row[0]]['id']}
     artists = [{"id":user_dict[name.strip()]['id']} for name in row[1].split(';')]
+    artworks = [{"id":artwork_dict[name.strip()]['id']} for name in row[2].split(';')]
+
     host = place_dict[row[0]]['host']
     hostFullName = host['firstName'] + ' ' + host['lastName']
     hostEmail = user_dict[hostFullName]['email']
     hostPassword = user_dict[hostFullName]['password']
-        
+
     print("  Logging host", hostFullName)
         
     # First the host user needs to login so we have the token to use in place creation
@@ -347,7 +353,7 @@ for row in rows:
     host_token = r.json()['token']
     host_header = auth_header(host_token)   
 
-    raw_event_data = event_json(place, artists, row)
+    raw_event_data = event_json(place, artists, artworks, row)
     user_data = make_data_request(raw_event_data)
 
     r = requests.post(server_url + '/api/event/', data=user_data, headers=host_header)
