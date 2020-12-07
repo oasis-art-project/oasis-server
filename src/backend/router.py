@@ -26,6 +26,10 @@ def init_router(api):
     api.add_resource(ArtworkResource, '/artwork/')
     api.add_resource(ArtworkResource, '/artwork/<int:artwork_id>', endpoint='artwork_id')
     api.add_resource(ArtworkResource, '/artwork/artist/<int:artist_id>', endpoint='artist_id')
+
+    # TO-DO: add this endpoint to get all artworks in an event
+    #api.add_resource(ArtworkResource, '/artwork/event/<int:event_artwork_id>', endpoint='event_artwork_id')
+
     api.add_resource(PlaceResource, '/place/')
     api.add_resource(PlaceResource, '/place/<int:place_id>', endpoint='place_id')
     api.add_resource(PlaceResource, '/place/host/<int:host_id>', endpoint='host_id')
@@ -33,5 +37,9 @@ def init_router(api):
     api.add_resource(EventResource, '/event/<int:event_id>', endpoint='event_id')
     api.add_resource(EventResource, '/event/<string:event_date>', endpoint='event_date')
     api.add_resource(EventResource, '/event/place/<int:place_event_id>', endpoint='place_event_id')
+
+    # TO-DO: add this endpoint to get all events an artist is involved in
+    #api.add_resource(EventResource, '/event/artist/<int:event_artist_id>', endpoint='event_artist_id')
+
     api.add_resource(MediaResource, '/media/')
     api.add_resource(MediaResource, '/media/<int:resource_id>', endpoint='media_id')    
