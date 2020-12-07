@@ -71,7 +71,6 @@ class EventSchema(BaseSchema):
                 artist = User.get_by_id(data['artists'][index]['id'])
                 if not artist:
                     raise ValueError
-                print("ARTIST", artist.id, artist.firstName, artist.lastName)
                 d = UserSchema(only=('id', 'tags', 'firstName', 'lastName', 'bio', 'files', 'twitter', 'flickr', 'instagram')).dump(artist).data
                 data['artists'][index] = d
 
@@ -80,7 +79,6 @@ class EventSchema(BaseSchema):
                 artwork = Artwork.get_by_id(data['artworks'][index]['id'])
                 if not artwork:
                     raise ValueError
-                print("ARTWORK", artwork.id, artwork.name)
                 d = ArtworkSchema(only=('id', 'tags', 'name', 'creation_date', 'artist', 'files')).dump(artwork).data
                 data['artworks'][index] = d
 
