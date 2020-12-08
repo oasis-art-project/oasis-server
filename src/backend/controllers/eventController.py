@@ -17,9 +17,13 @@ from datetime import datetime
 
 from src.backend.controllers.controller import load_request
 from src.backend.models.eventModel import EventSchema, Event
+from src.backend.models.eventModel import artists_association_table
 from src.backend.models.placeModel import Place
 from src.backend.models.userModel import User
+from src.backend.models.artworkModel import Artwork
 from src.backend.extensions import storage
+
+from src.backend.extensions import db
 
 event_schema = EventSchema()
 
@@ -37,13 +41,8 @@ class EventResource(Resource):
 
              # Return all events involving artist with ID event_artist_id
             if event_artist_id:
-                # https://stackoverflow.com/questions/8561470/sqlalchemy-filtering-by-relationship-attribute
-                # artist_events = Event.query.join(Event.artists, aliased=True).filter_by(id=event_artist_id).all()
-
-                # https://stackoverflow.com/questions/30838518/sqlalchemy-filter-by-relationship
-                # https://stackoverflow.com/questions/6474989/sqlalchemy-filter-by-membership-in-at-least-one-many-to-many-related-table
-                artist_events = Event.query.join(Event.artists, aliased=True).filter(User.id.in_([event_artist_id])).all()
-
+                q = Event.query.join(artists_association_table).join(User)
+                artist_events = q.filter((artists_association_table.c.artist == event_artist_id)).all()
                 return {"status": "success", "events": event_schema.dump(artist_events, many=True).data}, 200
 
             # Return current and upcoming events based on date provided in request
