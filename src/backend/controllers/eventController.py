@@ -20,7 +20,6 @@ from src.backend.models.eventModel import EventSchema, Event
 from src.backend.models.eventModel import artists_association_table
 from src.backend.models.placeModel import Place
 from src.backend.models.userModel import User
-from src.backend.models.artworkModel import Artwork
 from src.backend.extensions import storage
 
 from src.backend.extensions import db
