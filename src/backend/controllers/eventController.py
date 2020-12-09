@@ -18,8 +18,10 @@ from datetime import datetime
 from src.backend.controllers.controller import load_request
 from src.backend.models.eventModel import EventSchema, Event
 from src.backend.models.eventModel import artists_association_table
+from src.backend.models.eventModel import artworks_association_table
 from src.backend.models.placeModel import Place
 from src.backend.models.userModel import User
+from src.backend.models.artworkModel import Artwork
 from src.backend.extensions import storage
 
 from src.backend.extensions import db
@@ -28,7 +30,7 @@ event_schema = EventSchema()
 
 
 class EventResource(Resource):
-    def get(self, event_id=None, event_date=None, place_event_id=None, event_artist_id=None):
+    def get(self, event_id=None, event_date=None, place_event_id=None, event_artist_id=None, event_artwork_id=None):
         """
         Gets a list of events
         """
@@ -43,6 +45,12 @@ class EventResource(Resource):
                 q = Event.query.join(artists_association_table).join(User)
                 artist_events = q.filter((artists_association_table.c.artist == event_artist_id)).all()
                 return {"status": "success", "events": event_schema.dump(artist_events, many=True).data}, 200
+
+             # Return all events involving artwork with ID event_artwork_id
+            if event_artwork_id:
+                q = Event.query.join(artworks_association_table).join(Artwork)
+                artwork_events = q.filter((artworks_association_table.c.artwork == event_artwork_id)).all()
+                return {"status": "success", "events": event_schema.dump(artwork_events, many=True).data}, 200
 
             # Return current and upcoming events based on date provided in request
             if event_date:
