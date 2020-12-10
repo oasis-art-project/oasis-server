@@ -11,7 +11,7 @@ import os
 from flask import Flask, render_template, current_app
 from flask_migrate import MigrateCommand
 from flask_cors import CORS
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, emit, join_room
 
 from src.backend.commands import test, seed
 from src.backend.extensions import db, migrate, jwt, ma, manager, api_bp, api, storage
@@ -79,5 +79,39 @@ def create_app(conf=ProductionConfig):
     def files():
         summaries = storage.bucket.objects.all()
         return render_template('files.html', my_bucket=storage.bucket, files=summaries)
+
+    @socket.on('connect')
+    def on_connect():
+        print('user connected')
+        retrieve_active_users()
+
+
+    def retrieve_active_users():
+        emit('retrieve_active_users', broadcast=True)
+
+
+    @socket.on('activate_user')
+    def on_active_user(data):
+        user = data.get('username')
+        emit('user_activated', {'user': user}, broadcast=True)
+
+
+    @socket.on('deactivate_user')
+    def on_inactive_user(data):
+        user = data.get('username')
+        emit('user_deactivated', {'user': user}, broadcast=True)
+
+
+    @socket.on('join_room')
+    def on_join(data):
+        room = data['room']
+        join_room(room)
+        emit('open_room', {'room': room}, broadcast=True)
+
+
+    @socket.on('send_message')
+    def on_chat_sent(data):
+        room = data['room']
+        emit('message_sent', data, room=room)
 
     return app
