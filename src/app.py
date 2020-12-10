@@ -11,6 +11,7 @@ import os
 from flask import Flask, render_template, current_app
 from flask_migrate import MigrateCommand
 from flask_cors import CORS
+from flask_socketio import SocketIO
 
 from src.backend.commands import test, seed
 from src.backend.extensions import db, migrate, jwt, ma, manager, api_bp, api, storage
@@ -25,6 +26,9 @@ def create_app(conf=ProductionConfig):
 
     # Load config
     app.config.from_object(conf)
+
+    socket = SocketIO(app)
+
     # Enabled cors
     CORS(app)
 
