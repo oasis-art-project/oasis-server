@@ -24,13 +24,18 @@ def create_app(conf=ProductionConfig):
                 static_folder='./public',
                 template_folder="./templates")
 
+    
+
     # Load config
     app.config.from_object(conf)
 
+    # Chat init
     socket = SocketIO(app)
+    NEW_CHAT_MESSAGE_EVENT = "newChatMessage"
 
+    # Disable CORS for now
     # Enabled cors
-    CORS(app)
+    #CORS(app)
 
     # Ensure the instance and upload folder exists
     if not os.path.exists(app.instance_path):
@@ -102,7 +107,8 @@ def create_app(conf=ProductionConfig):
         emit('user_deactivated', {'user': user}, broadcast=True)
 
 
-    @socket.on('join_room')
+    @socket.on(NEW_CHAT_MESSAGE_EVENT)
+    # @socket.on('join_room')
     def on_join(data):
         room = data['room']
         join_room(room)
