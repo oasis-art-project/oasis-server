@@ -12,13 +12,13 @@ from flask import Flask, render_template, current_app
 from flask_migrate import MigrateCommand
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit, join_room
-from flask import request
 
 from src.backend.commands import test, seed
 from src.backend.extensions import db, migrate, jwt, ma, manager, api_bp, api, storage
 from src.backend.jwt import jwt_identity, identity_loader
 from src.backend.router import init_router
 from src.config import ProductionConfig, TestConfig
+from src.backend.sockets import CustomNamespace
 
 def create_app(conf=ProductionConfig):
     app = Flask(__name__,
@@ -32,9 +32,8 @@ def create_app(conf=ProductionConfig):
     cors = CORS(app, resources={r"/*":{"origins":"*"}})
 
     # Chat init
-    socket = SocketIO(app, cors_allowed_origins="*")
-    roomId = 1
-    NEW_CHAT_MESSAGE_EVENT = "send_message"
+    socketio = SocketIO(app, cors_allowed_origins="*")
+    socketio.on_namespace(CustomNamespace())
 
     # Ensure the instance and upload folder exists
     if not os.path.exists(app.instance_path):
@@ -93,25 +92,35 @@ def create_app(conf=ProductionConfig):
     #     socket.join(roomId)
         # retrieve_active_users()
 
-    @socket.on('connect')
-    def on_connect():
-        roomId = request.args.get('roomId')
-        # roomId = socket.handshake.query
-        print('user connected to room', roomId)
-        join_room(roomId)
-        # print('user connected')
-        # retrieve_active_users()
+    # def ack():
+    #     print('message was received!')
 
-    @socket.on(NEW_CHAT_MESSAGE_EVENT)
-    def on_chat_sent(data):
-        print('Received message in', roomId, data)
-        emit(NEW_CHAT_MESSAGE_EVENT, data, room=roomId)
+    # @socketio.on('connect')
+    # def on_connect():
+    #     roomId = request.args.get('roomId')
+    #     # roomId = socket.handshake.query
+    #     print('user connected to room', roomId)
+    #     join_room(roomId)
+    #     # print('user connected')
+    #     # retrieve_active_users()
 
-        # room = data['room']
-        # join_room(room)
-        # emit('open_room', {'room': room}, broadcast=True)
+    # @socketio.on('disconnect')
+    # def on_disconnect():
+    #     print('Client disconnected')        
+
+    # @socketio.on(NEW_CHAT_MESSAGE_EVENT)
+    # def on_chat_sent(data):
+    #     print('Received message in', roomId, data)
+    #     emit(NEW_CHAT_MESSAGE_EVENT, data, room=roomId, callback=ack)
+
+    #     # room = data['room']
+    #     # join_room(room)
+    #     # emit('open_room', {'room': room}, broadcast=True)
 
 
+    # @socketio.on('join_room')
+    # def on_join(data):
+    #     room = data['room']
 
     return app
 

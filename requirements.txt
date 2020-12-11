@@ -19,7 +19,7 @@ Flask_marshmallow==0.10.1
 Flask_script==2.0.6
 Flask_migrate==2.5.2
 Flask-apispec==0.8.1
+Flask_socketio==4.3.2
 marshmallow==2.20.3
 marshmallow-sqlalchemy==0.17.2
-Flask_socketio==4.3.2
 python-socketio==4.6.1

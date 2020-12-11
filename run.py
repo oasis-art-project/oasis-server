@@ -7,9 +7,14 @@ License Artistic-2.0
 """
 
 from src.app import create_app
-from flask_socketio import socketio
 
 if __name__ == "__main__":
+    # (app, socketio) = create_app()
+    # print(socketio)
+    # if socketio:
+    #     socketio.run(app)
+    # else: 
+    #     app.run()
     app = create_app()
-    # app.run()
-    socketio.run(app)    
+    app.run()
+    
