@@ -22,3 +22,4 @@ Flask-apispec==0.8.1
 marshmallow==2.20.3
 marshmallow-sqlalchemy==0.17.2
 Flask_socketio==4.3.2
+python-socketio==4.6.1
