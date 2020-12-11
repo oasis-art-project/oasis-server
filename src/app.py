@@ -24,18 +24,15 @@ def create_app(conf=ProductionConfig):
                 static_folder='./public',
                 template_folder="./templates")
 
-    
-
     # Load config
     app.config.from_object(conf)
 
-    # Chat init
-    socket = SocketIO(app)
-    NEW_CHAT_MESSAGE_EVENT = "newChatMessage"
+    # Enabled CORS: https://enable-cors.org/server_flask.html
+    cors = CORS(app, resources={r"/*":{"origins":"*"}})
 
-    # Disable CORS for now
-    # Enabled cors
-    #CORS(app)
+    # Chat init
+    socket = SocketIO(app, cors_allowed_origins="*")
+    NEW_CHAT_MESSAGE_EVENT = "newChatMessage"
 
     # Ensure the instance and upload folder exists
     if not os.path.exists(app.instance_path):
@@ -85,27 +82,37 @@ def create_app(conf=ProductionConfig):
         summaries = storage.bucket.objects.all()
         return render_template('files.html', my_bucket=storage.bucket, files=summaries)
 
+    # Socket-IO endpoints for chat
+
+    @socket.on('connection')
+    def on_connect():
+        roomId = socket.handshake.query
+        print('user connected to room', roomId)
+        socket.join(roomId)
+
+        # retrieve_active_users()
+
+
+    return app
+
+'''
     @socket.on('connect')
     def on_connect():
         print('user connected')
         retrieve_active_users()
 
-
     def retrieve_active_users():
         emit('retrieve_active_users', broadcast=True)
-
 
     @socket.on('activate_user')
     def on_active_user(data):
         user = data.get('username')
         emit('user_activated', {'user': user}, broadcast=True)
 
-
     @socket.on('deactivate_user')
     def on_inactive_user(data):
         user = data.get('username')
         emit('user_deactivated', {'user': user}, broadcast=True)
-
 
     @socket.on(NEW_CHAT_MESSAGE_EVENT)
     # @socket.on('join_room')
@@ -114,10 +121,8 @@ def create_app(conf=ProductionConfig):
         join_room(room)
         emit('open_room', {'room': room}, broadcast=True)
 
-
     @socket.on('send_message')
     def on_chat_sent(data):
         room = data['room']
         emit('message_sent', data, room=room)
-
-    return app
+'''
