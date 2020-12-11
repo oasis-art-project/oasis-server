@@ -12,6 +12,7 @@ from flask import Flask, render_template, current_app
 from flask_migrate import MigrateCommand
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit, join_room
+from flask import request
 
 from src.backend.commands import test, seed
 from src.backend.extensions import db, migrate, jwt, ma, manager, api_bp, api, storage
@@ -32,7 +33,8 @@ def create_app(conf=ProductionConfig):
 
     # Chat init
     socket = SocketIO(app, cors_allowed_origins="*")
-    NEW_CHAT_MESSAGE_EVENT = "newChatMessage"
+    roomId = 1
+    NEW_CHAT_MESSAGE_EVENT = "send_message"
 
     # Ensure the instance and upload folder exists
     if not os.path.exists(app.instance_path):
@@ -84,13 +86,31 @@ def create_app(conf=ProductionConfig):
 
     # Socket-IO endpoints for chat
 
-    @socket.on('connection')
-    def on_connect():
-        roomId = socket.handshake.query
-        print('user connected to room', roomId)
-        socket.join(roomId)
-
+    # @socket.on('connection')
+    # def on_connect():
+    #     roomId = socket.handshake.query
+    #     print('user connected to room', roomId)
+    #     socket.join(roomId)
         # retrieve_active_users()
+
+    @socket.on('connect')
+    def on_connect():
+        roomId = request.args.get('roomId')
+        # roomId = socket.handshake.query
+        print('user connected to room', roomId)
+        join_room(roomId)
+        # print('user connected')
+        # retrieve_active_users()
+
+    @socket.on(NEW_CHAT_MESSAGE_EVENT)
+    def on_chat_sent(data):
+        print('Received message in', roomId, data)
+        emit(NEW_CHAT_MESSAGE_EVENT, data, room=roomId)
+
+        # room = data['room']
+        # join_room(room)
+        # emit('open_room', {'room': room}, broadcast=True)
+
 
 
     return app
