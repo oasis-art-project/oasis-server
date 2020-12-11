@@ -15,4 +15,4 @@ class CustomNamespace(Namespace):
 
     def on_send_message(self, data):
         print('Received message in room', roomId, data)
-        emit(NEW_CHAT_MESSAGE_EVENT, data, room=roomId)
+        emit(NEW_CHAT_MESSAGE_EVENT, data, broadcast=True)
