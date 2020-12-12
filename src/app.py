@@ -14,7 +14,7 @@ from flask_cors import CORS
 from flask_socketio import SocketIO, emit, join_room
 
 from src.backend.commands import test, seed
-from src.backend.extensions import db, migrate, jwt, ma, manager, api_bp, api, storage
+from src.backend.extensions import db, migrate, jwt, ma, manager, api_bp, api, storage, mail
 from src.backend.jwt import jwt_identity, identity_loader
 from src.backend.router import init_router
 from src.config import ProductionConfig, TestConfig
@@ -54,6 +54,7 @@ def create_app(conf=ProductionConfig):
     db.init_app(app)
     ma.init_app(app)
     storage.init_app(app)
+    mail.init_app(app)
     jwt.init_app(app)
     jwt.user_loader_callback_loader(jwt_identity)
     jwt.user_identity_loader(identity_loader)    

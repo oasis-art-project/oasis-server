@@ -14,6 +14,7 @@ from flask_migrate import Migrate
 from flask_restplus import Api
 from flask_script import Manager
 from flask_sqlalchemy import SQLAlchemy, Model
+from flask_mail import Mail
 
 from os.path import exists, join, expanduser
 from os import listdir, remove, makedirs
@@ -234,6 +235,7 @@ jwt = JWTManager()
 migrate = Migrate()
 manager = Manager()
 storage = Storage()
+mail = Mail()
 geolocator = Nominatim(user_agent="OASIS server")
 
 # Create and register Api (Flask-Restplus)
