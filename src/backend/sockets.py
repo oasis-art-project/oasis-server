@@ -9,19 +9,76 @@ License Artistic-2.0
 from flask_socketio import Namespace, emit, join_room
 from flask import request
 
-roomId = 1
-NEW_CHAT_MESSAGE_EVENT = "send_message"
+from copy import deepcopy
 
 # Namespace with socket-io events for chatting system
 class CustomNamespace(Namespace):
+    def __init__(self, namespace=None):
+        super(Namespace, self).__init__(namespace)
+        self.rooms = {}
+        self.unsent = {}
+
     def on_connect(self):
-        roomId = request.args.get('roomId')
-        print('user connected to room', roomId)
-        join_room(roomId)
+        id = request.args.get('roomId')
+        print('>>>> user connected to room', id)
+        join_room(id)
+        count = 0
+        if id in self.rooms:
+            count = self.rooms[id]
+        count += 1
+        self.rooms[id] = count
+        if 1 < count and id in self.unsent:
+            print("Sending unsent messages")
+            msgs = self.unsent[id]
+            for data in msgs:
+                emit("send_message", data, room=id)
+            del self.unsent[id]
+        print("Rooms", self.rooms)
 
     def on_disconnect(self):
+        id = request.args.get('roomId')
+        if id in self.rooms:
+            count = self.rooms[id]
+            count -= 1            
+            if count < 1:
+                print("Removing room data")
+                # del self.rooms[id]
+                self.rooms.pop(id, None)
+                self.unsent.pop(id, None)
+            else:
+                self.rooms[id] = count
         print('Client disconnected')
+        print("Rooms", self.rooms)
 
     def on_send_message(self, data):
-        print('Received message in room', roomId, data)
-        emit(NEW_CHAT_MESSAGE_EVENT, data, broadcast=True)
+        roomId = data['roomId']
+        userId = data['userId']
+        count = 0
+        if roomId in self.rooms:
+            count = self.rooms[roomId]            
+        print('>>>> Received message in room', roomId, 'from user', userId, ':', data)
+        print("Rooms", self.rooms)
+        print("Count", count)
+        if 1 < count:
+            print("Sending message to room", roomId)
+            emit("send_message", data, room=roomId)
+        else:             
+            orig_data = deepcopy(data)
+            data['body'] = "User is offline, sending notification..."
+            data['senderId'] = ''
+            emit("send_message", data, room=roomId)
+
+            ids = roomId.split('-')
+            ids.remove(userId)
+
+            print("Saving message to unsent list, sending notification to", ids[0])
+            notif = {'from': userId, 'to': ids[0], 'roomId': roomId}
+            emit("send_notification", notif, broadcast=True)
+
+            msgs = []
+            if roomId in self.unsent:
+                msgs = self.unsent[roomId]
+            msgs += [orig_data]
+            self.unsent[roomId] = msgs
+
+            # Store unreceived messages from userId to chatroom roomId
