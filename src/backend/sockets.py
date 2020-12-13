@@ -79,7 +79,7 @@ class CustomNamespace(Namespace):
             emit("send_notification", notif, broadcast=True)
 
             # Sent email notification if user ids[0] is not logged in
-            msg = Message("Chat Notification", recipients=['contact@andrescolubri.net'])
+            msg = Message("Chat Notification", recipients=['andres.colubri@gmail.com'])
             msg.body = "Join OASIS chat room " + roomId
             mail.send(msg)
 

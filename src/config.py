@@ -39,7 +39,7 @@ class Config(object):
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=30)
 
     # SMTP mail
-    MAIL_SERVER = 'smtp.googlemail.com'
+    MAIL_SERVER = 'mail.hover.com'
     MAIL_PORT = 587
     MAIL_USE_TLS = True
     MAIL_USERNAME = os.environ.get("MAIL_USERNAME")
