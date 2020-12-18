@@ -9,7 +9,7 @@ License Artistic-2.0
 from flask_socketio import Namespace, emit, join_room
 from flask_mail import Message
 from flask import request
-from src.backend.extensions import mail
+from src.backend.extensions import mail, sms
 
 from copy import deepcopy
 
@@ -78,11 +78,17 @@ class CustomNamespace(Namespace):
             emit("send_notification", notif, broadcast=True)
 
             # Sent email notification if user ids[0] is not logged in
-            msg = Message("Chat Notification", recipients=['andres.colubri@gmail.com'])
-            msg.body = "Join OASIS chat room " + roomId
+            txt = "Join OASIS chat room " + roomId
+            to_user_email = 'andres.colubri@gmail.com'
+            to_user_number = '+16172720341'
+
+            # Email notification
+            msg = Message("Chat Notification", recipients=[to_user_email])
+            msg.body = txt
             mail.send(msg)
 
-            # Other notifications, SMS, WhatsApp...?
+            # SMS notification
+            sms.send(txt, to_user_number)
 
             msgs = []
             if roomId in self.unsent:

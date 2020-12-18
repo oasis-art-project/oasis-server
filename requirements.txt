@@ -8,6 +8,7 @@ psycopg2
 boto3
 geopy
 pillow
+twilio
 Flask==1.1.2
 werkzeug==0.16.1
 flask-cors==3.0.9
