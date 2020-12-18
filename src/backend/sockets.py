@@ -44,7 +44,6 @@ class CustomNamespace(Namespace):
             count -= 1            
             if count < 1:
                 print("Removing room data")
-                # del self.rooms[id]
                 self.rooms.pop(id, None)
                 self.unsent.pop(id, None)
             else:
@@ -70,7 +69,7 @@ class CustomNamespace(Namespace):
             data['senderId'] = ''
             emit("send_message", data, room=roomId)
 
-            ids = roomId.split('-')
+            ids = [int(s) for s in roomId.split('-')]
             ids.remove(userId)
 
             # Sent message notification if user ids[0] is logged in
