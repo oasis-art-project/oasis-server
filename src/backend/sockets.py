@@ -18,80 +18,118 @@ class CustomNamespace(Namespace):
     def __init__(self, namespace=None):
         super(Namespace, self).__init__(namespace)
         self.rooms = {}
+        self.users = {}
         self.unsent = {}
 
-    def on_connect(self):
-        id = request.args.get('roomId')
-        print('>>>> user connected to room', id)
-        join_room(id)
+    def add_user(self, uid):
         count = 0
-        if id in self.rooms:
-            count = self.rooms[id]
+        if uid in self.users:
+            count = self.users[uid]
         count += 1
-        self.rooms[id] = count
-        if 1 < count and id in self.unsent:
-            print("Sending unsent messages")
-            msgs = self.unsent[id]
-            for data in msgs:
-                emit("send_message", data, room=id)
-            del self.unsent[id]
-        print("Rooms", self.rooms)
+        self.users[uid] = count
+        return count
 
-    def on_disconnect(self):
-        id = request.args.get('roomId')
-        if id in self.rooms:
-            count = self.rooms[id]
+    def rem_user(self, uid):
+        count = 0
+        if uid in self.users:
+            count = self.users[uid]
+            count -= 1            
+            if count < 1:
+                self.users.pop(uid, None)
+            else:
+                self.users[uid] = count
+        return count
+
+    def inc_room(self, rid):
+        count = 0
+        if rid in self.rooms:
+            count = self.rooms[rid]
+        count += 1
+        self.rooms[rid] = count
+        return count
+
+    def dec_room(self, rid):
+        count = 0
+        if rid in self.rooms:
+            count = self.rooms[rid]
             count -= 1            
             if count < 1:
                 print("Removing room data")
-                self.rooms.pop(id, None)
-                self.unsent.pop(id, None)
+                self.rooms.pop(rid, None)
+                self.unsent.pop(rid, None)
             else:
-                self.rooms[id] = count
-        print('Client disconnected')
+                self.rooms[rid] = count
+        return count
+
+    def on_connect(self):
+        rid = request.args.get('roomId')
+        uid = int(request.args.get('userId'))
+        join_room(rid)
+        print('>>>> user', uid, 'connected to room', rid)                
+        self.add_user(uid)
+        count = self.inc_room(rid)
+        if 1 < count and rid in self.unsent:
+            print("Sending unsent messages")
+            msgs = self.unsent[rid]
+            for data in msgs:
+                emit("send_message", data, room=rid)
+            del self.unsent[rid]
         print("Rooms", self.rooms)
+        print("Users", self.users)
+
+    def on_disconnect(self):
+        rid = request.args.get('roomId')
+        uid = int(request.args.get('userId'))
+        self.dec_room(rid)
+        self.rem_user(uid)
+        print('>>>> user', uid, 'disconnected from room', rid)
+        print("Rooms", self.rooms)
+        print("Users", self.users)
 
     def on_send_message(self, data):
-        roomId = data['roomId']
-        userId = data['userId']
+        rid = data['roomId']
+        uid = int(data['userId'])
         count = 0
-        if roomId in self.rooms:
-            count = self.rooms[roomId]            
-        print('>>>> Received message in room', roomId, 'from user', userId, ':', data)
+        if rid in self.rooms:
+            count = self.rooms[rid]            
+        print('>>>> Received message in room', rid, 'from user', uid, ':', data)
         print("Rooms", self.rooms)
         print("Count", count)
         if 1 < count:
-            print("Sending message to room", roomId)
-            emit("send_message", data, room=roomId)
+            print("Sending message to room", rid)
+            emit("send_message", data, room=rid)
         else:             
             orig_data = deepcopy(data)
             data['body'] = "User is offline, sending notification..."
             data['senderId'] = ''
-            emit("send_message", data, room=roomId)
+            emit("send_message", data, room=rid)
 
-            ids = [int(s) for s in roomId.split('-')]
-            ids.remove(userId)
+            ids = [int(s) for s in rid.split('-')]
+            if uid in ids: 
+                ids.remove(uid)
 
-            # Sent message notification if user ids[0] is logged in
-            print("Saving message to unsent list, sending notification to", ids[0])
-            notif = {'from': userId, 'to': ids[0], 'roomId': roomId}
-            emit("send_notification", notif, broadcast=True)
+            if uid in self.users:
+                print("Saving message to unsent list, sending notification from", uid, "to", ids[0], "room", rid)
+                notif = {'from': uid, 'to': ids[0], 'room': rid}
+                # emit("send_notification", notif, broadcast=True)
+                emit("send_notification", notif, room="default")
+            else:
+                # Sent email notification if user ids[0] is not logged in
+                txt = "Join OASIS chat room " + rid
+                to_user_email = 'andres.colubri@gmail.com'
+                to_user_number = '+16172720341'
 
-            # Sent email notification if user ids[0] is not logged in
-            txt = "Join OASIS chat room " + roomId
-            to_user_email = 'andres.colubri@gmail.com'
-            to_user_number = '+16172720341'
+                # Email notification
+                msg = Message("Chat Notification", recipients=[to_user_email])
+                msg.body = txt
+                mail.send(msg)
 
-            # Email notification
-            msg = Message("Chat Notification", recipients=[to_user_email])
-            msg.body = txt
-            mail.send(msg)
-
-            # SMS notification
-            sms.send(txt, to_user_number)
+                # SMS notification
+                if to_user_number:
+                    sms.send(txt, to_user_number)
 
             msgs = []
-            if roomId in self.unsent:
-                msgs = self.unsent[roomId]
+            if rid in self.unsent:
+                msgs = self.unsent[rid]
             msgs += [orig_data]
-            self.unsent[roomId] = msgs
+            self.unsent[rid] = msgs
