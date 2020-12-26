@@ -10,6 +10,7 @@ from flask_socketio import Namespace, emit, join_room
 from flask_mail import Message
 from flask import request
 from src.backend.extensions import mail, sms
+from src.backend.models.userModel import User, UserSchema
 
 from copy import deepcopy
 
@@ -107,27 +108,33 @@ class CustomNamespace(Namespace):
             ids = [int(s) for s in rid.split('-')]
             if uid in ids: 
                 ids.remove(uid)
+            uid0 = ids[0]    
 
-            if uid in self.users:
-                print("Saving message to unsent list, sending notification from", uid, "to", ids[0], "room", rid)
-                notif = {'from': uid, 'to': ids[0], 'room': rid}
-                # emit("send_notification", notif, broadcast=True)
+            if uid0 in self.users:
+                # Sending in-app notification if user uid0 is logged in
+
+                notif = {'from': uid, 'to': uid0, 'room': rid}
                 emit("send_notification", notif, room="default")
             else:
-                # Sent email notification if user ids[0] is not logged in
+                # Sending email/sms notification if user uid0 is not logged in
+                user0 = User.get_by_id(uid0)
+
                 txt = "Join OASIS chat room " + rid
-                to_user_email = 'andres.colubri@gmail.com'
-                to_user_number = '+16172720341'
+                to_user_email = user0.email
+                to_user_number = user0.phone
 
                 # Email notification
+                print("SENDING EMAIL TO USER", uid, to_user_email)
                 msg = Message("Chat Notification", recipients=[to_user_email])
                 msg.body = txt
                 mail.send(msg)
 
                 # SMS notification
                 if to_user_number:
+                    print("SENDING TEXT MESSAGE TO USER", uid, to_user_number)
                     sms.send(txt, to_user_number)
 
+            print("Saving message to unsent list, sending notification from", uid, "to", uid0, "room", rid)
             msgs = []
             if rid in self.unsent:
                 msgs = self.unsent[rid]
