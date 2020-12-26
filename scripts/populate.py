@@ -25,24 +25,25 @@ def user_json(row):
         "password": row[1],
         "firstName": row[2],
         "lastName": row[3],
-        "twitter": row[4],
-        "flickr": row[5],
+        "phone": row[4],
+        "homepage": row[5],
         "instagram": row[6],
-        "role": row[7],
-        "bio": row[8],
-        "tags": row[9]
+        "venmo": row[7],
+        "role": row[8],
+        "bio": row[9],
+        "tags": row[10]
     }
 
 def host_json(id, user):
     return {
-        # "id": int(id),
         "tags": user["tags"],
         "firstName": user["firstName"],
         "lastName": user["lastName"],
-        "bio": user["bio"],        
-        "twitter": user["twitter"],
-        "flickr": user["flickr"],
+        "bio": user["bio"],
+        "phone": user["phone"],
+        "homepage": user["homepage"],
         "instagram": user["instagram"],
+        "venmo": user["venmo"],
     }
 
 def place_json(row, host):
@@ -51,7 +52,10 @@ def place_json(row, host):
         "name": row[1],
         "address": row[2],
         "description": row[3],
-        "tags": row[4]
+        "homepage": row[4],
+        "instagram": row[5],
+        "facebook": row[6],
+        "tags": row[7]
     }
 
 def artwork_json(row, artist):
@@ -59,6 +63,7 @@ def artwork_json(row, artist):
         "artist": artist,
         "name": row[1],
         "description": row[2],
+        "link": row[3],
         "tags": row[4]
     }
 
@@ -69,9 +74,11 @@ def event_json(place, artists, artworks, row):
         "artworks": artworks,
         "name": row[3],
         "description": row[4],
-        "startTime": row[5],
-        "endTime": row[6],
-        "tags": row[7]
+        "link": row[5],
+        "hub_embed": row[6],
+        "startTime": row[7],
+        "endTime": row[8],
+        "tags": row[9]
     }
 
 def upload_image(bdir, fn, rkind, rid, user):
@@ -156,9 +163,9 @@ reader = csv.reader(open(in_csv, 'r'), dialect='excel')
 header = next(reader)
 user_extra = {}
 for row in reader:
-    email = row[0]
-    password = row[1]
-    user_extra[row[2] + ' ' + row[3]] = {'email': email, 'password':password}
+    email = row[0].strip()
+    password = row[1].strip()
+    user_extra[row[2] + ' ' + row[3]] = {'email': email, 'password': password}
     raw_user_data = user_json(row)
 
     print("Creating user", row[2], row[3], "...")
@@ -224,7 +231,7 @@ for row in reader:
         raise Exception(r.status_code, r.content)
 
     pid = r.json()["id"]
-    artwork_images[pid] = row[3].split(";")
+    artwork_images[pid] = row[5].split(";")
 
     print("  Created artwork with id", pid)
 
@@ -312,10 +319,10 @@ rows = []
 first_date = None
 date_format = '%Y-%m-%dT%H:%M:%S'
 for row in reader:
-    start_date = datetime.strptime(row[5], date_format)
-    end_date = datetime.strptime(row[6], date_format)
-    row[5] = start_date
-    row[6] = end_date
+    start_date = datetime.strptime(row[7], date_format)
+    end_date = datetime.strptime(row[8], date_format)
+    row[7] = start_date
+    row[8] = end_date
     if not first_date: first_date = start_date
     if start_date < first_date:
         first_date = start_date
@@ -325,14 +332,14 @@ NOW = datetime.now()
 diff = NOW - first_date
 
 for row in rows:
-    event_extra[row[3]] = {'image': row[8]}
+    event_extra[row[3]] = {'image': row[10]}
     print("Creating event", row[3], "...")
 
     # Normalizing dates using today as reference
-    start_date = row[5] + diff
-    end_date = row[6] + diff
-    row[5] = start_date.strftime(date_format)
-    row[6] = end_date.strftime(date_format)
+    start_date = row[7] + diff
+    end_date = row[8] + diff
+    row[7] = start_date.strftime(date_format)
+    row[8] = end_date.strftime(date_format)
 
     place = {"id": place_dict[row[0]]['id']}
     artists = [{"id":user_dict[name.strip()]['id']} for name in row[1].split(';')]
