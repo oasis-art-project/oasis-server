@@ -28,6 +28,10 @@ class Event(SurrogatePK, db.Model):
     place_id = db.Column(db.Integer, db.ForeignKey('places.id'))
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(1000), nullable=True)
+
+    link = db.Column(db.String(100), nullable=True)
+    hub_embed = db.Column(db.String(100), nullable=True)
+
     startTime = db.Column(db.DateTime, nullable=False)
     endTime = db.Column(db.DateTime, nullable=True)
     creation_date = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp(), nullable=False)
@@ -51,6 +55,8 @@ class EventSchema(BaseSchema):
 
     name = fields.Str(required=True, validate=validate.Length(max=100))
     description = fields.Str(validate=validate.Length(max=1000))
+    link = fields.Str(validate=validate.Length(max=100))
+    hub_embed = fields.Str(validate=validate.Length(max=100))
 
     class Meta:
         # BaseSchema automatically generates fields based on the model
@@ -64,14 +70,14 @@ class EventSchema(BaseSchema):
             place = Place.get_by_id(data['place']['id'])
             if not place:
                 raise ValueError
-            data['place'] = PlaceSchema(only=('id', 'tags', 'host', 'name', 'description', 'files', 'address', 'latitude', 'longitude')).dump(place).data
+            data['place'] = PlaceSchema(only=('id', 'tags', 'host', 'name', 'description', 'files', 'address', 'latitude', 'longitude', 'homepage', 'instagram', 'facebook')).dump(place).data
 
         if 'artists' in data:            
             for index in range(len(data['artists'])):
                 artist = User.get_by_id(data['artists'][index]['id'])
                 if not artist:
                     raise ValueError
-                d = UserSchema(only=('id', 'tags', 'firstName', 'lastName', 'bio', 'files', 'twitter', 'flickr', 'instagram')).dump(artist).data
+                d = UserSchema(only=('id', 'tags', 'firstName', 'lastName', 'bio', 'files', 'homepage', 'instagram', 'venmo')).dump(artist).data
                 data['artists'][index] = d
 
         if 'artworks' in data:
@@ -79,7 +85,7 @@ class EventSchema(BaseSchema):
                 artwork = Artwork.get_by_id(data['artworks'][index]['id'])
                 if not artwork:
                     raise ValueError
-                d = ArtworkSchema(only=('id', 'tags', 'name', 'creation_date', 'artist', 'files')).dump(artwork).data
+                d = ArtworkSchema(only=('id', 'tags', 'name', 'description', 'link', 'creation_date', 'artist', 'files')).dump(artwork).data
                 data['artworks'][index] = d
 
         if 'files' in data:

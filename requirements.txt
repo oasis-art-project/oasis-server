@@ -8,6 +8,7 @@ psycopg2
 boto3
 geopy
 pillow
+twilio
 Flask==1.1.2
 werkzeug==0.16.1
 flask-cors==3.0.9
@@ -19,5 +20,8 @@ Flask_marshmallow==0.10.1
 Flask_script==2.0.6
 Flask_migrate==2.5.2
 Flask-apispec==0.8.1
+Flask_socketio==4.3.2
+Flask-mail==0.9.1
 marshmallow==2.20.3
 marshmallow-sqlalchemy==0.17.2
+python-socketio==4.6.1

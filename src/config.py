@@ -38,6 +38,18 @@ class Config(object):
     JWT_BLACKLIST_TOKEN_CHECKS = ['access']
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=30)
 
+    # SMTP mail
+    MAIL_SERVER = 'mail.hover.com'
+    MAIL_PORT = 587
+    MAIL_USE_TLS = True
+    MAIL_USERNAME = os.environ.get("MAIL_USERNAME")
+    MAIL_DEFAULT_SENDER = os.environ.get("MAIL_DEFAULT_SENDER")
+    MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD")
+
+    # Twilio SMS
+    TWILIO_ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SID")
+    TWILIO_AUTH_TOKEN = os.environ.get("TWILIO_AUTH_TOKEN")
+    TWILIO_PHONE_NUMBER = os.environ.get("TWILIO_PHONE_NUMBER")
 
 class ProductionConfig(Config):
     DEBUG = False

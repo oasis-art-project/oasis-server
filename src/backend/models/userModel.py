@@ -18,14 +18,15 @@ from src.backend.controllers.controller import build_image_list
 class User(SurrogatePK, db.Model):
     __tablename__ = 'users'
     email = db.Column(db.String(50), unique=True, nullable=False)
-    password = db.Column(db.String(64), nullable=False)
+    password = db.Column(db.String(64), nullable=False)    
     firstName = db.Column(db.String(50), nullable=False)
     lastName = db.Column(db.String(50), nullable=False)
     bio = db.Column(db.String(2000), nullable=True)
     role = db.Column(db.Integer, nullable=False)
-    twitter = db.Column(db.String(15), nullable=True)
-    flickr = db.Column(db.String(30), nullable=True)
-    instagram = db.Column(db.String(30), nullable=True)    
+    homepage = db.Column(db.String(100), nullable=True)
+    instagram = db.Column(db.String(30), nullable=True)
+    venmo = db.Column(db.String(30), nullable=True)
+    phone = db.Column(db.String(10), nullable=True)
     creation_date = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp(), nullable=False)
     token = ''
 
@@ -67,10 +68,11 @@ class UserSchema(BaseSchema):
         validate.Regexp('^[a-zA-Z]+$'),
         validate.Length(max=50)])
     bio = fields.Str(allow_none=True, validate=validate.Length(max=2000))
-    role = fields.Int(required=True, validate=validate.Range(min=1, max=4))
-    twitter = fields.Str(allow_none=True, validate=validate.Length(max=15))
-    flickr = fields.Str(allow_none=True, validate=validate.Length(max=30))
+    role = fields.Int(required=True, validate=validate.Range(min=1, max=4))        
+    homepage = fields.Str(allow_none=True, validate=validate.Length(max=100))
     instagram = fields.Str(allow_none=True, validate=validate.Length(max=30))
+    venmo = fields.Str(allow_none=True, validate=validate.Length(max=30))
+    phone = fields.Str(allow_none=True, validate=validate.Length(max=10))    
     token = fields.Str(load_only=True)
     creation_date = fields.DateTime(load_only=True)
 

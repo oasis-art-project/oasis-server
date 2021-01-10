@@ -11,12 +11,14 @@ import os
 from flask import Flask, render_template, current_app
 from flask_migrate import MigrateCommand
 from flask_cors import CORS
+from flask_socketio import SocketIO, emit, join_room
 
 from src.backend.commands import test, seed
-from src.backend.extensions import db, migrate, jwt, ma, manager, api_bp, api, storage
+from src.backend.extensions import db, migrate, jwt, ma, manager, api_bp, api, storage, mail, sms
 from src.backend.jwt import jwt_identity, identity_loader
 from src.backend.router import init_router
 from src.config import ProductionConfig, TestConfig
+from src.backend.sockets import CustomNamespace
 
 def create_app(conf=ProductionConfig):
     app = Flask(__name__,
@@ -25,8 +27,13 @@ def create_app(conf=ProductionConfig):
 
     # Load config
     app.config.from_object(conf)
-    # Enabled cors
-    CORS(app)
+
+    # Enabled CORS: https://enable-cors.org/server_flask.html
+    cors = CORS(app, resources={r"/*":{"origins":"*"}})
+
+    # Chat init
+    socketio = SocketIO(app, cors_allowed_origins="*")
+    socketio.on_namespace(CustomNamespace())
 
     # Ensure the instance and upload folder exists
     if not os.path.exists(app.instance_path):
@@ -47,6 +54,8 @@ def create_app(conf=ProductionConfig):
     db.init_app(app)
     ma.init_app(app)
     storage.init_app(app)
+    mail.init_app(app)
+    sms.init_app(app)
     jwt.init_app(app)
     jwt.user_loader_callback_loader(jwt_identity)
     jwt.user_identity_loader(identity_loader)    
