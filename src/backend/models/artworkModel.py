@@ -19,6 +19,9 @@ class Artwork(SurrogatePK, db.Model):
     artist_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(1000), nullable=True)
+    medium = db.Column(db.String(200), nullable=True)
+    size = db.Column(db.String(200), nullable=True)
+    year = db.Column(db.Integer, nullable=True)
     link = db.Column(db.String(100), nullable=True)
     creation_date = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp(), nullable=False)
 
@@ -33,6 +36,9 @@ class ArtworkSchema(BaseSchema):
     artist = fields.Nested(UserSchema, only=('id',), required=True)
     name = fields.Str(required=True, validate=validate.Length(max=100))
     description = fields.Str(validate=validate.Length(max=1000))
+    medium = fields.Str(validate=validate.Length(max=200))
+    size = fields.Str(validate=validate.Length(max=200))
+    year = fields.Integer(validate=validate.Range(min=1900, max=2100))
     link = fields.Str(validate=validate.Length(max=100))
 
     class Meta:

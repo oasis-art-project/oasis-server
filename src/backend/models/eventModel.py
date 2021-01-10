@@ -85,7 +85,7 @@ class EventSchema(BaseSchema):
                 artwork = Artwork.get_by_id(data['artworks'][index]['id'])
                 if not artwork:
                     raise ValueError
-                d = ArtworkSchema(only=('id', 'tags', 'name', 'description', 'link', 'creation_date', 'artist', 'files')).dump(artwork).data
+                d = ArtworkSchema(only=('id', 'tags', 'name', 'description', 'medium', 'size', 'year', 'link', 'creation_date', 'artist', 'files')).dump(artwork).data
                 data['artworks'][index] = d
 
         if 'files' in data:
