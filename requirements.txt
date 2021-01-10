@@ -9,6 +9,8 @@ boto3
 geopy
 pillow
 twilio
+pyjwt==1.7.1
+webargs==6.1.1
 Flask==1.1.2
 werkzeug==0.16.1
 flask-cors==3.0.9
