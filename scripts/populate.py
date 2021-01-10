@@ -63,8 +63,11 @@ def artwork_json(row, artist):
         "artist": artist,
         "name": row[1],
         "description": row[2],
-        "link": row[3],
-        "tags": row[4]
+        "medium": row[3],
+        "size": row[4],
+        "year": int(row[5]),
+        "link": row[6],
+        "tags": row[7]
     }
 
 def event_json(place, artists, artworks, row):
@@ -231,7 +234,7 @@ for row in reader:
         raise Exception(r.status_code, r.content)
 
     pid = r.json()["id"]
-    artwork_images[pid] = row[5].split(";")
+    artwork_images[pid] = row[8].split(";")
 
     print("  Created artwork with id", pid)
 
