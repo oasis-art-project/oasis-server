@@ -22,14 +22,14 @@ artwork_schema = ArtworkSchema()
 
 
 class ArtworkResource(Resource):
-    def get(self, artwork_id=None, artist_id=None):
+    def get(self, artwork_id=None, artwork_artist_id=None):
         """
         Gets a list of artworks
         """
         try:
-            # Return all artworks of artist with ID artist_id
-            if artist_id:
-                user_artworks = Artwork.query.filter_by(artist_id=artist_id).all()
+            # Return all artworks of artist with ID artwork_artist_id
+            if artwork_artist_id:
+                user_artworks = Artwork.query.filter_by(artist_id=artwork_artist_id).all()
                 data = artwork_schema.dump(user_artworks, many=True).data
                 return {"status": "success", 'artworks': data}, 200
 
