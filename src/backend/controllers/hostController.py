@@ -15,51 +15,45 @@ from sqlalchemy.exc import OperationalError
 from src.backend.controllers.controller import load_request
 from src.backend.models.tokenModel import Token
 from src.backend.models.userModel import User, UserSchema
-from src.backend.models.eventModel import EventSchema, Event
-from src.backend.models.artworkModel import Artwork, ArtworkSchema
+from src.backend.models.placeModel import PlaceSchema, Place
 from src.backend.models.eventModel import artists_association_table
 from src.backend.extensions import storage
 
 user_schema = UserSchema()
-artwork_schema = ArtworkSchema()
-event_schema = EventSchema()
+place_schema = PlaceSchema()
 
-class ArtistResource(Resource):
+
+class HostResource(Resource):
     @jwt_optional
-    def get(self, artist_id=None):
+    def get(self, host_id=None):
         """
-        Gets a list of artists
+        Gets a list of hosts
         """
         try:
             # Get a specific artist by id
-            if artist_id:
-                user = User.get_by_id(artist_id)
+            if host_id:
+                user = User.get_by_id(host_id)
 
                 if not user:
-                    return {'message': 'Admin user is not an artist'}, 500
+                    return {'message': 'User does not exist'}, 400
 
                 if current_user and current_user.is_admin():
-                    data = user_schema.dump(user).data
+                    return {'message': 'Admin user is not a host'}, 500
 
                 else:
-                    artist_data = UserSchema(exclude=('email',)).dump(user).data
-                    
-                    q = Event.query.join(artists_association_table).join(User)
-                    artist_events = q.filter((artists_association_table.c.artist == artist_id)).all()
-                    event_data = event_schema.dump(artist_events, many=True).data
+                    host_data = UserSchema(exclude=('email',)).dump(user).data
 
-                    artist_artworks = Artwork.query.filter_by(artist_id=artist_id).all()
-                    artwork_data = artwork_schema.dump(artist_artworks, many=True).data
+                    host_places = Place.query.filter_by(host_id=host_id).all()
+                    place_data = place_schema.dump(host_places, many=True).data
 
-                    all_data = artist_data
-                    all_data["events"] = event_data
-                    all_data["artworks"] = artwork_data
+                    all_data = host_data
+                    all_data["places"] = place_data
 
                 return {"status": 'success', 'user': all_data}, 200
 
             # If no arguments passed, return all artists
             else:
-                users = User.query.filter_by(role=3).all()
+                users = User.query.filter_by(role=2).all()
                 if current_user and current_user.is_admin():
                     data = UserSchema(many=True).dump(users).data                    
                 else:

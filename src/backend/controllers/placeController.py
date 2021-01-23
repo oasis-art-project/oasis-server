@@ -22,14 +22,14 @@ place_schema = PlaceSchema()
 
 
 class PlaceResource(Resource):
-    def get(self, place_id=None, host_id=None):
+    def get(self, place_id=None, host_place_id=None):
         """
         Gets a list of places
         """
         try:
             # Return all places of host with ID host_id
-            if host_id:
-                user_places = Place.query.filter_by(host_id=host_id).all()
+            if host_place_id:
+                user_places = Place.query.filter_by(host_id=host_place_id).all()
                 return {"status": "success", 'places': place_schema.dump(user_places, many=True).data}, 200
 
             # Return a specific place with ID place_id
