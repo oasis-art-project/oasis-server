@@ -3,6 +3,7 @@ click
 pytest
 pytest-flask
 sqlalchemy
+eventlet
 gunicorn
 psycopg2
 boto3
