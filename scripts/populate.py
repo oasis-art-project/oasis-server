@@ -78,7 +78,7 @@ def event_json(place, artists, artworks, row):
         "name": row[3],
         "description": row[4],
         "link": row[5],
-        "hub_embed": row[6],
+        "hubs_link": row[6],
         "startTime": row[7],
         "endTime": row[8],
         "tags": row[9]
