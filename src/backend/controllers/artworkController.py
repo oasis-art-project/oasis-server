@@ -14,9 +14,9 @@ from flask_restplus import Resource
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import joinedload
 
-from src.backend.models.eventModel import EventSchema, Event
 from src.backend.controllers.controller import load_request
 from src.backend.models.artworkModel import Artwork, ArtworkSchema
+from src.backend.models.eventModel import EventSchema, Event
 from src.backend.models.eventModel import artworks_association_table
 from src.backend.extensions import storage
 

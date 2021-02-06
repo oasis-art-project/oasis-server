@@ -15,10 +15,12 @@ from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import joinedload
 from src.backend.controllers.controller import load_request
 from src.backend.models.placeModel import PlaceSchema, Place
+from src.backend.models.eventModel import EventSchema, Event
 from src.backend.extensions import storage, geolocator
 from geopy.exc import GeocoderTimedOut
 
 place_schema = PlaceSchema()
+event_schema = EventSchema()
 
 
 class PlaceResource(Resource):
@@ -35,12 +37,18 @@ class PlaceResource(Resource):
             # Return a specific place with ID place_id
             if place_id:
                 place = Place.query.options(joinedload("host")).filter_by(id=place_id).first()
-
                 if not place:
                     return {'message': 'Place does not exist'}, 400
 
-                data = place_schema.dump(place).data
-                return {"status": "success", 'place': data}, 200
+                place_data = place_schema.dump(place).data
+
+                place_events = Event.query.filter_by(place_id=place_id).all()
+                event_data = event_schema.dump(place_events, many=True).data
+
+                all_data = place_data
+                all_data["events"] = event_data
+                
+                return {"status": "success", 'place': all_data}, 200
 
             # If no arguments passed, return all places
             else:
