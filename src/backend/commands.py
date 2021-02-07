@@ -33,7 +33,6 @@ def seed():
     if not email:
         raise Exception("Admin email is undefined. Set in ADMIN_EMAIL environmental variable")
 
-
     password = os.environ.get("ADMIN_PASSWORD")
     if not password:
         raise Exception("Admin password is undefined. Set in ADMIN_PASSWORD environmental variable")
