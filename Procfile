@@ -1,2 +1,2 @@
-web: gunicorn -k flask_sockets.worker run:create_app()
+web: gunicorn --worker-class eventlet -w 1 "run:create_app()"
 release: ./release-tasks.sh
