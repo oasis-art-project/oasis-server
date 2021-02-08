@@ -1,2 +1,2 @@
-web: gunicorn "run:create_app()"
+web: gunicorn -k flask_sockets.worker run:create_app()
 release: ./release-tasks.sh
