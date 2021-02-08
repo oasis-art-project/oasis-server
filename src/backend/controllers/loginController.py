@@ -45,7 +45,8 @@ class LoginResource(Resource):
             return {"message": "Database error"}, 500
 
         # If reached this point, everything is correct, then create a token
-        token = create_access_token(identity=user_from_db.id)
+        user_full_name = user_from_db.firstName + " " + user_from_db.lastName
+        token = create_access_token(identity=user_from_db.id, user_claims={'fullName': user_full_name})
 
         # Return the token
         return {"status": 'success', 'token': token}, 200

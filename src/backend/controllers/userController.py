@@ -105,8 +105,7 @@ class UserResource(Resource):
         except OperationalError:
             return {'message': 'Database error'}, 500
         
-        token = Token.create_token(user.id)
-
+        token = Token.create_token(user)
         storage.create_user_folder(user.id)
 
         return {"status": 'success', 'token': token, 'id': user.id}, 201
@@ -153,7 +152,7 @@ class UserResource(Resource):
         Token.revoke_token_by_user_identity(user_json["id"])
 
         # Create a new one
-        token = Token.create_token(user_json["id"])
+        token = Token.create_token(user_from_db)
 
         # Return the new token
         return {"status": 'success', 'token': token}, 200
