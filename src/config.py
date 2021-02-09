@@ -17,6 +17,9 @@ class Config(object):
     PARENT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
     INSTANCE_PATH = os.path.join(PARENT_PATH, 'instance')
 
+    # Webapp url
+    WEBAPP_URL = os.environ['WEBAPP_URL']
+
     # SQLAlchemy conf
     SQLALCHEMY_ECHO = False
     SQLALCHEMY_TRACK_MODIFICATIONS = True

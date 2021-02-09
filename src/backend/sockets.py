@@ -16,9 +16,9 @@ from copy import deepcopy
 
 # Namespace with socket-io events for chatting system
 class CustomNamespace(Namespace):
-    def __init__(self, namespace=None):
+    def __init__(self, app, namespace=None):
         super(Namespace, self).__init__(namespace)
-        self.url_root = ''
+        self.url_root = app.config["WEBAPP_URL"]
         self.rooms = {}
         self.users = {}
         self.unsent = {}
@@ -64,11 +64,6 @@ class CustomNamespace(Namespace):
         return count
 
     def on_connect(self):
-        self.url_root = request.url_root
-        print("***************************** on_connect")
-        print("ROOT:", request.url_root)
-        print("HOST:", request.host_url)
-
         rid = request.args.get('roomId')
         uid = int(request.args.get('userId'))
         join_room(rid)
@@ -94,11 +89,6 @@ class CustomNamespace(Namespace):
         print("Users", self.users)
 
     def on_send_message(self, data):
-        print("***************************** on_send_message")
-        print("ROOT:", request.url_root)
-        print("HOST:", request.host_url)
-
-
         rid = data['roomId']
         uid = int(data['userId'])
         uname = data['userName']
@@ -131,7 +121,13 @@ class CustomNamespace(Namespace):
                 # Sending email/sms notification if user uid0 is not logged in
                 user0 = User.get_by_id(uid0)
 
-                txt = uname + " sent you a message in the OASIS chat " + self.url_root + 'room/' + rid
+                room_url = 'room/' + rid
+                if self.url_root and self.url_root[-1] == '/': 
+                    room_url = self.url_root + room_url
+                else:
+                    room_url = self.url_root + '/' + room_url    
+
+                txt = uname + " sent you a message in the OASIS chat " + room_url
                 to_user_email = user0.email
                 to_user_number = user0.phone
 

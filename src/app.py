@@ -33,7 +33,7 @@ def create_app(conf=ProductionConfig):
 
     # Chat init
     socketio = SocketIO(app, cors_allowed_origins="*")
-    socketio.on_namespace(CustomNamespace())
+    socketio.on_namespace(CustomNamespace(app))
 
     # Ensure the instance and upload folder exists
     if not os.path.exists(app.instance_path):
