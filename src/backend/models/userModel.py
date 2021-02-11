@@ -20,7 +20,7 @@ class User(SurrogatePK, db.Model):
     email = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(64), nullable=False)    
     firstName = db.Column(db.String(50), nullable=False)
-    lastName = db.Column(db.String(50), nullable=False)
+    lastName = db.Column(db.String(50), nullable=True)
     bio = db.Column(db.String(2000), nullable=True)
     role = db.Column(db.Integer, nullable=False)
     homepage = db.Column(db.String(100), nullable=True)
@@ -64,7 +64,7 @@ class UserSchema(BaseSchema):
     firstName = fields.Str(required=True, validate=[
         validate.Regexp('^[a-zA-Z]+$'),
         validate.Length(max=50)])
-    lastName = fields.Str(required=True, validate=[
+    lastName = fields.Str(allow_none=True, validate=[
         validate.Regexp('^[a-zA-Z]+$'),
         validate.Length(max=50)])
     bio = fields.Str(allow_none=True, validate=validate.Length(max=2000))
