@@ -11,6 +11,7 @@ migrations/
 htmlcov/
 
 src/public/imgs
+scripts/real_data/
 
 env/
 dist/
