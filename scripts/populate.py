@@ -59,13 +59,16 @@ def place_json(row, host):
     }
 
 def artwork_json(row, artist):
+    year = 2019
+    if row[5]:
+        year = int(row[5])
     return {
         "artist": artist,
         "name": row[1],
         "description": row[2],
         "medium": row[3],
         "size": row[4],
-        "year": int(row[5]),
+        "year": year,
         "link": row[6],
         "tags": row[7]
     }
@@ -151,12 +154,13 @@ def upload_images_from_list(bdir, fnlist, rkind, rid, user):
 parser = argparse.ArgumentParser(description='Upload dummy data to OASIS server.')
 parser.add_argument('-u', '--url', action='store', default='http://127.0.0.1:5000', help='set server url')
 parser.add_argument('-a', '--admin', action='store', default='Admin Oasis', help='admin username')
+parser.add_argument('-f', '--folder', action='store', default='dummy_data', help='set base data folder')
 args = parser.parse_args()
 
 server_url = args.url
 admin_name = args.admin
 
-data_dir = join(sys.path[0], "dummy_data")
+data_dir = join(sys.path[0], args.folder)
 
 mimetypes.init()
 

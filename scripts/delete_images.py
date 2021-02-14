@@ -36,10 +36,11 @@ def delete_image(rid, rkind, fn, user):
 parser = argparse.ArgumentParser(description='Deletes OASIS images stored in AWS.')
 parser.add_argument('-a', '--admin', action='store', default='Admin Oasis', help='admin username')
 parser.add_argument('-u', '--url', action='store', default='http://127.0.0.1:5000', help='set server url')
+parser.add_argument('-f', '--folder', action='store', default='dummy_data', help='set base data folder')
 args = parser.parse_args()
 
 server_url = args.url
-data_dir = join(sys.path[0], "dummy_data")
+data_dir = join(sys.path[0], args.folder)
 admin_name = args.admin
 
 # Need to get the email and password from the csv, the server will not return this information :-)
