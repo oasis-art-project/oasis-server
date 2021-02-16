@@ -59,7 +59,7 @@ def place_json(row, host):
     }
 
 def artwork_json(row, artist):
-    year = 2019
+    year = None
     if row[5]:
         year = int(row[5])
     return {

@@ -38,7 +38,7 @@ class ArtworkSchema(BaseSchema):
     description = fields.Str(validate=validate.Length(max=1000))
     medium = fields.Str(validate=validate.Length(max=200))
     size = fields.Str(validate=validate.Length(max=200))
-    year = fields.Integer(validate=validate.Range(min=1900, max=2100))
+    year = fields.Integer(validate=validate.Range(min=1900, max=2100), allow_none=True)
     link = fields.Str(validate=validate.Length(max=100))
 
     class Meta:
