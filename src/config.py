@@ -31,7 +31,8 @@ class Config(object):
     AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
 
     # Upload data conf
-    MAX_IMAGE_SIZE = 2048 * 2048
+    MAX_IMAGE_PREV_RES = 512
+    MAX_IMAGE_FULL_RES = 4096    
     IMAGE_UPLOAD_FOLDER = os.environ.get("IMAGE_UPLOAD_FOLDER")
     ALLOWED_IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 

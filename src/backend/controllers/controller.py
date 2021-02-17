@@ -56,12 +56,34 @@ def load_request(request, schema, update=False, user=False):
 
     return json_data
 
+def resize_image(img, max_res):
+    w = img.width
+    h = img.height
+    mx = max(w, h)
+    if max_res < mx:
+        r = float(w) / float(h)
+        print("in resize_image", r)
+        if h < w:
+            w = max_res
+            h = int(w / r)
+        else:
+            h = max_res
+            w = int(r * h)
+        print("in resize_image", img.width, img.height, '=>', w, h)
+        return img.resize((w, h), Image.ANTIALIAS)
+    else:
+        return img    
+
 def upload_images(request, resource_kind, resource_id):
     if 'images' not in request.files:
         raise IOError('Request contains an invalid argument')
         
     if 'images' in request.files:
         try:
+            allowed_ext = flask.current_app.config['ALLOWED_IMAGE_EXTENSIONS']
+            max_prev_res = flask.current_app.config['MAX_IMAGE_PREV_RES']
+            max_full_res = flask.current_app.config['MAX_IMAGE_FULL_RES']
+
             images = request.files.getlist('images')
 
             uploaded_images = {}
@@ -70,8 +92,8 @@ def upload_images(request, resource_kind, resource_id):
                 image_type = imghdr.what(file_object)
  
                 # If image type is not in the list of allowed extensions, raise the error
-                if image_type is None or image_type not in flask.current_app.config['ALLOWED_IMAGE_EXTENSIONS']:
-                    raise IOError("Only {} files are allowed".format(", ".join(flask.current_app.config['ALLOWED_IMAGE_EXTENSIONS'])))
+                if image_type is None or image_type not in allowed_ext:
+                    raise IOError("Only {} files are allowed".format(", ".join(allowed_ext)))
 
                 src_filename = secure_filename(file_object.filename)
                 dst_name = ''
@@ -87,27 +109,57 @@ def upload_images(request, resource_kind, resource_id):
                     dst_name = "artwork"
                     make_unique = True
 
-                if image_type != 'jpeg':
-                    # Convert image into jpeg in memory using BytesIO
-                    src_file = BytesIO(file_object.read())
-                    src_img = Image.open(src_file)
+                print(file_object)
+                src_file = BytesIO(file_object.read())
+                file_object.seek(0)
+                src_img = Image.open(src_file)
+
+                if image_type != 'jpeg' or max_full_res < src_img.width or max_full_res < src_img.height:
+                    # Generate full-res and preview images                    
                     rgb_img = src_img.convert('RGB')
-                    dst_file = BytesIO()                    
-                    rgb_img.save(dst_file, format='JPEG')
-                    # Return the file pointer to the beginning after saving, otherwise it will be uploaded empty
-                    dst_file.seek(0)
-                    # Wrap the memory file holding the converted file as a FileStorage object for upload
-                    file_object = FileStorage(dst_file, dst_name + ".jpg")
+                    full_img = resize_image(rgb_img, max_full_res)
+                    prev_img = resize_image(rgb_img, max_prev_res)
+
+                    # Save full-res image
+                    dst_ffile = BytesIO()                    
+                    full_img.save(dst_ffile, format='JPEG')
+                    dst_ffile.seek(0)
+                    ffile_object = FileStorage(dst_ffile, dst_name + ".jpg")
+
+                    # Save preview
+                    dst_pfile = BytesIO()
+                    prev_img.save(dst_pfile, format='JPEG')
+                    dst_pfile.seek(0)
+                    pfile_object = FileStorage(dst_pfile, dst_name + "p.jpg")
+                elif max_prev_res < src_img.width or max_prev_res < src_img.height:
+                    ffile_object = file_object
+
+                    # Save preview
+                    rgb_img = src_img.convert('RGB')
+                    prev_img = resize_image(rgb_img, max_prev_res)
+                    dst_pfile = BytesIO()
+                    prev_img.save(dst_pfile, format='JPEG')
+                    dst_pfile.seek(0)
+                    pfile_object = FileStorage(dst_pfile, dst_name + "p.jpg")                    
+                else:
+                    ffile_object = file_object
+                    pfile_object = file_object
+
+                src_img.close()
 
                 if make_unique:
                     dst_name = storage.create_unique_filename(resource_kind, resource_id, dst_name)
 
-                url = storage.file_upload(resource_kind, resource_id, file_object, 'image/jpeg', dst_name + ".jpg")
-                uploaded_images[src_filename] = {'url':url, 'type':file_object.mimetype}
+                furl = storage.file_upload(resource_kind, resource_id, ffile_object, 'image/jpeg', dst_name + ".jpg")
+                ffile_object.seek(0)
+                purl = storage.file_upload(resource_kind, resource_id, pfile_object, 'image/jpeg', dst_name + "p.jpg")
+                pfile_object.seek(0)
+                uploaded_images[src_filename] = {'url':furl, 'type':ffile_object.mimetype}
 
             return uploaded_images
 
         except Exception as e:
+            print("Image conversion error:", e)
             raise e
 
     else:
