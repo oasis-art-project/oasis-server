@@ -29,7 +29,7 @@ class Token(SurrogatePK, db.Model):
 
     @staticmethod
     def create_token(user):
-        user_full_name = user.firstName + " " + user.lastName
+        user_full_name = (user.firstName + " " + user.lastName).strip()
 
         token = create_access_token(identity=user.id, user_claims={'fullName': user_full_name})
         decoded_token = decode_token(token)

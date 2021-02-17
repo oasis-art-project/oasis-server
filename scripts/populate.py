@@ -172,7 +172,7 @@ user_extra = {}
 for row in reader:
     email = row[0].strip()
     password = row[1].strip()
-    user_extra[row[2] + ' ' + row[3]] = {'email': email, 'password': password}
+    user_extra[(row[2] + ' ' + row[3]).strip()] = {'email': email, 'password': password}
     raw_user_data = user_json(row)
 
     print("Creating user", row[2], row[3], "...")
@@ -195,7 +195,7 @@ if r.status_code != 200:
     raise Exception(r.status_code)
 users = r.json()['users']
 for user in users:
-    fullName = user['firstName'] + ' ' + user['lastName']
+    fullName = (user['firstName'] + ' ' + user['lastName']).strip()
     if not fullName == admin_name:
         user['email'] = user_extra[fullName]['email']
         user['password'] = user_extra[fullName]['password']
@@ -260,7 +260,7 @@ for artwork in artworks:
     name = artwork['name']
     artist = artwork['artist']
     artwork_dict[name] = artwork
-    user = user_dict[artist['firstName'] + ' ' + artist['lastName']]
+    user = user_dict[(artist['firstName'] + ' ' + artist['lastName']).strip()]
     base_path = data_dir + "/images/artworks/" + user["email"]
     images = artwork_images[pid]
     print("Uploading images for artwork", artwork["name"])
@@ -311,7 +311,7 @@ for place in places:
     place_dict[place['name']] = place
     pid = place['id']
     host = place['host']
-    user = user_dict[host['firstName'] + ' ' + host['lastName']]
+    user = user_dict[(host['firstName'] + ' ' + host['lastName']).strip()]
     base_path = data_dir + "/images/places/" + place["name"]
     print("Uploading images for place", place["name"])
     upload_images_from_folder(base_path, "place", pid, user)
@@ -353,7 +353,7 @@ for row in rows:
     artworks = [{"id":artwork_dict[name.strip()]['id']} for name in row[2].split(';')]
 
     host = place_dict[row[0]]['host']
-    hostFullName = host['firstName'] + ' ' + host['lastName']
+    hostFullName = (host['firstName'] + ' ' + host['lastName']).strip()
     hostEmail = user_dict[hostFullName]['email']
     hostPassword = user_dict[hostFullName]['password']
 
@@ -395,7 +395,7 @@ for event in events:
     if not event['name'] in event_extra: continue
     eid = event['id']
     host = event['place']['host']
-    user = user_dict[host['firstName'] + ' ' + host['lastName']]
+    user = user_dict[(host['firstName'] + ' ' + host['lastName']).strip()]
     fn = event_extra[event['name']]['image']
     print("Uploading images for event", event["name"])
     upload_image(data_dir + "/images/events", fn, "event", eid, user)

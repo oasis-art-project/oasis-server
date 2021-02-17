@@ -61,12 +61,8 @@ class UserSchema(BaseSchema):
     # Overwritten fields
     email = fields.Email(required=True)
     password = fields.Str(required=True, validate=validate.Length(min=6), load_only=True)
-    firstName = fields.Str(required=True, validate=[
-        validate.Regexp('^[a-zA-Z]+$'),
-        validate.Length(max=50)])
-    lastName = fields.Str(allow_none=True, validate=[
-        validate.Regexp('^[a-zA-Z]+$'),
-        validate.Length(max=50)])
+    firstName = fields.Str(required=True, validate=validate.Length(max=50))
+    lastName = fields.Str(allow_none=True, validate=validate.Length(max=50))
     bio = fields.Str(allow_none=True, validate=validate.Length(max=2000))
     role = fields.Int(required=True, validate=validate.Range(min=1, max=4))        
     homepage = fields.Str(allow_none=True, validate=validate.Length(max=100))
