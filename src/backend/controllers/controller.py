@@ -114,16 +114,16 @@ def upload_images(request, resource_kind, resource_id):
                 if image_type != 'jpeg' or max_full_res < src_img.width or max_full_res < src_img.height:
                     # Generate full-res and preview images                    
                     rgb_img = src_img.convert('RGB')
-                    full_img = resize_image(rgb_img, max_full_res)
-                    prev_img = resize_image(rgb_img, max_prev_res)
 
                     # Save full-res image
+                    full_img = resize_image(rgb_img, max_full_res)
                     dst_ffile = BytesIO()                    
                     full_img.save(dst_ffile, format='JPEG')
                     dst_ffile.seek(0)
                     ffile_object = FileStorage(dst_ffile, dst_name + ".jpg")
 
                     # Save preview
+                    prev_img = resize_image(rgb_img, max_prev_res)
                     dst_pfile = BytesIO()
                     prev_img.save(dst_pfile, format='JPEG')
                     dst_pfile.seek(0)
@@ -133,12 +133,7 @@ def upload_images(request, resource_kind, resource_id):
 
                     # Save preview
                     rgb_img = src_img.convert('RGB')
-                    if max_prev_res < src_img.width or max_prev_res < src_img.height:
-                        # Preview needs resizing
-                        prev_img = resize_image(rgb_img, max_prev_res)
-                    else:
-                        prev_img = rgb_img
-
+                    prev_img = resize_image(rgb_img, max_prev_res)
                     dst_pfile = BytesIO()
                     prev_img.save(dst_pfile, format='JPEG')
                     dst_pfile.seek(0)
