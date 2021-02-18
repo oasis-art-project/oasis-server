@@ -274,8 +274,6 @@ for artwork in artworks:
     count += 1
     pfullName = fullName
 
-print(artwork_dict)
-
 print("Populating places...")
 in_csv = join(data_dir, "place_list.csv")
 reader = csv.reader(open(in_csv, 'r'), dialect='excel')
