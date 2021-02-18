@@ -62,14 +62,12 @@ def resize_image(img, max_res):
     mx = max(w, h)
     if max_res < mx:
         r = float(w) / float(h)
-        print("in resize_image", r)
         if h < w:
             w = max_res
             h = int(w / r)
         else:
             h = max_res
             w = int(r * h)
-        print("in resize_image", img.width, img.height, '=>', w, h)
         return img.resize((w, h), Image.ANTIALIAS)
     else:
         return img    
@@ -142,20 +140,16 @@ def upload_images(request, resource_kind, resource_id):
                     pfile_object = FileStorage(dst_pfile, dst_name + "p.jpg")                    
                 else:
                     ffile_object = file_object
-                    pfile_object = file_object
+                    pfile_object = BytesIO(file_object.read())
+                    file_object.seek(0)
 
                 src_img.close()
                 
                 if make_unique:
-                    print("Make unique filename")
                     dst_name = storage.create_unique_filename(resource_kind, resource_id, 'f', dst_name)
 
-                print("Save full-res image")
                 furl = storage.file_upload(resource_kind, resource_id, 'f', ffile_object, 'image/jpeg', dst_name + ".jpg")
-                ffile_object.seek(0)
-                print("Save preview image")
                 purl = storage.file_upload(resource_kind, resource_id, 'p', pfile_object, 'image/jpeg', dst_name + ".jpg")
-                pfile_object.seek(0)
                 uploaded_images[src_filename] = {'url':furl, 'preview':purl, 'type':ffile_object.mimetype}
 
             return uploaded_images

@@ -93,8 +93,7 @@ class Storage(object):
         prefix = resource_kind + 's'
         dest_path = '%s/%d/%s/%s' % (prefix, resource_id, file_type, dest_name)
 
-        if self.local: 
-            fn = file_object
+        if self.local:
             url = join(self.upload_folder, dest_path)
             # copy(fn, url)
             with open(url, 'wb') as out: ## Open temporary file as bytes
