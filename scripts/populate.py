@@ -255,16 +255,26 @@ r = requests.get(server_url + '/api/artwork/')
 if r.status_code != 200:
     raise Exception(r.status_code)
 artworks = r.json()['artworks']
+pfullName = ''
 for artwork in artworks:    
     pid = artwork['id']
-    name = artwork['name']
+    name = artwork['name'].strip()
+    if not name: name = 'Untitled'
     artist = artwork['artist']
-    artwork_dict[name] = artwork
-    user = user_dict[(artist['firstName'] + ' ' + artist['lastName']).strip()]
+    fullName = (artist['firstName'] + ' ' + artist['lastName']).strip()
+    if fullName != pfullName: count = 1
+    key = name
+    if name == 'Untitled': key = fullName + ':' + str(count)
+    artwork_dict[key] = artwork
+    user = user_dict[fullName]
     base_path = data_dir + "/images/artworks/" + user["email"]
     images = artwork_images[pid]
     print("Uploading images for artwork", artwork["name"])
     upload_images_from_list(base_path, images, "artwork", pid, user)
+    count += 1
+    pfullName = fullName
+
+print(artwork_dict)
 
 print("Populating places...")
 in_csv = join(data_dir, "place_list.csv")
@@ -351,7 +361,6 @@ for row in rows:
     place = {"id": place_dict[row[0]]['id']}
     artists = [{"id":user_dict[name.strip()]['id']} for name in row[1].split(';')]
     artworks = [{"id":artwork_dict[name.strip()]['id']} for name in row[2].split(';')]
-
     host = place_dict[row[0]]['host']
     hostFullName = (host['firstName'] + ' ' + host['lastName']).strip()
     hostEmail = user_dict[hostFullName]['email']
