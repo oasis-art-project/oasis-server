@@ -155,7 +155,7 @@ parser = argparse.ArgumentParser(description='Upload dummy data to OASIS server.
 parser.add_argument('-u', '--url', action='store', default='http://127.0.0.1:5000', help='set server url')
 parser.add_argument('-a', '--admin', action='store', default='Admin Oasis', help='admin username')
 parser.add_argument('-f', '--folder', action='store', default='dummy_data', help='set base data folder')
-parser.add_argument('-s', '--step', action='store', default=0, type=int, help='set starting step of db population (0-6')
+parser.add_argument('-s', '--step', action='store', default=0, type=int, help='set starting step of db population (0-8')
 args = parser.parse_args()
 
 server_url = args.url
@@ -166,7 +166,7 @@ step = args.step
 
 mimetypes.init()
 
-print("Populating users...")
+print("1 - Populating users...")
 in_csv = join(data_dir, "user_list.csv")
 reader = csv.reader(open(in_csv, 'r'), dialect='excel')
 header = next(reader)
@@ -191,7 +191,7 @@ for row in reader:
         uid = r.json()["id"]
         print("  Created user with id", uid)
 
-# Uploading user images
+print("2 - Uploading user images...")
 user_dict = {}
 r = requests.get(server_url + '/api/user/')
 if r.status_code != 200:
@@ -214,7 +214,7 @@ for user in users:
         print("Uploading images for user", user["firstName"], user["lastName"])
         upload_images_from_folder(base_path, "user", uid, user)
 
-print("Populating artworks...")
+print("3 - Populating artworks...")
 in_csv = join(data_dir, "artwork_list.csv")
 reader = csv.reader(open(in_csv, 'r'), dialect='excel')
 header = next(reader)
@@ -254,39 +254,44 @@ for row in reader:
             
         print("  Logged out succesfully")
 
-# Uploading artwork images
+print("4 - Uploading artwork images...")
 artwork_dict = {}
 r = requests.get(server_url + '/api/artwork/')
 if r.status_code != 200:
     raise Exception(r.status_code)
 artworks = r.json()['artworks']
-pfullName = ''
+counts = {}
 for artwork in artworks:    
     pid = artwork['id']
     name = artwork['name'].strip()
     if not name: name = 'Untitled'
     artist = artwork['artist']
-    fullName = (artist['firstName'] + ' ' + artist['lastName']).strip()
-    if fullName != pfullName: count = 1
+    fname = (artist['firstName'] + ' ' + artist['lastName']).strip()
+    if fname in counts:
+        count = counts[fname]
+        count += 1
+    else:
+        count = 1
+    counts[fname] = count
     key = name
-    if name == 'Untitled': key = fullName + ':' + str(count)
+    if name == 'Untitled': key = fname + ':' + str(count)
     artwork_dict[key] = artwork
-    if step <= 3:
-        user = user_dict[fullName]
+    if step <= 4:
+        user = user_dict[fname]
         base_path = data_dir + "/images/artworks/" + user["email"]
         images = artwork_images[pid]
         print("Uploading images for artwork", artwork["name"])
         upload_images_from_list(base_path, images, "artwork", pid, user)
-        count += 1
-        pfullName = fullName
 
-print("Populating places...")
+#print(artwork_dict)
+
+print("5 - Populating places...")
 in_csv = join(data_dir, "place_list.csv")
 reader = csv.reader(open(in_csv, 'r'), dialect='excel')
 header = next(reader)
 for row in reader:
     user = user_dict[row[0]]
-    if step <= 4:
+    if step <= 5:
         print("Creating place", row[1], "...")    
 
         # First the host user needs to login so we have the token to use in place creation
@@ -315,7 +320,7 @@ for row in reader:
             
         print("  Logged out succesfully")
 
-# Uploading place images
+print("6 - Uploading place images...")
 place_dict = {}
 r = requests.get(server_url + '/api/place/')
 if r.status_code != 200:
@@ -323,7 +328,7 @@ if r.status_code != 200:
 places = r.json()['places']
 for place in places:
     place_dict[place['name']] = place
-    if step <= 5:
+    if step <= 6:
         pid = place['id']
         host = place['host']
         user = user_dict[(host['firstName'] + ' ' + host['lastName']).strip()]
@@ -331,7 +336,7 @@ for place in places:
         print("Uploading images for place", place["name"])
         upload_images_from_folder(base_path, "place", pid, user)
 
-print("Populating events...")
+print("7 - Populating events...")
 in_csv = join(data_dir, "event_list.csv")
 reader = csv.reader(open(in_csv, 'r'), dialect='excel')
 header = next(reader)
@@ -370,7 +375,7 @@ for row in rows:
     hostEmail = user_dict[hostFullName]['email']
     hostPassword = user_dict[hostFullName]['password']
 
-    if step <= 6:
+    if step <= 7:
         print("Creating event", row[3], "...")
 
         # First the host user needs to login so we have the token to use in place creation
@@ -400,7 +405,7 @@ for row in rows:
             
         print("  Logged out succesfully")
 
-# Uploading event images
+print("8 - Uploading event images...")
 events_dict = {}
 r = requests.get(server_url + '/api/event/')
 if r.status_code != 200:
@@ -408,7 +413,7 @@ if r.status_code != 200:
 events = r.json()['events']
 for event in events:
     if not event['name'] in event_extra: continue
-    if step <= 6:
+    if step <= 8:
         eid = event['id']
         host = event['place']['host']
         user = user_dict[(host['firstName'] + ' ' + host['lastName']).strip()]
