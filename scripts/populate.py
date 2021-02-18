@@ -155,12 +155,14 @@ parser = argparse.ArgumentParser(description='Upload dummy data to OASIS server.
 parser.add_argument('-u', '--url', action='store', default='http://127.0.0.1:5000', help='set server url')
 parser.add_argument('-a', '--admin', action='store', default='Admin Oasis', help='admin username')
 parser.add_argument('-f', '--folder', action='store', default='dummy_data', help='set base data folder')
+parser.add_argument('-s', '--step', action='store', default=0, type=int, help='set starting step of db population (0-6')
 args = parser.parse_args()
 
 server_url = args.url
 admin_name = args.admin
 
 data_dir = join(sys.path[0], args.folder)
+step = args.step
 
 mimetypes.init()
 
@@ -175,18 +177,19 @@ for row in reader:
     user_extra[(row[2] + ' ' + row[3]).strip()] = {'email': email, 'password': password}
     raw_user_data = user_json(row)
 
-    print("Creating user", row[2], row[3], "...")
-    user_data = make_data_request(raw_user_data)
-    r = requests.post(server_url + '/api/user/', data=user_data)
-    if r.status_code == 400:
-        print("  User already exists")
-        continue
-        
-    if r.status_code != 201:                
-        raise Exception(r.status_code, r.content)
+    if step <= 1:
+        print("Creating user", row[2], row[3], "...")
+        user_data = make_data_request(raw_user_data)
+        r = requests.post(server_url + '/api/user/', data=user_data)
+        if r.status_code == 400:
+            print("  User already exists")
+            continue
+            
+        if r.status_code != 201:                
+            raise Exception(r.status_code, r.content)
 
-    uid = r.json()["id"]
-    print("  Created user with id", uid)
+        uid = r.json()["id"]
+        print("  Created user with id", uid)
 
 # Uploading user images
 user_dict = {}
@@ -207,47 +210,49 @@ for user in users:
         base_path = data_dir + "/images/users/hosts/" + user['email']
     elif role == 3:
         base_path = data_dir + "/images/users/artists/" + user['email']
-    print("Uploading images for user", user["firstName"], user["lastName"])
-    upload_images_from_folder(base_path, "user", uid, user)
+    if step <= 2:
+        print("Uploading images for user", user["firstName"], user["lastName"])
+        upload_images_from_folder(base_path, "user", uid, user)
 
 print("Populating artworks...")
 in_csv = join(data_dir, "artwork_list.csv")
 reader = csv.reader(open(in_csv, 'r'), dialect='excel')
-header = next(reader)    
+header = next(reader)
 artwork_images = {}
 for row in reader:
-    print("Creating artwork", row[1], "...")
-    print("  Logging user", row[0])    
     user = user_dict[row[0]]
+    if step <= 3:
+        print("Creating artwork", row[1], "...")
 
-    # First the host user needs to login so we have the token to use in place creation
-    user_data = make_data_request({'email': user['email'], 'password': user['password']})
-    r = requests.post(server_url + '/api/login/', data=user_data)
-    if r.status_code != 200:
-        raise Exception(r.status_code, r.content)
-    host_token = r.json()['token']
-    host_header = auth_header(host_token)
+        # First the host user needs to login so we have the token to use in place creation
+        print("  Logging user", row[0])        
+        user_data = make_data_request({'email': user['email'], 'password': user['password']})
+        r = requests.post(server_url + '/api/login/', data=user_data)
+        if r.status_code != 200:
+            raise Exception(r.status_code, r.content)
+        host_token = r.json()['token']
+        host_header = auth_header(host_token)
 
-    artist = {"id": user_dict[row[0].strip()]['id']}
+        artist = {"id": user_dict[row[0].strip()]['id']}
 
-    raw_artwork_data = artwork_json(row, artist)
-    p = make_data_request(raw_artwork_data)
-    r = requests.post(server_url + '/api/artwork/', data=p, headers=host_header)
+        raw_artwork_data = artwork_json(row, artist)
+        p = make_data_request(raw_artwork_data)
+        r = requests.post(server_url + '/api/artwork/', data=p, headers=host_header)
 
-    if r.status_code != 201:
-        raise Exception(r.status_code, r.content)
+        if r.status_code != 201:
+            raise Exception(r.status_code, r.content)
 
-    pid = r.json()["id"]
-    artwork_images[pid] = row[8].split(";")
+        pid = r.json()["id"]
+        artwork_images[pid] = row[8].split(";")
 
-    print("  Created artwork with id", pid)
+        print("  Created artwork with id", pid)
 
-    # Logout
-    r = requests.delete(server_url + '/api/login/', headers=host_header)
-    if r.status_code != 200:
-        raise Exception(r.status_code, r.content)    
-        
-    print("  Logged out succesfully")        
+        # Logout
+        r = requests.delete(server_url + '/api/login/', headers=host_header)
+        if r.status_code != 200:
+            raise Exception(r.status_code, r.content)    
+            
+        print("  Logged out succesfully")
 
 # Uploading artwork images
 artwork_dict = {}
@@ -266,48 +271,49 @@ for artwork in artworks:
     key = name
     if name == 'Untitled': key = fullName + ':' + str(count)
     artwork_dict[key] = artwork
-    user = user_dict[fullName]
-    base_path = data_dir + "/images/artworks/" + user["email"]
-    images = artwork_images[pid]
-    print("Uploading images for artwork", artwork["name"])
-    upload_images_from_list(base_path, images, "artwork", pid, user)
-    count += 1
-    pfullName = fullName
+    if step <= 3:
+        user = user_dict[fullName]
+        base_path = data_dir + "/images/artworks/" + user["email"]
+        images = artwork_images[pid]
+        print("Uploading images for artwork", artwork["name"])
+        upload_images_from_list(base_path, images, "artwork", pid, user)
+        count += 1
+        pfullName = fullName
 
 print("Populating places...")
 in_csv = join(data_dir, "place_list.csv")
 reader = csv.reader(open(in_csv, 'r'), dialect='excel')
 header = next(reader)
 for row in reader:
-    print("Creating place", row[1], "...")
-    print("  Logging user", row[0])
-
     user = user_dict[row[0]]
+    if step <= 4:
+        print("Creating place", row[1], "...")    
 
-    # First the host user needs to login so we have the token to use in place creation
-    user_data = make_data_request({'email': user['email'], 'password': user['password']})
-    r = requests.post(server_url + '/api/login/', data=user_data)
-    if r.status_code != 200:
-        raise Exception(r.status_code, r.content)
-    host_token = r.json()['token']
-    host_header = auth_header(host_token)
+        # First the host user needs to login so we have the token to use in place creation
+        print("  Logging user", row[0])    
+        user_data = make_data_request({'email': user['email'], 'password': user['password']})
+        r = requests.post(server_url + '/api/login/', data=user_data)
+        if r.status_code != 200:
+            raise Exception(r.status_code, r.content)
+        host_token = r.json()['token']
+        host_header = auth_header(host_token)
 
-    raw_place_data = place_json(row, host_json(row[0], user))
-    p = make_data_request(raw_place_data)
-    r = requests.post(server_url + '/api/place/', data=p, headers=host_header)
+        raw_place_data = place_json(row, host_json(row[0], user))
+        p = make_data_request(raw_place_data)
+        r = requests.post(server_url + '/api/place/', data=p, headers=host_header)
 
-    if r.status_code != 201:
-        raise Exception(r.status_code, r.content)
+        if r.status_code != 201:
+            raise Exception(r.status_code, r.content)
 
-    pid = r.json()["id"]
-    print("  Created place with id", pid)
+        pid = r.json()["id"]
+        print("  Created place with id", pid)
 
-    # Logout
-    r = requests.delete(server_url + '/api/login/', headers=host_header)
-    if r.status_code != 200:
-        raise Exception(r.status_code, r.content)    
-        
-    print("  Logged out succesfully")
+        # Logout
+        r = requests.delete(server_url + '/api/login/', headers=host_header)
+        if r.status_code != 200:
+            raise Exception(r.status_code, r.content)    
+            
+        print("  Logged out succesfully")
 
 # Uploading place images
 place_dict = {}
@@ -317,12 +323,13 @@ if r.status_code != 200:
 places = r.json()['places']
 for place in places:
     place_dict[place['name']] = place
-    pid = place['id']
-    host = place['host']
-    user = user_dict[(host['firstName'] + ' ' + host['lastName']).strip()]
-    base_path = data_dir + "/images/places/" + place["name"]
-    print("Uploading images for place", place["name"])
-    upload_images_from_folder(base_path, "place", pid, user)
+    if step <= 5:
+        pid = place['id']
+        host = place['host']
+        user = user_dict[(host['firstName'] + ' ' + host['lastName']).strip()]
+        base_path = data_dir + "/images/places/" + place["name"]
+        print("Uploading images for place", place["name"])
+        upload_images_from_folder(base_path, "place", pid, user)
 
 print("Populating events...")
 in_csv = join(data_dir, "event_list.csv")
@@ -348,7 +355,6 @@ diff = NOW - first_date
 
 for row in rows:
     event_extra[row[3]] = {'image': row[10]}
-    print("Creating event", row[3], "...")
 
     # Normalizing dates using today as reference
     start_date = row[7] + diff
@@ -364,33 +370,35 @@ for row in rows:
     hostEmail = user_dict[hostFullName]['email']
     hostPassword = user_dict[hostFullName]['password']
 
-    print("  Logging host", hostFullName)
-        
-    # First the host user needs to login so we have the token to use in place creation
-    user_data = make_data_request({'email': hostEmail, 'password': hostPassword})
-    r = requests.post(server_url + '/api/login/', data=user_data)
-    if r.status_code != 200:
-        raise Exception(r.status_code, r.content)
-    host_token = r.json()['token']
-    host_header = auth_header(host_token)   
+    if step <= 6:
+        print("Creating event", row[3], "...")
 
-    raw_event_data = event_json(place, artists, artworks, row)
-    user_data = make_data_request(raw_event_data)
+        # First the host user needs to login so we have the token to use in place creation
+        print("  Logging host", hostFullName)        
+        user_data = make_data_request({'email': hostEmail, 'password': hostPassword})
+        r = requests.post(server_url + '/api/login/', data=user_data)
+        if r.status_code != 200:
+            raise Exception(r.status_code, r.content)
+        host_token = r.json()['token']
+        host_header = auth_header(host_token)   
 
-    r = requests.post(server_url + '/api/event/', data=user_data, headers=host_header)
+        raw_event_data = event_json(place, artists, artworks, row)
+        user_data = make_data_request(raw_event_data)
 
-    if r.status_code != 201:
-        raise Exception(r.status_code, r.content)
+        r = requests.post(server_url + '/api/event/', data=user_data, headers=host_header)
 
-    eid = r.json()["id"]
-    print("  Created event with id", eid)
+        if r.status_code != 201:
+            raise Exception(r.status_code, r.content)
 
-    # Logout
-    r = requests.delete(server_url + '/api/login/', headers=host_header)
-    if r.status_code != 200:
-        raise Exception(r.status_code, r.content)    
-        
-    print("  Logged out succesfully")
+        eid = r.json()["id"]
+        print("  Created event with id", eid)
+
+        # Logout
+        r = requests.delete(server_url + '/api/login/', headers=host_header)
+        if r.status_code != 200:
+            raise Exception(r.status_code, r.content)    
+            
+        print("  Logged out succesfully")
 
 # Uploading event images
 events_dict = {}
@@ -400,9 +408,10 @@ if r.status_code != 200:
 events = r.json()['events']
 for event in events:
     if not event['name'] in event_extra: continue
-    eid = event['id']
-    host = event['place']['host']
-    user = user_dict[(host['firstName'] + ' ' + host['lastName']).strip()]
-    fn = event_extra[event['name']]['image']
-    print("Uploading images for event", event["name"])
-    upload_image(data_dir + "/images/events", fn, "event", eid, user)
+    if step <= 6:
+        eid = event['id']
+        host = event['place']['host']
+        user = user_dict[(host['firstName'] + ' ' + host['lastName']).strip()]
+        fn = event_extra[event['name']]['image']
+        print("Uploading images for event", event["name"])
+        upload_image(data_dir + "/images/events", fn, "event", eid, user)
