@@ -60,5 +60,6 @@ class PlaceSchema(BaseSchema):
             d = UserSchema(only=('id', 'tags', 'firstName', 'lastName', 'bio', 'files', 'homepage', 'instagram', 'venmo')).dump(host).data
             data['host'] = d
         if 'files' in data:
-            data['images'] = build_image_list('place', data['id'], data['files'])
+            data['fullImages'] = build_image_list('place', data['id'], data['files'], 'f')
+            data['prevImages'] = build_image_list('place', data['id'], data['files'], 'p')
         return data

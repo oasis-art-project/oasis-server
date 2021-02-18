@@ -89,6 +89,7 @@ class EventSchema(BaseSchema):
                 data['artworks'][index] = d
 
         if 'files' in data:
-            data['images'] = build_image_list('event', data['id'], data['files'])
+            data['fullImages'] = build_image_list('event', data['id'], data['files'], 'f')
+            data['prevImages'] = build_image_list('event', data['id'], data['files'], 'p')
 
         return data

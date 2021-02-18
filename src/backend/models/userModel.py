@@ -80,5 +80,6 @@ class UserSchema(BaseSchema):
     @post_dump
     def get(self, data):
         if 'files' in data:
-            data['images'] = build_image_list('user', data['id'], data['files'])
+            data['fullImages'] = build_image_list('user', data['id'], data['files'], 'f')
+            data['prevImages'] = build_image_list('user', data['id'], data['files'], 'p')
         return data

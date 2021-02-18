@@ -56,5 +56,6 @@ class ArtworkSchema(BaseSchema):
             d = UserSchema(only=('id', 'tags', 'firstName', 'lastName', 'bio', 'files', 'homepage', 'instagram', 'venmo')).dump(host).data
             data['artist'] = d
         if 'files' in data:
-            data['images'] = build_image_list('artwork', data['id'], data['files'])
+            data['fullImages'] = build_image_list('artwork', data['id'], data['files'], 'f')
+            data['prevImages'] = build_image_list('artwork', data['id'], data['files'], 'p')
         return data
