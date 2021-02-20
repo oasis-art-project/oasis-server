@@ -70,7 +70,7 @@ class EventSchema(BaseSchema):
             place = Place.get_by_id(data['place']['id'])
             if not place:
                 raise ValueError
-            data['place'] = PlaceSchema(only=('id', 'tags', 'host', 'name', 'description', 'files', 'address', 'latitude', 'longitude', 'homepage', 'instagram', 'facebook')).dump(place).data
+            data['place'] = PlaceSchema(only=('id', 'tags', 'host', 'name', 'description', 'files', 'address', 'latitude', 'longitude', 'location', 'homepage', 'instagram', 'facebook')).dump(place).data
 
         if 'artists' in data:            
             for index in range(len(data['artists'])):

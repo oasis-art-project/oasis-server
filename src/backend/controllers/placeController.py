@@ -18,6 +18,7 @@ from src.backend.models.placeModel import PlaceSchema, Place
 from src.backend.models.eventModel import EventSchema, Event
 from src.backend.extensions import storage, geolocator
 from geopy.exc import GeocoderTimedOut
+import pygeohash as pgh
 
 place_schema = PlaceSchema()
 event_schema = EventSchema()
@@ -88,14 +89,15 @@ class PlaceResource(Resource):
                     and not current_user.is_admin():
                 return {'message': 'Not enough privileges'}, 401
 
-        location = None
+        geoloc = None
         try:
-            location = geolocator.geocode(place_json['address'], timeout=10)
+            geoloc = geolocator.geocode(place_json['address'], timeout=10)
         except GeocoderTimedOut as e:
             return {'message': str(e)}, 400
-        if location:
-            place_json['latitude'] = location.latitude
-            place_json['longitude'] = location.longitude
+        if geoloc:
+            place_json['latitude'] = geoloc.latitude
+            place_json['longitude'] = geoloc.longitude
+            place_json['location'] = pgh.encode(geoloc.latitude, geoloc.longitude, 12)
         else:
             return {'message': "Address is invalid"}, 400
 
@@ -138,14 +140,15 @@ class PlaceResource(Resource):
 
             # If new address is different.
             if place_from_db.address != place_json['address']:
-                location = None
+                geoloc = None
                 try:
-                    location = geolocator.geocode(place_json['address'], timeout=10)
+                    geoloc = geolocator.geocode(place_json['address'], timeout=10)
                 except GeocoderTimedOut as e:
                     return {'message': str(e)}, 400
-                if location:
-                    place_json['latitude'] = location.latitude
-                    place_json['longitude'] = location.longitude
+                if geoloc:
+                    place_json['latitude'] = geoloc.latitude
+                    place_json['longitude'] = geoloc.longitude
+                    place_json['location'] = pgh.encode(geoloc.latitude, geoloc.longitude, 12)
                 else:
                     return {'message': "Address is invalid"}, 400
 
