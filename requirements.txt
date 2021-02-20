@@ -8,6 +8,7 @@ gunicorn
 psycopg2
 boto3
 geopy
+pygeohash
 pillow
 twilio
 pyjwt==1.7.1
