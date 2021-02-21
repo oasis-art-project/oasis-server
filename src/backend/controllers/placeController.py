@@ -95,8 +95,6 @@ class PlaceResource(Resource):
         except GeocoderTimedOut as e:
             return {'message': str(e)}, 400
         if geoloc:
-            place_json['latitude'] = geoloc.latitude
-            place_json['longitude'] = geoloc.longitude
             place_json['location'] = pgh.encode(geoloc.latitude, geoloc.longitude, 12)
         else:
             return {'message': "Address is invalid"}, 400
@@ -146,8 +144,6 @@ class PlaceResource(Resource):
                 except GeocoderTimedOut as e:
                     return {'message': str(e)}, 400
                 if geoloc:
-                    place_json['latitude'] = geoloc.latitude
-                    place_json['longitude'] = geoloc.longitude
                     place_json['location'] = pgh.encode(geoloc.latitude, geoloc.longitude, 12)
                 else:
                     return {'message': "Address is invalid"}, 400
