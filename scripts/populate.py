@@ -28,7 +28,7 @@ def user_json(row):
         "phone": row[4],
         "homepage": row[5],
         "instagram": row[6],
-        "venmo": row[7],
+        "youtube": row[7],
         "role": row[8],
         "bio": row[9],
         "tags": row[10]
@@ -43,7 +43,7 @@ def host_json(id, user):
         "phone": user["phone"],
         "homepage": user["homepage"],
         "instagram": user["instagram"],
-        "venmo": user["venmo"],
+        "youtube": user["youtube"],
     }
 
 def place_json(row, host):

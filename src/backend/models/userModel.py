@@ -25,7 +25,7 @@ class User(SurrogatePK, db.Model):
     role = db.Column(db.Integer, nullable=False)
     homepage = db.Column(db.String(100), nullable=True)
     instagram = db.Column(db.String(30), nullable=True)
-    venmo = db.Column(db.String(30), nullable=True)
+    youtube = db.Column(db.String(30), nullable=True)
     phone = db.Column(db.String(10), nullable=True)
     creation_date = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp(), nullable=False)
     token = ''
@@ -67,7 +67,7 @@ class UserSchema(BaseSchema):
     role = fields.Int(required=True, validate=validate.Range(min=1, max=4))        
     homepage = fields.Str(allow_none=True, validate=validate.Length(max=100))
     instagram = fields.Str(allow_none=True, validate=validate.Length(max=30))
-    venmo = fields.Str(allow_none=True, validate=validate.Length(max=30))
+    youtube = fields.Str(allow_none=True, validate=validate.Length(max=30))
     phone = fields.Str(allow_none=True, validate=validate.Length(max=10))    
     token = fields.Str(load_only=True)
     creation_date = fields.DateTime(load_only=True)
