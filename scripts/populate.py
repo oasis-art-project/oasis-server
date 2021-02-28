@@ -368,8 +368,14 @@ for row in rows:
     row[8] = end_date.strftime(date_format)
 
     place = {"id": place_dict[row[0]]['id']}
-    artists = [{"id":user_dict[name.strip()]['id']} for name in row[1].split(';')]
-    artworks = [{"id":artwork_dict[name.strip()]['id']} for name in row[2].split(';')]
+    if row[1]:
+        artists = [{"id":user_dict[name.strip()]['id']} for name in row[1].split(';')]
+    else:
+        artists = []
+    if row[2]:        
+        artworks = [{"id":artwork_dict[name.strip()]['id']} for name in row[2].split(';')]
+    else:
+        artworks = []
     host = place_dict[row[0]]['host']
     hostFullName = (host['firstName'] + ' ' + host['lastName']).strip()
     hostEmail = user_dict[hostFullName]['email']
