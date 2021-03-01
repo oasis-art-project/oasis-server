@@ -70,14 +70,14 @@ class EventSchema(BaseSchema):
             place = Place.get_by_id(data['place']['id'])
             if not place:
                 raise ValueError
-            data['place'] = PlaceSchema(only=('id', 'tags', 'host', 'name', 'description', 'files', 'address', 'location', 'homepage', 'instagram', 'facebook')).dump(place).data
+            data['place'] = PlaceSchema(only=('id', 'tags', 'host', 'name', 'description', 'files', 'address', 'location', 'homepage', 'instagram', 'facebook', 'matterport_link')).dump(place).data
 
         if 'artists' in data:            
             for index in range(len(data['artists'])):
                 artist = User.get_by_id(data['artists'][index]['id'])
                 if not artist:
                     raise ValueError
-                d = UserSchema(only=('id', 'tags', 'firstName', 'lastName', 'bio', 'files', 'homepage', 'instagram', 'youtube')).dump(artist).data
+                d = UserSchema(only=('id', 'tags', 'firstName', 'lastName', 'bio', 'files', 'homepage', 'instagram', 'youtube', 'showChat')).dump(artist).data
                 data['artists'][index] = d
 
         if 'artworks' in data:

@@ -53,7 +53,7 @@ class ArtworkSchema(BaseSchema):
             host = User.get_by_id(data['artist']['id'])
             if not host:
                 raise ValueError
-            d = UserSchema(only=('id', 'tags', 'firstName', 'lastName', 'bio', 'files', 'homepage', 'instagram', 'youtube')).dump(host).data
+            d = UserSchema(only=('id', 'tags', 'firstName', 'lastName', 'bio', 'files', 'homepage', 'instagram', 'youtube', 'showChat')).dump(host).data
             data['artist'] = d
         if 'files' in data:
             data['fullImages'] = build_image_list('artwork', data['id'], data['files'], 'f')

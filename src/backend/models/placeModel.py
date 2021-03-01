@@ -25,6 +25,7 @@ class Place(SurrogatePK, db.Model):
     homepage = db.Column(db.String(100), nullable=True)
     instagram = db.Column(db.String(30), nullable=True)
     facebook = db.Column(db.String(30), nullable=True)
+    matterport_link = db.Column(db.String(15), nullable=True)
     creation_date = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp(), nullable=False)
     host = db.relationship('User', backref=db.backref('places'))
 
@@ -42,6 +43,7 @@ class PlaceSchema(BaseSchema):
     homepage = fields.Str(allow_none=True, validate=validate.Length(max=100))
     instagram = fields.Str(allow_none=True, validate=validate.Length(max=30))
     facebook = fields.Str(allow_none=True, validate=validate.Length(max=30))
+    matterport_link = fields.Str(validate=validate.Length(max=15))
 
     class Meta:
         # BaseSchema automatically generates fields based on the model
@@ -55,7 +57,7 @@ class PlaceSchema(BaseSchema):
             host = User.get_by_id(data['host']['id'])
             if not host:
                 raise ValueError
-            d = UserSchema(only=('id', 'tags', 'firstName', 'lastName', 'bio', 'files', 'homepage', 'instagram', 'youtube')).dump(host).data
+            d = UserSchema(only=('id', 'tags', 'firstName', 'lastName', 'bio', 'files', 'homepage', 'instagram', 'youtube', 'showChat')).dump(host).data
             data['host'] = d
         if 'files' in data:
             data['fullImages'] = build_image_list('place', data['id'], data['files'], 'f')

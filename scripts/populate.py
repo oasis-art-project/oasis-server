@@ -30,8 +30,9 @@ def user_json(row):
         "instagram": row[6],
         "youtube": row[7],
         "role": row[8],
-        "bio": row[9],
-        "tags": row[10]
+        "showChat": row[9] == 'TRUE',
+        "bio": row[10],
+        "tags": row[11]
     }
 
 def host_json(id, user):
@@ -55,7 +56,8 @@ def place_json(row, host):
         "homepage": row[4],
         "instagram": row[5],
         "facebook": row[6],
-        "tags": row[7]
+        "matterport_link": row[7],
+        "tags": row[8]
     }
 
 def artwork_json(row, artist):
