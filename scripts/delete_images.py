@@ -36,10 +36,11 @@ def delete_image(rid, rkind, fn, user):
 parser = argparse.ArgumentParser(description='Deletes OASIS images stored in AWS.')
 parser.add_argument('-a', '--admin', action='store', default='Admin Oasis', help='admin username')
 parser.add_argument('-u', '--url', action='store', default='http://127.0.0.1:5000', help='set server url')
+parser.add_argument('-f', '--folder', action='store', default='dummy_data', help='set base data folder')
 args = parser.parse_args()
 
 server_url = args.url
-data_dir = join(sys.path[0], "dummy_data")
+data_dir = join(sys.path[0], args.folder)
 admin_name = args.admin
 
 # Need to get the email and password from the csv, the server will not return this information :-)
@@ -50,7 +51,7 @@ user_dict = {}
 for row in reader:
     email = row[0]
     password = row[1]
-    user_dict[row[2] + ' ' + row[3]] = {'email': email, 'password':password}
+    user_dict[(row[2] + ' ' + row[3]).strip()] = {'email': email, 'password':password}
 
 r = requests.get(server_url + '/api/user/')
 if r.status_code != 200:
@@ -58,7 +59,7 @@ if r.status_code != 200:
 users = r.json()['users']
 
 for user in users:
-    fullName = user['firstName'] + ' ' + user['lastName']
+    fullName = (user['firstName'] + ' ' + user['lastName']).strip()
     if fullName == admin_name: continue
     extra = user_dict[fullName]
     user['email'] = extra['email']
@@ -82,7 +83,7 @@ places = r.json()['places']
 for place in places:
     pid = place['id']
     host = place['host']
-    user = user_dict[host['firstName'] + ' ' + host['lastName']]
+    user = user_dict[(host['firstName'] + ' ' + host['lastName']).strip()]
     print("Images for place", place['name'])
     r = requests.get(server_url + '/api/media/' + str(pid) +'?resource-kind=place')
     if r.status_code != 200:
@@ -98,7 +99,7 @@ events = r.json()['events']
 for event in events:
     eid = event['id']
     host = event['place']['host']
-    user = user_dict[host['firstName'] + ' ' + host['lastName']]    
+    user = user_dict[(host['firstName'] + ' ' + host['lastName']).strip()]
     print("Images for event", event['name'])
     r = requests.get(server_url + '/api/media/' + str(eid) +'?resource-kind=event')
     if r.status_code != 200:
@@ -114,7 +115,7 @@ artworks = r.json()['artworks']
 for artwork in artworks:
     aid = artwork['id']
     artist = artwork['artist']
-    user = user_dict[artist['firstName'] + ' ' + artist['lastName']]    
+    user = user_dict[(artist['firstName'] + ' ' + artist['lastName']).strip()]
     print("Images for artwork", artwork['name'])
     r = requests.get(server_url + '/api/media/' + str(aid) +'?resource-kind=artwork')
     if r.status_code != 200:

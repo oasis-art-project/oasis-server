@@ -8,6 +8,8 @@ License Artistic-2.0
 
 from src.backend.controllers.loginController import LoginResource
 from src.backend.controllers.userController import UserResource
+from src.backend.controllers.artistController import ArtistResource
+from src.backend.controllers.hostController import HostResource
 from src.backend.controllers.artworkController import ArtworkResource
 from src.backend.controllers.placeController import PlaceResource
 from src.backend.controllers.eventController import EventResource
@@ -23,12 +25,16 @@ def init_router(api):
     api.add_resource(UserResource, '/user/<int:user_id>', endpoint='user_id')
     api.add_resource(UserResource, '/user/<string:user_email>', endpoint='user_email')
     api.add_resource(UserResource, '/user/role/<int:user_role>', endpoint='user_role')
+    api.add_resource(ArtistResource, '/artist/')
+    api.add_resource(ArtistResource, '/artist/<int:artist_id>', endpoint='artist_id')
+    api.add_resource(HostResource, '/host/')
+    api.add_resource(HostResource, '/host/<int:host_id>', endpoint='host_id')
     api.add_resource(ArtworkResource, '/artwork/')
     api.add_resource(ArtworkResource, '/artwork/<int:artwork_id>', endpoint='artwork_id')
-    api.add_resource(ArtworkResource, '/artwork/artist/<int:artist_id>', endpoint='artist_id')
+    api.add_resource(ArtworkResource, '/artwork/artist/<int:artwork_artist_id>', endpoint='artwork_artist_id')
     api.add_resource(PlaceResource, '/place/')
     api.add_resource(PlaceResource, '/place/<int:place_id>', endpoint='place_id')
-    api.add_resource(PlaceResource, '/place/host/<int:host_id>', endpoint='host_id')
+    api.add_resource(PlaceResource, '/place/host/<int:host_place_id>', endpoint='host_place_id')
     api.add_resource(EventResource, '/event/')
     api.add_resource(EventResource, '/event/<int:event_id>', endpoint='event_id')
     api.add_resource(EventResource, '/event/<string:event_date>', endpoint='event_date')

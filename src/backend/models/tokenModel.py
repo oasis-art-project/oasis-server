@@ -28,13 +28,15 @@ class Token(SurrogatePK, db.Model):
         return datetime.fromtimestamp(epoch_utc)
 
     @staticmethod
-    def create_token(identity_claim):
-        token = create_access_token(identity=identity_claim)
+    def create_token(user):
+        user_full_name = (user.firstName + " " + user.lastName).strip()
+
+        token = create_access_token(identity=user.id, user_claims={'fullName': user_full_name})
         decoded_token = decode_token(token)
 
         jti = decoded_token['jti']
         token_type = decoded_token['type']
-        user_identity = identity_claim
+        user_identity = user.id
         expires = Token._epoch_utc_to_datetime(decoded_token['exp'])
         revoked = False
 

@@ -55,7 +55,7 @@ class MediaResource(Resource):
             return {'message': 'The requested %s does not exist' % (resource_kind)}, 400
 
         try:
-            images_list = list_images(resource_kind, resource_id)
+            images_list = list_images(resource_kind, resource_id, 'f')
             return {"status": 'success', "images": images_list}, 200 
 
         except Exception as e:
@@ -170,7 +170,8 @@ class MediaResource(Resource):
             tmp = tmp.replace("::", "")
             resource.files = tmp
             resource.save()
-            storage.delete_image_file(resource_kind, resource_id, file_name)
+            storage.delete_image_file(resource_kind, resource_id, 'f', file_name)
+            storage.delete_image_file(resource_kind, resource_id, 'p', file_name)
 
             return {'status': "success"}, 200
 

@@ -76,7 +76,7 @@ def create_user(**kwargs):
     user, errors = user_schema.load(data)
     user.save()
 
-    token = Token.create_token(user.id)
+    token = Token.create_token(user)
     dump = user_schema.dump(User.get_by_id(user.id)).data
 
     return user, token, dump

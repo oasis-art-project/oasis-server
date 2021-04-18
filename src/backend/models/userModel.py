@@ -18,14 +18,16 @@ from src.backend.controllers.controller import build_image_list
 class User(SurrogatePK, db.Model):
     __tablename__ = 'users'
     email = db.Column(db.String(50), unique=True, nullable=False)
-    password = db.Column(db.String(64), nullable=False)
+    password = db.Column(db.String(64), nullable=False)    
     firstName = db.Column(db.String(50), nullable=False)
-    lastName = db.Column(db.String(50), nullable=False)
+    lastName = db.Column(db.String(50), nullable=True)
     bio = db.Column(db.String(2000), nullable=True)
-    role = db.Column(db.Integer, nullable=False)
-    twitter = db.Column(db.String(15), nullable=True)
-    flickr = db.Column(db.String(30), nullable=True)
-    instagram = db.Column(db.String(30), nullable=True)    
+    role = db.Column(db.Integer, nullable=False)    
+    homepage = db.Column(db.String(100), nullable=True)
+    instagram = db.Column(db.String(30), nullable=True)
+    youtube = db.Column(db.String(30), nullable=True)
+    phone = db.Column(db.String(10), nullable=True)
+    showChat = db.Column(db.Boolean, nullable=True)
     creation_date = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp(), nullable=False)
     token = ''
 
@@ -60,19 +62,17 @@ class UserSchema(BaseSchema):
     # Overwritten fields
     email = fields.Email(required=True)
     password = fields.Str(required=True, validate=validate.Length(min=6), load_only=True)
-    firstName = fields.Str(required=True, validate=[
-        validate.Regexp('^[a-zA-Z]+$'),
-        validate.Length(max=50)])
-    lastName = fields.Str(required=True, validate=[
-        validate.Regexp('^[a-zA-Z]+$'),
-        validate.Length(max=50)])
+    firstName = fields.Str(required=True, validate=validate.Length(max=50))
+    lastName = fields.Str(allow_none=True, validate=validate.Length(max=50))
     bio = fields.Str(allow_none=True, validate=validate.Length(max=2000))
-    role = fields.Int(required=True, validate=validate.Range(min=1, max=4))
-    twitter = fields.Str(allow_none=True, validate=validate.Length(max=15))
-    flickr = fields.Str(allow_none=True, validate=validate.Length(max=30))
+    role = fields.Int(required=True, validate=validate.Range(min=1, max=4))        
+    homepage = fields.Str(allow_none=True, validate=validate.Length(max=100))
     instagram = fields.Str(allow_none=True, validate=validate.Length(max=30))
-    token = fields.Str(load_only=True)
+    youtube = fields.Str(allow_none=True, validate=validate.Length(max=30))
+    phone = fields.Str(allow_none=True, validate=validate.Length(max=10))
+    showChat = fields.Boolean(allow_none=True)
     creation_date = fields.DateTime(load_only=True)
+    token = fields.Str(load_only=True)
 
     class Meta:
         # BaseSchema automatically generates fields based on the model
@@ -82,5 +82,6 @@ class UserSchema(BaseSchema):
     @post_dump
     def get(self, data):
         if 'files' in data:
-            data['images'] = build_image_list('user', data['id'], data['files'])
+            data['fullImages'] = build_image_list('user', data['id'], data['files'], 'f')
+            data['prevImages'] = build_image_list('user', data['id'], data['files'], 'p')
         return data

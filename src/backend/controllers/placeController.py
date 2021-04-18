@@ -15,32 +15,41 @@ from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import joinedload
 from src.backend.controllers.controller import load_request
 from src.backend.models.placeModel import PlaceSchema, Place
+from src.backend.models.eventModel import EventSchema, Event
 from src.backend.extensions import storage, geolocator
 from geopy.exc import GeocoderTimedOut
+import pygeohash as pgh
 
 place_schema = PlaceSchema()
+event_schema = EventSchema()
 
 
 class PlaceResource(Resource):
-    def get(self, place_id=None, host_id=None):
+    def get(self, place_id=None, host_place_id=None):
         """
         Gets a list of places
         """
         try:
             # Return all places of host with ID host_id
-            if host_id:
-                user_places = Place.query.filter_by(host_id=host_id).all()
+            if host_place_id:
+                user_places = Place.query.filter_by(host_id=host_place_id).all()
                 return {"status": "success", 'places': place_schema.dump(user_places, many=True).data}, 200
 
             # Return a specific place with ID place_id
             if place_id:
                 place = Place.query.options(joinedload("host")).filter_by(id=place_id).first()
-
                 if not place:
                     return {'message': 'Place does not exist'}, 400
 
-                data = place_schema.dump(place).data
-                return {"status": "success", 'place': data}, 200
+                place_data = place_schema.dump(place).data
+
+                place_events = Event.query.filter_by(place_id=place_id).all()
+                event_data = event_schema.dump(place_events, many=True).data
+
+                all_data = place_data
+                all_data["events"] = event_data
+                
+                return {"status": "success", 'place': all_data}, 200
 
             # If no arguments passed, return all places
             else:
@@ -80,14 +89,13 @@ class PlaceResource(Resource):
                     and not current_user.is_admin():
                 return {'message': 'Not enough privileges'}, 401
 
-        location = None
+        geoloc = None
         try:
-            location = geolocator.geocode(place_json['address'], timeout=10)
+            geoloc = geolocator.geocode(place_json['address'], timeout=10)
         except GeocoderTimedOut as e:
             return {'message': str(e)}, 400
-        if location:
-            place_json['latitude'] = location.latitude
-            place_json['longitude'] = location.longitude
+        if geoloc:
+            place_json['location'] = pgh.encode(geoloc.latitude, geoloc.longitude, 12)
         else:
             return {'message': "Address is invalid"}, 400
 
@@ -130,14 +138,13 @@ class PlaceResource(Resource):
 
             # If new address is different.
             if place_from_db.address != place_json['address']:
-                location = None
+                geoloc = None
                 try:
-                    location = geolocator.geocode(place_json['address'], timeout=10)
+                    geoloc = geolocator.geocode(place_json['address'], timeout=10)
                 except GeocoderTimedOut as e:
                     return {'message': str(e)}, 400
-                if location:
-                    place_json['latitude'] = location.latitude
-                    place_json['longitude'] = location.longitude
+                if geoloc:
+                    place_json['location'] = pgh.encode(geoloc.latitude, geoloc.longitude, 12)
                 else:
                     return {'message': "Address is invalid"}, 400
 

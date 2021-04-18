@@ -21,8 +21,11 @@ class Place(SurrogatePK, db.Model):
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(1000), nullable=True)
     address = db.Column(db.String(300), nullable=False)
-    latitude = db.Column(db.Float, nullable=True)
-    longitude = db.Column(db.Float, nullable=True)
+    location = db.Column(db.String(12), nullable=True)
+    homepage = db.Column(db.String(100), nullable=True)
+    instagram = db.Column(db.String(30), nullable=True)
+    facebook = db.Column(db.String(30), nullable=True)
+    matterport_link = db.Column(db.String(15), nullable=True)
     creation_date = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp(), nullable=False)
     host = db.relationship('User', backref=db.backref('places'))
 
@@ -36,8 +39,11 @@ class PlaceSchema(BaseSchema):
     name = fields.Str(required=True, validate=validate.Length(max=100))
     description = fields.Str(validate=validate.Length(max=1000))
     address = fields.Str(required=True, validate=validate.Length(max=300))
-    latitude = fields.Float(allow_none=True, validate=validate.Range(min=-90, max=90))
-    longitude = fields.Float(allow_none=True, validate=validate.Range(min=-180, max=180))
+    location = fields.Str(allow_none=True, validate=validate.Length(max=12))
+    homepage = fields.Str(allow_none=True, validate=validate.Length(max=100))
+    instagram = fields.Str(allow_none=True, validate=validate.Length(max=30))
+    facebook = fields.Str(allow_none=True, validate=validate.Length(max=30))
+    matterport_link = fields.Str(validate=validate.Length(max=15))
 
     class Meta:
         # BaseSchema automatically generates fields based on the model
@@ -51,8 +57,9 @@ class PlaceSchema(BaseSchema):
             host = User.get_by_id(data['host']['id'])
             if not host:
                 raise ValueError
-            d = UserSchema(only=('id', 'tags', 'firstName', 'lastName', 'bio', 'files', 'twitter', 'flickr', 'instagram')).dump(host).data
+            d = UserSchema(only=('id', 'tags', 'firstName', 'lastName', 'bio', 'files', 'homepage', 'instagram', 'youtube', 'showChat')).dump(host).data
             data['host'] = d
         if 'files' in data:
-            data['images'] = build_image_list('place', data['id'], data['files'])
+            data['fullImages'] = build_image_list('place', data['id'], data['files'], 'f')
+            data['prevImages'] = build_image_list('place', data['id'], data['files'], 'p')
         return data

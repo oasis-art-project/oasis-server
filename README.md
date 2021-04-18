@@ -26,30 +26,42 @@ The server can be run locally with the following steps:
     `export AWS_ACCESS_KEY_ID=<ID of AWD access key>` <br>
     `export AWS_SECRET_ACCESS_KEY=<AWS secret access key>`
 
-5. Add environmental _FLASK_ variable <br>
+5. Export he environmental variables for email and SMS support:
+
+    - Sendmail configuration: <br>
+    `export MAIL_USERNAME=info@oooasis.art` <br>
+    `export MAIL_DEFAULT_SENDER=info@oooasis.art` <br>
+    `export MAIL_PASSWORD=<email password>` <br>
+
+    - Twilio (SMS) configuration: <br>
+    `export TWILIO_ACCOUNT_SID=<Twilio account SID>` <br>
+    `export TWILIO_AUTH_TOKEN=<Twilio authorization token>` <br>
+    `export TWILIO_PHONE_NUMBER=+14012058293`
+
+6. Add environmental _FLASK_ variable <br>
 `export FLASK_APP=run`
 
-6. Initialize db schema <br>
+7. Initialize db schema <br>
 `flask db init`
 
-7. Load tables <br>
+8. Load tables <br>
 `flask db migrate` 
 
-8. Create database <br>
+9. Create database <br>
 `flask db upgrade`
 
-9. Create a default admin user. _Read console output_ <br>
+10. Create a default admin user. _Read console output_ <br>
 `flask seed`
 
-10. Run tests <br>
+11. Run tests <br>
 `flask test`
 
-11. Start server <br>
+12. Start server <br>
 `flask run`
 
-12. Server should be ready now, by default at http://127.0.0.1:5000
+13. Server should be ready now, by default at http://127.0.0.1:5000
 
-13. Populate db with dummy data using the provided utility script <br>
+14. Populate db with dummy data using the provided utility script <br>
 
 `python scripts/populate.py` <br>
 `python scripts/populate.py -url <server URL>` <br>
@@ -84,6 +96,8 @@ The server has been tested on Heroku. General steps involve the following
 `heroku addons:create heroku-postgresql:hobby-dev --app server-oasis` <br>
 `heroku config:set S3_BUCKET=oasis-storage` <br>
 `heroku config:set AWS_ACCESS_KEY_ID=<ID of AWD access key> AWS_SECRET_ACCESS_KEY=<AWS secret access key>` <br>
+`heroku config:set MAIL_USERNAME=info@oooasis.art MAIL_DEFAULT_SENDER=info@oooasis.art MAIL_PASSWORD=<email password>` <br>
+`heroku config:set TWILIO_ACCOUNT_SID=A<Twilio account SID> TWILIO_AUTH_TOKEN=<Twilio authorization token> TWILIO_PHONE_NUMBER=+14012058293` <br>
 
 3. Push changes <br>
 `git push heroku` <br>

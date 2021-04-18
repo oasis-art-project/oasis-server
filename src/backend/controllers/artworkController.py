@@ -16,31 +16,42 @@ from sqlalchemy.orm import joinedload
 
 from src.backend.controllers.controller import load_request
 from src.backend.models.artworkModel import Artwork, ArtworkSchema
+from src.backend.models.eventModel import EventSchema, Event
+from src.backend.models.eventModel import artworks_association_table
 from src.backend.extensions import storage
 
 artwork_schema = ArtworkSchema()
+event_schema = EventSchema()
 
 
 class ArtworkResource(Resource):
-    def get(self, artwork_id=None, artist_id=None):
+    def get(self, artwork_id=None, artwork_artist_id=None):
         """
         Gets a list of artworks
         """
         try:
-            # Return all artworks of artist with ID artist_id
-            if artist_id:
-                user_artworks = Artwork.query.filter_by(artist_id=artist_id).all()
+            # Return all artworks of artist with ID artwork_artist_id
+            if artwork_artist_id:
+                user_artworks = Artwork.query.filter_by(artist_id=artwork_artist_id).all()
                 data = artwork_schema.dump(user_artworks, many=True).data
                 return {"status": "success", 'artworks': data}, 200
 
             # Return a specific artwork with ID artwork_id
             if artwork_id:
                 artwork = Artwork.query.options(joinedload("artist")).filter_by(id=artwork_id).first()
-                data = artwork_schema.dump(artwork).data
+                artwork_data = artwork_schema.dump(artwork).data
+
+                q = Event.query.join(artworks_association_table).join(Artwork)
+                artwork_events = q.filter((artworks_association_table.c.artwork == artwork_id)).all()
+                event_data = event_schema.dump(artwork_events, many=True).data
+
+                all_data = artwork_data
+                all_data["events"] = event_data
+
                 if not artwork:
                     return {'message': 'Artwork does not exist'}, 400
 
-                return {"status": "success", 'artwork': data}, 200
+                return {"status": "success", 'artwork': all_data}, 200
 
             # If no arguments passed, return all artworks
             else:

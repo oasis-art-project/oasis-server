@@ -7,6 +7,7 @@ License Artistic-2.0
 """
 
 import click
+import os
 from flask.cli import with_appcontext
 from sqlalchemy.exc import IntegrityError
 
@@ -28,15 +29,23 @@ def test():
 @click.command()
 @with_appcontext
 def seed():
+    email = os.environ.get("ADMIN_EMAIL")
+    if not email:
+        raise Exception("Admin email is undefined. Set in ADMIN_EMAIL environmental variable")
+
+    password = os.environ.get("ADMIN_PASSWORD")
+    if not password:
+        raise Exception("Admin password is undefined. Set in ADMIN_PASSWORD environmental variable")
+
     try:
         UserSchema().load({
-            'email': 'admin@oasis.com',
-            'password': 'adminOasis',
+            'email': email,
+            'password': password,
             'firstName': 'Admin',
             'lastName': 'Oasis',
             'role': 1
         }).data.save()
-        print('Admin created. Please use credentials:\nLogin: admin@oasis.com\nPassword: adminOasis')
+        print('Admin created. Please use credentials:\nLogin', email, '\nPassword:', password)
     except IntegrityError:
-        print('Admin is already created. Please use credentials:\nLogin: admin@oasis.com\nPassword: adminOasis')
+        print('Admin is already created. Please use credentials:\nLogin: ', email, '\nPassword:', password)
 

@@ -14,6 +14,8 @@ from flask_migrate import Migrate
 from flask_restplus import Api
 from flask_script import Manager
 from flask_sqlalchemy import SQLAlchemy, Model
+from flask_mail import Mail
+from twilio.rest import Client
 
 from os.path import exists, join, expanduser
 from os import listdir, remove, makedirs
@@ -87,12 +89,11 @@ class Storage(object):
         self.bucket_name = app.config["S3_BUCKET"]
         self.bucket = self.resource.Bucket(self.bucket_name)
 
-    def file_upload(self, resource_kind, resource_id, file_object, content_type, dest_name):
+    def file_upload(self, resource_kind, resource_id, file_type, file_object, content_type, dest_name):
         prefix = resource_kind + 's'
-        dest_path = '%s/%d/%s' % (prefix, resource_id, dest_name)
+        dest_path = '%s/%d/%s/%s' % (prefix, resource_id, file_type, dest_name)
 
-        if self.local: 
-            fn = file_object
+        if self.local:
             url = join(self.upload_folder, dest_path)
             # copy(fn, url)
             with open(url, 'wb') as out: ## Open temporary file as bytes
@@ -111,8 +112,8 @@ class Storage(object):
 
         return url
 
-    def create_unique_filename(self, resource_kind, resource_id, filename):
-        lst = self.list_folder_contents(resource_kind, resource_id)    
+    def create_unique_filename(self, resource_kind, resource_id, file_type, filename):
+        lst = self.list_folder_contents(resource_kind, resource_id, file_type)    
 
         parts = filename.split('.')
         if not parts: 
@@ -133,9 +134,9 @@ class Storage(object):
 
         return res
 
-    def list_folder_contents(self, resource_kind, resource_id):
+    def list_folder_contents(self, resource_kind, resource_id, file_type):
         prefix = resource_kind + 's'
-        folder_path = '%s/%d/' % (prefix, resource_id)
+        folder_path = '%s/%d/%s' % (prefix, resource_id, file_type)
 
         if self.local:
             full_path = join(self.upload_folder, folder_path)
@@ -158,28 +159,36 @@ class Storage(object):
         return images
 
     def create_user_folder(self, uid):
-        return self.create_folder("users/" + str(uid) + "/")
+        self.create_folder("users/" + str(uid) + "/f/")
+        self.create_folder("users/" + str(uid) + "/p/")
 
     def create_place_folder(self, pid):
-        return self.create_folder("places/" + str(pid) + "/")
+        self.create_folder("places/" + str(pid) + "/f/")
+        self.create_folder("places/" + str(pid) + "/p/")
 
     def create_event_folder(self, eid):
-        return self.create_folder("events/" + str(eid) + "/")
+        self.create_folder("events/" + str(eid) + "/f/")
+        self.create_folder("events/" + str(eid) + "/p/")
 
     def create_artwork_folder(self, aid):
-        return self.create_folder("artworks/" + str(aid) + "/")
+        self.create_folder("artworks/" + str(aid) + "/f/")
+        self.create_folder("artworks/" + str(aid) + "/p/")
 
     def delete_user_folder(self, uid):
-        return self.delete_folder("users/" + str(uid) + "/")
+        self.delete_folder("users/" + str(uid) + "/f/")
+        self.delete_folder("users/" + str(uid) + "/p/")
 
     def delete_place_folder(self, pid):
-        return self.delete_folder("places/" + str(pid) + "/")
+        self.delete_folder("places/" + str(pid) + "/f/")
+        self.delete_folder("places/" + str(pid) + "/p/")
 
     def delete_event_folder(self, eid):
-        return self.delete_folder("events/" + str(eid) + "/")
+        self.delete_folder("events/" + str(eid) + "/f/")
+        self.delete_folder("events/" + str(eid) + "/p/")
 
     def delete_artwork_folder(self, aid):
-        return self.delete_folder("artworks/" + str(aid) + "/")
+        self.delete_folder("artworks/" + str(aid) + "/f/")
+        self.delete_folder("artworks/" + str(aid) + "/p/")
 
     def create_folder(self, folder_path):
         if self.local:
@@ -212,9 +221,9 @@ class Storage(object):
             status = self.resource.meta.client.delete_objects(Bucket=self.bucket_name, Delete=delete_keys)
             return status
 
-    def delete_image_file(self, res, rid, fn):
+    def delete_image_file(self, res, rid, typ, fn):
         prefix = res + 's'
-        full_path = '%s/%d/%s' % (prefix, rid, fn)
+        full_path = '%s/%d/%s/%s' % (prefix, rid, typ, fn)
 
         if self.local: 
             remove(join(self.upload_folder, full_path))
@@ -227,6 +236,19 @@ class Storage(object):
             except Exception as e:
                 raise e
 
+# Conviniency class wrapping Twillio client
+class SMS(Client):
+    def __init__(self):
+        self.client = None
+        self.number = None
+
+    def init_app(self, app):
+        self.client = Client(app.config["TWILIO_ACCOUNT_SID"], app.config["TWILIO_AUTH_TOKEN"])
+        self.number = app.config["TWILIO_PHONE_NUMBER"]
+
+    def send(self, body_text, to_number):
+        message = self.client.messages.create(body=body_text, from_=self.number, to=to_number)
+
 # Create extension instances
 db = SQLAlchemy(model_class=CRUDMixin)
 ma = Marshmallow()
@@ -234,6 +256,8 @@ jwt = JWTManager()
 migrate = Migrate()
 manager = Manager()
 storage = Storage()
+mail = Mail()
+sms = SMS()
 geolocator = Nominatim(user_agent="OASIS server")
 
 # Create and register Api (Flask-Restplus)

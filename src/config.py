@@ -17,6 +17,9 @@ class Config(object):
     PARENT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
     INSTANCE_PATH = os.path.join(PARENT_PATH, 'instance')
 
+    # Webapp url
+    WEBAPP_URL = os.environ['WEBAPP_URL']
+
     # SQLAlchemy conf
     SQLALCHEMY_ECHO = False
     SQLALCHEMY_TRACK_MODIFICATIONS = True
@@ -28,7 +31,8 @@ class Config(object):
     AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
 
     # Upload data conf
-    MAX_IMAGE_SIZE = 2048 * 2048
+    MAX_IMAGE_PREV_RES = 512
+    MAX_IMAGE_FULL_RES = 4096    
     IMAGE_UPLOAD_FOLDER = os.environ.get("IMAGE_UPLOAD_FOLDER")
     ALLOWED_IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
@@ -38,6 +42,18 @@ class Config(object):
     JWT_BLACKLIST_TOKEN_CHECKS = ['access']
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=30)
 
+    # SMTP mail
+    MAIL_SERVER = 'mail.hover.com'
+    MAIL_PORT = 587
+    MAIL_USE_TLS = True
+    MAIL_USERNAME = os.environ.get("MAIL_USERNAME")
+    MAIL_DEFAULT_SENDER = os.environ.get("MAIL_DEFAULT_SENDER")
+    MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD")
+
+    # Twilio SMS
+    TWILIO_ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SID")
+    TWILIO_AUTH_TOKEN = os.environ.get("TWILIO_AUTH_TOKEN")
+    TWILIO_PHONE_NUMBER = os.environ.get("TWILIO_PHONE_NUMBER")
 
 class ProductionConfig(Config):
     DEBUG = False
