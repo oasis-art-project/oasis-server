@@ -157,7 +157,9 @@ parser = argparse.ArgumentParser(description='Upload dummy data to OASIS server.
 parser.add_argument('-u', '--url', action='store', default='http://127.0.0.1:5000', help='set server url')
 parser.add_argument('-a', '--admin', action='store', default='Admin Oasis', help='admin username')
 parser.add_argument('-f', '--folder', action='store', default='dummy_data', help='set base data folder')
-parser.add_argument('-s', '--step', action='store', default=0, type=int, help='set starting step of db population (0-8')
+parser.add_argument('-s', '--step', action='store', default=0, type=int, help='set starting step of db population (0-8)')
+parser.add_argument('-d', '--debug', action='store_true', help='set if data is for debug purposes (it normalizes event dates)')
+
 args = parser.parse_args()
 
 server_url = args.url
@@ -276,7 +278,9 @@ for artwork in artworks:
         count = 1
     counts[fname] = count
     key = name
-    if name == 'Untitled': key = fname + ':' + str(count)
+    if name == 'Untitled':         
+        key = fname + ':' + str(count)
+
     artwork_dict[key] = artwork
     if step <= 4:
         user = user_dict[fname]
@@ -356,16 +360,22 @@ for row in reader:
     if start_date < first_date:
         first_date = start_date
     rows.append(row)    
-    
-NOW = datetime.now()
-diff = NOW - first_date
+
+if args.debug:
+    NOW = datetime.now()
+    diff = NOW - first_date
 
 for row in rows:
     event_extra[row[3]] = {'image': row[10]}
 
-    # Normalizing dates using today as reference
-    start_date = row[7] + diff
-    end_date = row[8] + diff
+    if args.debug:
+        # Normalizing dates using today as reference
+        start_date = row[7] + diff
+        end_date = row[8] + diff
+    else:
+        start_date = row[7]
+        end_date = row[8]
+
     row[7] = start_date.strftime(date_format)
     row[8] = end_date.strftime(date_format)
 
@@ -374,7 +384,7 @@ for row in rows:
         artists = [{"id":user_dict[name.strip()]['id']} for name in row[1].split(';')]
     else:
         artists = []
-    if row[2]:        
+    if row[2]:
         artworks = [{"id":artwork_dict[name.strip()]['id']} for name in row[2].split(';')]
     else:
         artworks = []
