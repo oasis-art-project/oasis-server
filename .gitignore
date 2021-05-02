@@ -22,4 +22,5 @@ build/
 .vscode/.ropeproject
 node_modules/
 
-local.sh
+dev-*.sh
+prod-*.sh
