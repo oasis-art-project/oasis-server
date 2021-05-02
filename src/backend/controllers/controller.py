@@ -12,7 +12,7 @@ import os
 import uuid
 import flask
 from io import BytesIO
-from PIL import Image
+from PIL import Image, ImageOps
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
 from flask_jwt_extended import current_user
@@ -68,7 +68,9 @@ def resize_image(img, max_res):
         else:
             h = max_res
             w = int(r * h)
-        return img.resize((w, h), Image.ANTIALIAS)
+        resized_img = img.resize((w, h), Image.ANTIALIAS)
+        fixed_image = ImageOps.exif_transpose(resized_img)
+        return fixed_image
     else:
         return img    
 
