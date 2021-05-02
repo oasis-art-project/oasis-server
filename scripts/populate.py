@@ -264,8 +264,9 @@ r = requests.get(server_url + '/api/artwork/')
 if r.status_code != 200:
     raise Exception(r.status_code)
 artworks = r.json()['artworks']
+artworks.sort(key=lambda k: int(k.get('id', 0))) # Sorting by id because they might not be in original order
 counts = {}
-for artwork in artworks:    
+for artwork in artworks:
     pid = artwork['id']
     name = artwork['name'].strip()
     if not name: name = 'Untitled'
@@ -280,7 +281,6 @@ for artwork in artworks:
     key = name
     if name == 'Untitled':         
         key = fname + ':' + str(count)
-
     artwork_dict[key] = artwork
     if step <= 4:
         user = user_dict[fname]
