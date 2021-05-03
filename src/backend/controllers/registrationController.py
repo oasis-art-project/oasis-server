@@ -20,7 +20,7 @@ from src.backend.extensions import mail
 
 user_schema = UserSchema()
 
-class SignupResource(Resource):
+class RegistrationResource(Resource):
     def post(self):
         """
         Creates a new user
@@ -39,7 +39,7 @@ class SignupResource(Resource):
             if User.query.filter_by(email=user_json['email']).first():
                 return {'message': 'User already exists'}, 400
 
-            txt = "json with request info"
+            txt = json.dumps(user_json)
 
             # Email notification
             admin_email = "andres.colubri@gmail.com"
