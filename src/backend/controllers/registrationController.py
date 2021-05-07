@@ -13,12 +13,10 @@ from flask_jwt_extended import create_access_token, get_raw_jwt, jwt_required
 from flask_restplus import Resource
 from src.backend.controllers.controller import load_request
 from sqlalchemy.exc import OperationalError
-from src.backend.models.userModel import User, UserSchema
+from src.backend.models.userModel import User, RegisterSchema
 from src.backend.jwt import blacklist
 from flask_mail import Message
 from src.backend.extensions import mail
-
-user_schema = UserSchema()
 
 class RegistrationResource(Resource):
     def post(self):
@@ -28,7 +26,7 @@ class RegistrationResource(Resource):
 
         # Validate input data with load_request
         try:
-            user_json = load_request(request, UserSchema())
+            user_json = load_request(request, RegisterSchema())
         except IOError as e:
             return {'message': str(e)}, 400
         except ValueError as e:
@@ -42,9 +40,9 @@ class RegistrationResource(Resource):
             txt = json.dumps(user_json)
 
             # Email notification
-            admin_email = "andres.colubri@gmail.com"
-            print("SENDING EMAIL TO USER", admin_email)
-            msg = Message("Chat Notification", recipients=[admin_email])
+            info_email = "info@oasis.art"
+            print("SENDING EMAIL TO USER", info_email)
+            msg = Message("New user request", recipients=[info_email])
             msg.body = txt
             mail.send(msg)
             

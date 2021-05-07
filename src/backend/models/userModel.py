@@ -85,3 +85,23 @@ class UserSchema(BaseSchema):
             data['fullImages'] = build_image_list('user', data['id'], data['files'], 'f')
             data['prevImages'] = build_image_list('user', data['id'], data['files'], 'p')
         return data
+
+class RegisterSchema(BaseSchema):
+    # Overwritten fields
+    email = fields.Email(required=True)
+    password = fields.Str(allow_none=True, validate=validate.Length(min=6), load_only=True)
+    firstName = fields.Str(required=True, validate=validate.Length(max=50))
+    lastName = fields.Str(allow_none=True, validate=validate.Length(max=50))
+    bio = fields.Str(allow_none=True, validate=validate.Length(max=2000))
+    role = fields.Int(required=True, validate=validate.Range(min=1, max=4))        
+    homepage = fields.Str(allow_none=True, validate=validate.Length(max=100))
+    instagram = fields.Str(allow_none=True, validate=validate.Length(max=30))
+    youtube = fields.Str(allow_none=True, validate=validate.Length(max=30))
+    phone = fields.Str(allow_none=True, validate=validate.Length(max=10))
+    showChat = fields.Boolean(allow_none=True)
+    creation_date = fields.DateTime(load_only=True)
+    token = fields.Str(load_only=True)
+
+    class Meta:
+        # BaseSchema automatically generates fields based on the model
+        model = User
