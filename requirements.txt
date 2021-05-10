@@ -3,13 +3,13 @@ click
 pytest
 pytest-flask
 eventlet
-gunicorn
 psycopg2
 boto3
 geopy
 pygeohash
 pillow
 twilio
+gunicorn==20.0.4
 sqlalchemy==1.3.24
 pyjwt==1.7.1
 webargs==6.1.1
