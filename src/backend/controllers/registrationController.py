@@ -17,6 +17,7 @@ from src.backend.models.userModel import User, RegisterSchema
 from src.backend.jwt import blacklist
 from flask_mail import Message
 from src.backend.extensions import mail
+import os
 
 class RegistrationResource(Resource):
     def post(self):
@@ -55,8 +56,8 @@ class RegistrationResource(Resource):
             txt += "YouTube = " + user_json['youtube']
 
             # Email notification
-            info_email = "info@oasis.art"
-            msg = Message("NEW USER REGISTRATION", recipients=[info_email])
+            reg_email = os.environ.get("REGISTRATION_EMAIL")
+            msg = Message("NEW USER REGISTRATION", recipients=[reg_email])
             msg.body = txt
 
             mail.send(msg)
