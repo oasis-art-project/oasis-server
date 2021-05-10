@@ -18,12 +18,12 @@ class Config(object):
     INSTANCE_PATH = os.path.join(PARENT_PATH, 'instance')
 
     # Webapp url
-    WEBAPP_URL = os.environ['WEBAPP_URL']
+    WEBAPP_URL = os.environ.get('WEBAPP_URL')
 
     # SQLAlchemy conf
     SQLALCHEMY_ECHO = False
     SQLALCHEMY_TRACK_MODIFICATIONS = True
-    SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
 
     # AWS configuration
     S3_BUCKET = os.environ.get("S3_BUCKET")
@@ -43,12 +43,12 @@ class Config(object):
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=30)
 
     # SMTP mail
-    MAIL_SERVER = 'mail.hover.com'
-    MAIL_PORT = 587
-    MAIL_USE_TLS = True
     MAIL_USERNAME = os.environ.get("MAIL_USERNAME")
     MAIL_DEFAULT_SENDER = os.environ.get("MAIL_DEFAULT_SENDER")
     MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD")
+    MAIL_SERVER = os.environ.get("MAIL_SERVER")
+    MAIL_PORT = os.environ.get("MAIL_PORT")
+    MAIL_USE_TLS = True
 
     # Twilio SMS
     TWILIO_ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SID")

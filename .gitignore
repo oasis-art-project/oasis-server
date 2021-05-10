@@ -23,4 +23,5 @@ build/
 node_modules/
 
 dev-*.sh
+stag-*.sh
 prod-*.sh

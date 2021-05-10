@@ -7,6 +7,7 @@ License Artistic-2.0
 """
 
 from src.backend.controllers.loginController import LoginResource
+from src.backend.controllers.registrationController import RegistrationResource
 from src.backend.controllers.userController import UserResource
 from src.backend.controllers.artistController import ArtistResource
 from src.backend.controllers.hostController import HostResource
@@ -21,6 +22,7 @@ def init_router(api):
     :param api: api instance passed from extensions.py
     """
     api.add_resource(LoginResource, '/login/') 
+    api.add_resource(RegistrationResource, '/register/') 
     api.add_resource(UserResource, '/user/')
     api.add_resource(UserResource, '/user/<int:user_id>', endpoint='user_id')
     api.add_resource(UserResource, '/user/<string:user_email>', endpoint='user_email')
