@@ -37,13 +37,28 @@ class RegistrationResource(Resource):
             if User.query.filter_by(email=user_json['email']).first():
                 return {'message': 'User already exists'}, 409
 
-            txt = json.dumps(user_json)
+            # txt = json.dumps(user_json)
+            user_role = "visitor"
+            if user_json['role'] == 2:
+                user_role = "host"
+            elif user_json['role'] == 3:
+                user_role = "artist"                
+
+            txt = "First name = " + user_json['firstName'] + "\n"
+            txt += "Last name = " + user_json['lastName'] + "\n"
+            txt += "Email address = " + user_json['email'] + "\n"
+            txt += "Phone number = " + user_json['phone'] + "\n"
+            txt += "User role = " + user_role + "\n"
+            txt += "Short bio = " + user_json['bio'] + "\n"
+            txt += "Website = " + user_json['website'] + "\n"
+            txt += "Instagram = " + user_json['instagram'] + "\n"
+            txt += "YouTube = " + user_json['youtube']
 
             # Email notification
             info_email = "info@oasis.art"
-            print("SENDING EMAIL TO USER", info_email)
-            msg = Message("New user request", recipients=[info_email])
+            msg = Message("NEW USER REGISTRATION", recipients=[info_email])
             msg.body = txt
+
             mail.send(msg)
             
         except OperationalError:
