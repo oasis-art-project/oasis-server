@@ -35,7 +35,7 @@ class RegistrationResource(Resource):
         try:
             # Check if user exist in the database
             if User.query.filter_by(email=user_json['email']).first():
-                return {'message': 'User already exists'}, 400
+                return {'message': 'User already exists'}, 409
 
             txt = json.dumps(user_json)
 
