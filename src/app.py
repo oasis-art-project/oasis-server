@@ -29,7 +29,7 @@ def create_app(conf=ProductionConfig):
     app.config.from_object(conf)
 
     # Enabled CORS: https://enable-cors.org/server_flask.html
-    # cors = CORS(app, resources={r"/*":{"origins":"*"}})
+    cors = CORS(app, resources={r"/*":{"origins":"*"}})
 
     # Chat init
     # socketio = SocketIO(app, cors_allowed_origins="*")
