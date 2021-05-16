@@ -51,7 +51,7 @@ class UserResource(Resource):
 
             # Get a specific user by email
             if user_email:
-                if not current_user.is_admin():
+                if not current_user or not current_user.is_admin():
                     return {'message': 'Not enough privileges'}, 401
 
                 user = User.query.filter_by(email=user_email).first()
