@@ -12,6 +12,7 @@ htmlcov/
 
 src/public/imgs
 scripts/real_data/
+scripts/new_data/
 
 env/
 dist/
