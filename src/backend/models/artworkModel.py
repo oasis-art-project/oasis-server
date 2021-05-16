@@ -33,7 +33,7 @@ class Artwork(SurrogatePK, db.Model):
 
 class ArtworkSchema(BaseSchema):
     # Overwritten fields
-    artist = fields.Nested(UserSchema, only=('id',), required=True)
+    artist = fields.Nested(UserSchema, only=('id',), required=False)
     name = fields.Str(required=True, validate=validate.Length(max=100))
     description = fields.Str(validate=validate.Length(max=1000))
     medium = fields.Str(validate=validate.Length(max=200))
