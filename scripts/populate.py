@@ -30,9 +30,10 @@ def user_json(row):
         "instagram": row[6],
         "youtube": row[7],
         "role": row[8],
-        "showChat": row[9] == 'TRUE',
+        "showChat": row[9] == 'TRUE',        
         "bio": row[10],
-        "tags": row[11]
+        "tags": row[11],
+        "confirmed": True
     }
 
 def host_json(id, user):
@@ -185,7 +186,7 @@ for row in reader:
         print("Creating user", row[2], row[3], "...")
         user_data = make_data_request(raw_user_data)
         r = requests.post(server_url + '/api/user/', data=user_data)
-        if r.status_code == 400:
+        if r.status_code == 409:
             print("  User already exists")
             continue
             

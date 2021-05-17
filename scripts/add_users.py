@@ -18,7 +18,7 @@ def auth_header(token):
         'Authorization': 'Bearer {}'.format(token)
     }
 
-def user_json(row):
+def user_json(row, confirmed):
     return {
         "email": row[0],
         "password": row[1],
@@ -29,9 +29,10 @@ def user_json(row):
         "instagram": row[6],
         "youtube": row[7],
         "role": row[8],
-        "showChat": row[9] == 'TRUE',
+        "showChat": row[9] == 'TRUE',        
         "bio": row[10],
-        "tags": row[11]
+        "tags": row[11],
+        "confirmed": confirmed
     }
 
 def upload_images_from_folder(bdir, rkind, rid, user):
@@ -69,6 +70,7 @@ parser = argparse.ArgumentParser(description='Upload dummy data to OASIS server.
 parser.add_argument('-u', '--url', action='store', default='http://127.0.0.1:5000', help='set server url')
 parser.add_argument('-a', '--admin', action='store', default='Admin Oasis', help='admin username')
 parser.add_argument('-f', '--folder', action='store', default='new_data', help='set base data folder')
+parser.add_argument('-c', '--confirmed', action='store_true', help='set if the user is confirmed')
 
 args = parser.parse_args()
 
@@ -89,12 +91,12 @@ for row in reader:
     password = row[1].strip()
     fullName = (row[2] + ' ' + row[3]).strip()
     user_extra[fullName] = {'email': email, 'password': password, 'id': None}
-    raw_user_data = user_json(row)
+    raw_user_data = user_json(row, args.confirmed)
 
     print("Creating user", fullName, "...")
     user_data = make_data_request(raw_user_data)
     r = requests.post(server_url + '/api/user/', data=user_data)
-    if r.status_code == 400:
+    if r.status_code == 409:
         print("  User already exists")
         continue
             

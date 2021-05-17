@@ -32,7 +32,8 @@ def user_json(row):
         "role": row[8],
         "showChat": row[9] == 'TRUE',
         "bio": row[10],
-        "tags": row[11]
+        "tags": row[11],
+        "confirmed": True
     }
 
 def host_json(id, user):
