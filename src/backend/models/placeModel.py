@@ -57,7 +57,7 @@ class PlaceSchema(BaseSchema):
             host = User.get_by_id(data['host']['id'])
             if not host:
                 raise ValueError
-            d = UserSchema(only=('id', 'tags', 'firstName', 'lastName', 'bio', 'files', 'homepage', 'instagram', 'youtube', 'showChat')).dump(host).data
+            d = UserSchema(only=('id', 'tags', 'firstName', 'lastName', 'bio', 'files', 'homepage', 'instagram', 'youtube', 'showChat', 'confirmed')).dump(host).data
             data['host'] = d
         if 'files' in data:
             data['fullImages'] = build_image_list('place', data['id'], data['files'], 'f')
