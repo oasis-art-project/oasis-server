@@ -31,7 +31,7 @@ class Token(SurrogatePK, db.Model):
     def create_token(user):
         user_full_name = (user.firstName + " " + user.lastName).strip()
 
-        token = create_access_token(identity=user.id, user_claims={'fullName': user_full_name})
+        token = create_access_token(identity=user.id, user_claims={'fullName': user_full_name, 'email': user.email})
         decoded_token = decode_token(token)
 
         jti = decoded_token['jti']

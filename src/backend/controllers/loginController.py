@@ -46,7 +46,7 @@ class LoginResource(Resource):
 
         # If reached this point, everything is correct, then create a token
         user_full_name = (user_from_db.firstName + " " + user_from_db.lastName).strip()
-        token = create_access_token(identity=user_from_db.id, user_claims={'fullName': user_full_name})
+        token = create_access_token(identity=user_from_db.id, user_claims={'fullName': user_full_name, 'email': user_from_db.email})
 
         # Return the token
         return {"status": 'success', 'token': token}, 200
