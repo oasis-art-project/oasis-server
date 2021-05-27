@@ -149,13 +149,14 @@ class UserResource(Resource):
             return {'message': 'Database error'}, 500
 
         # Revoke old token of the user
-        Token.revoke_token_by_user_identity(user_json["id"])
+        #Token.revoke_token_by_user_identity(user_json["id"])
 
         # Create a new one
-        token = Token.create_token(user_from_db)
+        #token = Token.create_token(user_from_db)
 
         # Return the new token
-        return {"status": 'success', 'token': token}, 200
+        #return {"status": 'success', 'token': token, 'user': user_from_db}, 200
+        return {"status": 'success', 'user': user_from_db}, 200
 
     @jwt_required
     def delete(self):
