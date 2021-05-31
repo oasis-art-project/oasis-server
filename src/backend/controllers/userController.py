@@ -156,7 +156,7 @@ class UserResource(Resource):
 
         # Return the new token
         #return {"status": 'success', 'token': token, 'user': user_from_db}, 200
-        return {"status": 'success', 'user': user_from_db}, 200
+        return {"status": 'success'}, 200
 
     @jwt_required
     def delete(self):

@@ -12,13 +12,13 @@ def auth_header(token):
 
 def user_json():
     return {
-        "firstName": "Juan",
-        "lastName": "Perez",
+        "firstName": "DD",
+        "lastName": "AAAA",
         "phone": "6172720341",
         "homepage": "www.google.com",
         "instagram": "juanperez",
         "youtube": "",
-        "role": 2,
+        "role": 3,
         "showChat": True,
         "bio": "Cool person",
         "tags": "art",
@@ -36,14 +36,15 @@ if r.status_code != 200:
   raise Exception(r.status_code, r.content)
 host_token = r.json()['token']
 host_header = auth_header(host_token)
+print("Logged in succesfully")
 
-new_user_data = user_data = make_data_request(user_json())
+raw_user_data = make_data_request(user_json())
+new_user_data = make_data_request(raw_user_data)
 r = requests.put(server_url + '/api/user/', data=new_user_data, headers=host_header)
-
 if r.status_code != 200:
     raise Exception(r.status_code, r.content)
 
 r = requests.delete(server_url + '/api/login/', headers=host_header)
 if r.status_code != 200:
     raise Exception(r.status_code, r.content)            
-print("  Logged out succesfully")
+print("Logged out succesfully")
