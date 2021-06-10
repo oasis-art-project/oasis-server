@@ -54,9 +54,7 @@ def upload_images_from_list(bdir, fnlist, rkind, rid, user):
         if not mtype: continue
         image_files += [('images', (fn, open(full_path, 'rb'), mtype))]
     r = requests.post(server_url + '/api/media/'+ str(rid) + '?resource-kind=' + rkind, files=image_files, headers=host_header)
-
     if r.status_code != 200:
-        print(r.content)
         raise Exception(r.status_code)
     j = r.json()
     for item in j:
@@ -133,12 +131,10 @@ for row in reader:
         j = r.json() 
         for img in j["images"]:
             fn = os.path.split(img)[1]
-            print(img)
             r = requests.delete(server_url + '/api/media/' + str(pid) + '?resource-kind=artwork&file-name=' + fn, headers=host_header)
             if r.status_code != 200:
                 print(r.content)
                 raise Exception(r.status_code)
-            print("  ...deleted", fn)
                 
         print("  Uploading new images")
         base_path = data_dir + "/images/artworks/" + user["email"]
