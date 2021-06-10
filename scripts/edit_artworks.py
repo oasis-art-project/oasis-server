@@ -133,8 +133,10 @@ for row in reader:
         j = r.json() 
         for img in j["images"]:
             fn = os.path.split(img)[1]
+            print(img)
             r = requests.delete(server_url + '/api/media/' + str(pid) + '?resource-kind=artwork&file-name=' + fn, headers=host_header)
             if r.status_code != 200:
+                print(r.content)
                 raise Exception(r.status_code)
             print("  ...deleted", fn)
                 
