@@ -118,6 +118,7 @@ for row in reader:
         raise Exception(r.status_code, r.content)
 
     pid = r.json()["id"]
+    print(pid)
     artwork_images[pid] = row[8].split(";")
 
     print("  Created artwork with id", pid)
@@ -144,7 +145,7 @@ for artwork in artworks:
     artist = artwork['artist']
     fullName = (artist['firstName'] + ' ' + artist['lastName']).strip()
     
-    if not fullName in user_extra.keys():
+    if not fullName in user_extra.keys() or not pid in artwork_images:
         continue
 
     if fullName in counts:
