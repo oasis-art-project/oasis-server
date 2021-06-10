@@ -136,7 +136,7 @@ class Storage(object):
 
     def list_folder_contents(self, resource_kind, resource_id, file_type):
         prefix = resource_kind + 's'
-        folder_path = '%s/%d/%s' % (prefix, resource_id, file_type)
+        folder_path = '%s/%d/%s/' % (prefix, resource_id, file_type)
 
         if self.local:
             full_path = join(self.upload_folder, folder_path)
