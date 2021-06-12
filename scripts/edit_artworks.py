@@ -52,7 +52,7 @@ def upload_images_from_list(bdir, fnlist, rkind, rid, user):
         full_path = join(bdir, fn)
         mtype = mimetypes.guess_type(full_path)[0]
         if not mtype: continue
-        image_files += [('images', (fn, open(full_path, 'rb'), mtype))]
+        image_files += [(fn, open(full_path, 'rb'))]
     r = requests.post(server_url + '/api/media/'+ str(rid) + '?resource-kind=' + rkind, files=image_files, headers=host_header)
     if r.status_code != 200:
         raise Exception(r.status_code)
