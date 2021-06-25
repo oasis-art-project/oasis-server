@@ -251,7 +251,6 @@ rows = []
 first_date = None
 date_format = '%Y-%m-%dT%H:%M:%S'
 for row in reader:
-    print(row)
     start_date = datetime.strptime(row[7], date_format)
     end_date = datetime.strptime(row[8], date_format)
     row[7] = start_date
@@ -292,6 +291,7 @@ for row in rows:
     hostFullName = (host['firstName'] + ' ' + host['lastName']).strip()
     hostEmail = user_dict[hostFullName]['email']
     hostPassword = user_dict[hostFullName]['password']
+    user = user_extra[hostFullName]
 
     print("Editing event", row[3], "...")
 
@@ -312,8 +312,12 @@ for row in rows:
     if r.status_code != 200:
         raise Exception(r.status_code, r.content)
 
-    # eid = r.json()["id"]
-    # print("  Created event with id", eid)
+    pid = row[11]
+    images = row[10].split(";")
+    if images:
+        print("  Uploading new images")
+        base_path = data_dir + "/images/events"
+        upload_images_from_list(base_path, images, "event", pid, user)
 
     # Logout
     r = requests.delete(server_url + '/api/login/', headers=host_header)
@@ -321,18 +325,3 @@ for row in rows:
         raise Exception(r.status_code, r.content)    
             
     print("  Logged out succesfully")
-
-# print("Uploading event images...")
-# events_dict = {}
-# r = requests.get(server_url + '/api/event/')
-# if r.status_code != 200:
-#     raise Exception(r.status_code)
-# events = r.json()['events']
-# for event in events:
-#     if not event['name'] in event_extra: continue
-#     eid = event['id']
-#     host = event['place']['host']
-#     user = user_dict[(host['firstName'] + ' ' + host['lastName']).strip()]
-#     fn = event_extra[event['name']]['image']
-#     print("Uploading images for event", event["name"])
-#     upload_image(data_dir + "/images/events", fn, "event", eid, user)
