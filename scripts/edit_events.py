@@ -87,7 +87,8 @@ def event_json(place, artists, artworks, row):
         "hubs_link": row[6],
         "startTime": row[7],
         "endTime": row[8],
-        "tags": row[9]
+        "tags": row[9],
+        "id": row[11]
     }
 
 def upload_image(bdir, fn, rkind, rid, user):
@@ -170,7 +171,7 @@ data_dir = join(sys.path[0], args.folder)
 mimetypes.init()
 
 # Loading the users, need password and email
-in_csv = join(data_dir, "user_list.csv")
+in_csv = join(data_dir, "event_artists.csv")
 reader = csv.reader(open(in_csv, 'r'), dialect='excel')
 header = next(reader)
 user_extra = {}
@@ -240,7 +241,7 @@ places = r.json()['places']
 for place in places:
     place_dict[place['name']] = place
 
-print("Adding events...")
+print("Editing events...")
 in_csv = join(data_dir, "event_list.csv")
 reader = csv.reader(open(in_csv, 'r'), dialect='excel')
 header = next(reader)
@@ -250,6 +251,7 @@ rows = []
 first_date = None
 date_format = '%Y-%m-%dT%H:%M:%S'
 for row in reader:
+    print(row)
     start_date = datetime.strptime(row[7], date_format)
     end_date = datetime.strptime(row[8], date_format)
     row[7] = start_date
@@ -291,7 +293,7 @@ for row in rows:
     hostEmail = user_dict[hostFullName]['email']
     hostPassword = user_dict[hostFullName]['password']
 
-    print("Creating event", row[3], "...")
+    print("Editing event", row[3], "...")
 
     # First the host user needs to login so we have the token to use in place creation
     print("  Logging host", hostFullName)        
@@ -300,18 +302,18 @@ for row in rows:
     if r.status_code != 200:
         raise Exception(r.status_code, r.content)
     host_token = r.json()['token']
-    host_header = auth_header(host_token)   
+    host_header = auth_header(host_token)
 
     raw_event_data = event_json(place, artists, artworks, row)
     event_data = make_data_request(raw_event_data)
 
-    r = requests.post(server_url + '/api/event/', data=event_data, headers=host_header)
+    r = requests.put(server_url + '/api/event/', data=event_data, headers=host_header)
 
-    if r.status_code != 201:
+    if r.status_code != 200:
         raise Exception(r.status_code, r.content)
 
-    eid = r.json()["id"]
-    print("  Created event with id", eid)
+    # eid = r.json()["id"]
+    # print("  Created event with id", eid)
 
     # Logout
     r = requests.delete(server_url + '/api/login/', headers=host_header)
@@ -320,17 +322,17 @@ for row in rows:
             
     print("  Logged out succesfully")
 
-print("Uploading event images...")
-events_dict = {}
-r = requests.get(server_url + '/api/event/')
-if r.status_code != 200:
-    raise Exception(r.status_code)
-events = r.json()['events']
-for event in events:
-    if not event['name'] in event_extra: continue
-    eid = event['id']
-    host = event['place']['host']
-    user = user_dict[(host['firstName'] + ' ' + host['lastName']).strip()]
-    fn = event_extra[event['name']]['image']
-    print("Uploading images for event", event["name"])
-    upload_image(data_dir + "/images/events", fn, "event", eid, user)
+# print("Uploading event images...")
+# events_dict = {}
+# r = requests.get(server_url + '/api/event/')
+# if r.status_code != 200:
+#     raise Exception(r.status_code)
+# events = r.json()['events']
+# for event in events:
+#     if not event['name'] in event_extra: continue
+#     eid = event['id']
+#     host = event['place']['host']
+#     user = user_dict[(host['firstName'] + ' ' + host['lastName']).strip()]
+#     fn = event_extra[event['name']]['image']
+#     print("Uploading images for event", event["name"])
+#     upload_image(data_dir + "/images/events", fn, "event", eid, user)
