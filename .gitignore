@@ -11,8 +11,9 @@ migrations/
 htmlcov/
 
 src/public/imgs
-scripts/real_data/
+scripts/seoul_data/
 scripts/new_data/
+
 
 env/
 dist/
@@ -26,3 +27,4 @@ node_modules/
 dev-*.sh
 stag-*.sh
 prod-*.sh
+kr-*.sh
