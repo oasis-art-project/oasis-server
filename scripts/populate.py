@@ -85,9 +85,10 @@ def event_json(place, artists, artworks, row):
         "description": row[4],
         "link": row[5],
         "hubs_link": row[6],
-        "startTime": row[7],
-        "endTime": row[8],
-        "tags": row[9]
+        "gather_link": row[7],
+        "startTime": row[8],
+        "endTime": row[9],
+        "tags": row[10]
     }
 
 def upload_image(bdir, fn, rkind, rid, user):

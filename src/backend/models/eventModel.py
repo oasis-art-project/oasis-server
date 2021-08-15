@@ -31,6 +31,7 @@ class Event(SurrogatePK, db.Model):
 
     link = db.Column(db.String(100), nullable=True)
     hubs_link = db.Column(db.String(10), nullable=True)
+    gather_link = db.Column(db.String(10), nullable=True)
 
     startTime = db.Column(db.DateTime, nullable=False)
     endTime = db.Column(db.DateTime, nullable=True)
@@ -57,6 +58,7 @@ class EventSchema(BaseSchema):
     description = fields.Str(validate=validate.Length(max=1000))
     link = fields.Str(validate=validate.Length(max=100))
     hubs_link = fields.Str(validate=validate.Length(max=10))
+    gather_link = fields.Str(validate=validate.Length(max=10))
 
     class Meta:
         # BaseSchema automatically generates fields based on the model
