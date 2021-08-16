@@ -138,8 +138,9 @@ def upload_images_from_list(bdir, fnlist, rkind, rid, user):
     for fn in all_files:
         full_path = join(bdir, fn)
         mtype = mimetypes.guess_type(full_path)[0]
-        if not mtype: continue
+        if not mtype: continue 
         image_files += [(fn, open(full_path, 'rb'))]
+  
     r = requests.post(server_url + '/api/media/'+ str(rid) + '?resource-kind=' + rkind, files=image_files, headers=host_header)
     if r.status_code != 200:
         raise Exception(r.status_code)
@@ -354,10 +355,10 @@ rows = []
 first_date = None
 date_format = '%Y-%m-%dT%H:%M:%S'
 for row in reader:
-    start_date = datetime.strptime(row[7], date_format)
-    end_date = datetime.strptime(row[8], date_format)
-    row[7] = start_date
-    row[8] = end_date
+    start_date = datetime.strptime(row[8], date_format)
+    end_date = datetime.strptime(row[9], date_format)
+    row[8] = start_date
+    row[9] = end_date
     if not first_date: first_date = start_date
     if start_date < first_date:
         first_date = start_date
@@ -368,18 +369,18 @@ if args.debug:
     diff = NOW - first_date
 
 for row in rows:
-    event_extra[row[3]] = {'image': row[10]}
+    event_extra[row[3]] = {'image': row[11]}
 
     if args.debug:
         # Normalizing dates using today as reference
-        start_date = row[7] + diff
-        end_date = row[8] + diff
+        start_date = row[8] + diff
+        end_date = row[9] + diff
     else:
-        start_date = row[7]
-        end_date = row[8]
+        start_date = row[8]
+        end_date = row[9]
 
-    row[7] = start_date.strftime(date_format)
-    row[8] = end_date.strftime(date_format)
+    row[8] = start_date.strftime(date_format)
+    row[9] = end_date.strftime(date_format)
 
     place = {"id": place_dict[row[0]]['id']}
     if row[1]:
@@ -407,6 +408,7 @@ for row in rows:
         host_token = r.json()['token']
         host_header = auth_header(host_token)   
 
+        print(row)
         raw_event_data = event_json(place, artists, artworks, row)
         user_data = make_data_request(raw_event_data)
 
