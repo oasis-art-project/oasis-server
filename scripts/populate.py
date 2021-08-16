@@ -408,7 +408,6 @@ for row in rows:
         host_token = r.json()['token']
         host_header = auth_header(host_token)   
 
-        print(row)
         raw_event_data = event_json(place, artists, artworks, row)
         user_data = make_data_request(raw_event_data)
 
