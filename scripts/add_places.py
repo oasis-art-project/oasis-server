@@ -20,6 +20,10 @@ def auth_header(token):
     }
 
 def place_json(row, host):
+    if len(row) < 10 or row[9] == "yes":
+        active = True
+    else:
+        active = False    
     return {
         "host": host,
         "name": row[1],
@@ -29,7 +33,8 @@ def place_json(row, host):
         "instagram": row[5],
         "facebook": row[6],
         "matterport_link": row[7],
-        "tags": row[8]
+        "tags": row[8],
+        "active": active
     }
 
 def host_json(id, user):
