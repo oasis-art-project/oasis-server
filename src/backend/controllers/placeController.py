@@ -148,8 +148,10 @@ class PlaceResource(Resource):
                 else:
                     return {'message': "Address is invalid"}, 400
 
-            # Save updated in the db
-            place_from_db.update(**place_json)
+            # Save updated in the db, it seems like in schemas like this
+            # where there is a backref (in this case to host), we need to
+            # use Schema().load() instead of entry_from_db.update()
+            PlaceSchema().load(place_json, partial=True).data.save()
         except IOError as e:
             return {'message': str(e)}, 400
         except OperationalError:
