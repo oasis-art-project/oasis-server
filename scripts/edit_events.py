@@ -5,7 +5,6 @@ import os
 import csv
 import argparse
 import mimetypes
-from datetime import *
 import dateutil.parser
 from os import listdir
 from os.path import isfile, join
@@ -306,7 +305,6 @@ for row in rows:
 
     raw_event_data = event_json(place, artists, artworks, row)
     event_data = make_data_request(raw_event_data)
-
     r = requests.put(server_url + '/api/event/', data=event_data, headers=host_header)
 
     if r.status_code != 200:
