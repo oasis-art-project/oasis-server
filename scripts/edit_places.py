@@ -34,7 +34,7 @@ def place_json(host, row):
         "matterport_link": row[7],
         "tags": row[8],
         "id": row[9],
-        # "active": active
+        "active": active
     }
 
 def host_json(id, user):
