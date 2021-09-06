@@ -26,7 +26,7 @@ class Place(SurrogatePK, db.Model):
     instagram = db.Column(db.String(30), nullable=True)
     facebook = db.Column(db.String(30), nullable=True)
     matterport_link = db.Column(db.String(15), nullable=True)
-    # active = db.Column(db.Boolean, nullable=True)
+    active = db.Column(db.Boolean, nullable=True)
     creation_date = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp(), nullable=False)
     host = db.relationship('User', backref=db.backref('places'))
 
@@ -45,7 +45,7 @@ class PlaceSchema(BaseSchema):
     instagram = fields.Str(allow_none=True, validate=validate.Length(max=30))
     facebook = fields.Str(allow_none=True, validate=validate.Length(max=30))
     matterport_link = fields.Str(validate=validate.Length(max=15))
-    # active = fields.Boolean(allow_none=True)
+    active = fields.Boolean(allow_none=True)
 
     class Meta:
         # BaseSchema automatically generates fields based on the model
