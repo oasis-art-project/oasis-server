@@ -56,11 +56,14 @@ class EventResource(Resource):
             if event_date:
                 date0 = datetime.strptime(event_date + "T23:59:59", "%Y-%m-%dT%H:%M:%S")
                 date1 = datetime.strptime(event_date + "T00:00:00", "%Y-%m-%dT%H:%M:%S")
+                past_events = Event.query.filter(Event.endTime<date1).all()
                 current_events = Event.query.filter(Event.startTime<=date0, date1<=Event.endTime).all()
                 upcoming_events = Event.query.filter(date0<Event.startTime).all()
+                past_data = event_schema.dump(past_events, many=True).data
                 current_data = event_schema.dump(current_events, many=True).data
                 upcoming_data = event_schema.dump(upcoming_events, many=True).data
-                return {"status": "success", "current_events": current_data,
+                return {"status": "success", "past_events": past_data,
+                                             "current_events": current_data,
                                              "upcoming_events": upcoming_data}, 200
 
             # Return a specific event with ID event_id
