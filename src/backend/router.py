@@ -43,5 +43,6 @@ def init_router(api):
     api.add_resource(EventResource, '/event/place/<int:place_event_id>', endpoint='place_event_id')
     api.add_resource(EventResource, '/event/artist/<int:event_artist_id>', endpoint='event_artist_id')
     api.add_resource(EventResource, '/event/artwork/<int:event_artwork_id>', endpoint='event_artwork_id')
+    api.add_resource(EventResource, '/event/alias/<string:event_alias>', endpoint='event_alias')
     api.add_resource(MediaResource, '/media/')
     api.add_resource(MediaResource, '/media/<int:resource_id>', endpoint='media_id')    

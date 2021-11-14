@@ -83,11 +83,12 @@ def event_json(place, artists, artworks, row):
         "artworks": artworks,
         "name": row[3],
         "description": row[4],
-        "link": row[5],
-        "hubs_link": row[6],
-        "startTime": row[7],
-        "endTime": row[8],
-        "tags": row[9]
+        "alias": row[5],
+        "link": row[6],
+        "hubs_link": row[7],
+        "startTime": row[8],
+        "endTime": row[9],
+        "tags": row[10]
     }
 
 def upload_image(bdir, fn, rkind, rid, user):
@@ -250,10 +251,10 @@ rows = []
 first_date = None
 date_format = '%Y-%m-%dT%H:%M:%S'
 for row in reader:
-    start_date = datetime.strptime(row[7], date_format)
-    end_date = datetime.strptime(row[8], date_format)
-    row[7] = start_date
-    row[8] = end_date
+    start_date = datetime.strptime(row[8], date_format)
+    end_date = datetime.strptime(row[9], date_format)
+    row[8] = start_date
+    row[9] = end_date
     if not first_date: first_date = start_date
     if start_date < first_date:
         first_date = start_date
@@ -268,14 +269,14 @@ for row in rows:
 
     if args.debug:
         # Normalizing dates using today as reference
-        start_date = row[7] + diff
-        end_date = row[8] + diff
+        start_date = row[8] + diff
+        end_date = row[9] + diff
     else:
-        start_date = row[7]
-        end_date = row[8]
+        start_date = row[8]
+        end_date = row[9]
 
-    row[7] = start_date.strftime(date_format)
-    row[8] = end_date.strftime(date_format)
+    row[8] = start_date.strftime(date_format)
+    row[9] = end_date.strftime(date_format)
 
     place = {"id": place_dict[row[0]]['id']}
     if row[1]:

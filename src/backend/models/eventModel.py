@@ -28,6 +28,7 @@ class Event(SurrogatePK, db.Model):
     place_id = db.Column(db.Integer, db.ForeignKey('places.id'))
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(1000), nullable=True)
+    alias = db.Column(db.String(50), nullable=True)
 
     link = db.Column(db.String(100), nullable=True)
     hubs_link = db.Column(db.String(10), nullable=True)
@@ -55,6 +56,8 @@ class EventSchema(BaseSchema):
 
     name = fields.Str(required=True, validate=validate.Length(max=100))
     description = fields.Str(validate=validate.Length(max=1000))
+    alias = fields.Str(validate=validate.Length(max=50))
+
     link = fields.Str(validate=validate.Length(max=100))
     hubs_link = fields.Str(validate=validate.Length(max=10))
 
@@ -65,7 +68,7 @@ class EventSchema(BaseSchema):
     # Since according to Nested schema loading is only with ID,
     # dump loads other non-sensitive data from DB, enumerated below
     @post_dump
-    def get(self, data):        
+    def get(self, data):
         if 'place' in data:
             place = Place.get_by_id(data['place']['id'])
             if not place:

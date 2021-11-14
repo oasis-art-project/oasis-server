@@ -30,7 +30,7 @@ event_schema = EventSchema()
 
 
 class EventResource(Resource):
-    def get(self, event_id=None, event_date=None, place_event_id=None, event_artist_id=None, event_artwork_id=None):
+    def get(self, event_id=None, event_date=None, place_event_id=None, event_artist_id=None, event_artwork_id=None, event_alias=None):
         """
         Gets a list of events
         """
@@ -74,6 +74,14 @@ class EventResource(Resource):
                     return {'message': 'Event does not exist'}, 400
 
                 return {"status": "success", 'event': data}, 200
+
+             # Return the ID of a specific event with alias event_alias
+            if event_alias:
+                event = Event.query.filter_by(alias=event_alias).first()
+                if not event:
+                    return {'message': 'Event does not exist'}, 400
+
+                return {"status": "success", 'event_id': event.id}, 200
 
             # If no arguments passed, return all events
             else:
