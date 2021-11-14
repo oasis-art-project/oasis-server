@@ -7,7 +7,7 @@ boto3
 geopy
 pygeohash
 pillow
-twilio
+twilio==6.63.2
 gunicorn==20.1.0
 eventlet==0.31.0
 gevent==21.1.2
