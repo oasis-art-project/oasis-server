@@ -312,8 +312,8 @@ for row in rows:
     if r.status_code != 200:
         raise Exception(r.status_code, r.content)
 
-    pid = row[11]
-    images = row[10].split(";")
+    pid = row[12]
+    images = row[11].split(";")
     if images:
         print("  Uploading new images")
         base_path = data_dir + "/images/events"

@@ -265,7 +265,7 @@ if args.debug:
     diff = NOW - first_date
 
 for row in rows:
-    event_extra[row[3]] = {'image': row[10]}
+    event_extra[row[3]] = {'image': row[11]}
 
     if args.debug:
         # Normalizing dates using today as reference
