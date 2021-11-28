@@ -31,7 +31,12 @@ class Event(SurrogatePK, db.Model):
     alias = db.Column(db.String(50), nullable=True)
 
     link = db.Column(db.String(100), nullable=True)
+
     hubs_link = db.Column(db.String(10), nullable=True)
+    youtube_link = db.Column(db.String(15), nullable=True)
+
+    # gather_link = db.Column(db.String(10), nullable=True)    
+    # zoom_link = db.Column(db.String(80), nullable=True)
 
     startTime = db.Column(db.DateTime, nullable=False)
     endTime = db.Column(db.DateTime, nullable=True)
@@ -59,7 +64,12 @@ class EventSchema(BaseSchema):
     alias = fields.Str(validate=validate.Length(max=50))
 
     link = fields.Str(validate=validate.Length(max=100))
+    
     hubs_link = fields.Str(validate=validate.Length(max=10))
+    youtube_link = fields.Str(validate=validate.Length(max=15))
+
+    # gather_link = fields.Str(validate=validate.Length(max=10))    
+    # zoom_link = fields.Str(validate=validate.Length(max=80))
 
     class Meta:
         # BaseSchema automatically generates fields based on the model
