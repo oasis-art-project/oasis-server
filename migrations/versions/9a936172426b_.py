@@ -1,8 +1,8 @@
-"""empty message
+"""
 
-Revision ID: f89d36297165
+Revision ID: 9a936172426b
 Revises: 
-Create Date: 2021-09-06 15:51:56.059934
+Create Date: 2021-11-28 05:28:57.313642
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'f89d36297165'
+revision = '9a936172426b'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -77,6 +77,7 @@ def upgrade():
     sa.Column('instagram', sa.String(length=30), nullable=True),
     sa.Column('facebook', sa.String(length=30), nullable=True),
     sa.Column('matterport_link', sa.String(length=15), nullable=True),
+    sa.Column('active', sa.Boolean(), nullable=True),
     sa.Column('creation_date', sa.TIMESTAMP(), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
     sa.ForeignKeyConstraint(['host_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
@@ -88,8 +89,10 @@ def upgrade():
     sa.Column('place_id', sa.Integer(), nullable=True),
     sa.Column('name', sa.String(length=100), nullable=False),
     sa.Column('description', sa.String(length=1000), nullable=True),
+    sa.Column('alias', sa.String(length=50), nullable=True),
     sa.Column('link', sa.String(length=100), nullable=True),
     sa.Column('hubs_link', sa.String(length=10), nullable=True),
+    sa.Column('youtube_link', sa.String(length=15), nullable=True),
     sa.Column('startTime', sa.DateTime(), nullable=False),
     sa.Column('endTime', sa.DateTime(), nullable=True),
     sa.Column('creation_date', sa.TIMESTAMP(), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
