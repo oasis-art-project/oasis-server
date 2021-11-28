@@ -314,11 +314,15 @@ for row in rows:
         raise Exception(r.status_code, r.content)
 
     pid = row[13]
-    images = row[12].split(";")
-    if images:
-        print("  Uploading new images")
-        base_path = data_dir + "/images/events"
-        upload_images_from_list(base_path, images, "event", pid, user)
+    if row[12]:
+        images = row[12].split(";")
+        # print("images...")
+        # print(row[12])
+        # print(images)
+        if images:
+            print("  Uploading new images")
+            base_path = data_dir + "/images/events"
+            upload_images_from_list(base_path, images, "event", pid, user)
 
     # Logout
     r = requests.delete(server_url + '/api/login/', headers=host_header)
