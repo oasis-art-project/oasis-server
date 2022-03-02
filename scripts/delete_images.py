@@ -40,7 +40,7 @@ parser.add_argument('-f', '--folder', action='store', default='dummy_data', help
 args = parser.parse_args()
 
 server_url = args.url
-data_dir = join(sys.path[0], args.folder)
+data_dir = os.path.abspath(args.folder)
 admin_name = args.admin
 
 # Need to get the email and password from the csv, the server will not return this information :-)

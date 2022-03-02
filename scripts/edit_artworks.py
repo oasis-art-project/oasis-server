@@ -78,7 +78,7 @@ args = parser.parse_args()
 server_url = args.url
 admin_name = args.admin
 
-data_dir = join(sys.path[0], args.folder)
+data_dir = os.path.abspath(args.folder)
 
 mimetypes.init()
 
