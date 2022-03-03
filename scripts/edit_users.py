@@ -20,6 +20,9 @@ def auth_header(token):
     }
 
 def user_json(row):
+    active = True
+    if len(row) == 13:
+        active = row[12] != 'no'
     return {
         "email": row[0],
         "password": row[1],
@@ -33,6 +36,7 @@ def user_json(row):
         "showChat": row[9] == 'TRUE',        
         "bio": row[10],
         "tags": row[11],
+        "active": active,
         "confirmed": True
     }
 
