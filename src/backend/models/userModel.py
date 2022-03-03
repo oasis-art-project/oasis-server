@@ -29,6 +29,7 @@ class User(SurrogatePK, db.Model):
     phone = db.Column(db.String(10), nullable=True)
     showChat = db.Column(db.Boolean, nullable=True)
     confirmed = db.Column(db.Boolean, nullable=True)
+    active = db.Column(db.Boolean, nullable=True)
     creation_date = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp(), nullable=False)
     token = ''
 
@@ -73,6 +74,7 @@ class UserSchema(BaseSchema):
     phone = fields.Str(allow_none=True, validate=validate.Length(max=10))
     showChat = fields.Boolean(allow_none=True)
     confirmed = fields.Boolean(allow_none=False)
+    active = fields.Boolean(allow_none=True)
     creation_date = fields.DateTime(load_only=True)
     token = fields.Str(load_only=True)
 

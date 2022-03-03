@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 21aa062be5d8
+Revision ID: dabfb76e76e1
 Revises: 
-Create Date: 2022-03-02 17:54:38.017019
+Create Date: 2022-03-03 08:42:05.140122
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '21aa062be5d8'
+revision = 'dabfb76e76e1'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -45,6 +45,7 @@ def upgrade():
     sa.Column('phone', sa.String(length=10), nullable=True),
     sa.Column('showChat', sa.Boolean(), nullable=True),
     sa.Column('confirmed', sa.Boolean(), nullable=True),
+    sa.Column('active', sa.Boolean(), nullable=True),
     sa.Column('creation_date', sa.TIMESTAMP(), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email')
@@ -91,7 +92,7 @@ def upgrade():
     sa.Column('description', sa.String(length=1000), nullable=True),
     sa.Column('alias', sa.String(length=50), nullable=True),
     sa.Column('link', sa.String(length=100), nullable=True),
-    sa.Column('hubs_link', sa.String(length=10), nullable=True),
+    sa.Column('hubs_link', sa.String(length=50), nullable=True),
     sa.Column('youtube_link', sa.String(length=15), nullable=True),
     sa.Column('startTime', sa.DateTime(), nullable=False),
     sa.Column('endTime', sa.DateTime(), nullable=True),

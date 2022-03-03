@@ -32,7 +32,7 @@ class Event(SurrogatePK, db.Model):
 
     link = db.Column(db.String(100), nullable=True)
 
-    hubs_link = db.Column(db.String(10), nullable=True)
+    hubs_link = db.Column(db.String(50), nullable=True)
     youtube_link = db.Column(db.String(15), nullable=True)
 
     # gather_link = db.Column(db.String(10), nullable=True)    
@@ -65,7 +65,7 @@ class EventSchema(BaseSchema):
 
     link = fields.Str(validate=validate.Length(max=100))
     
-    hubs_link = fields.Str(validate=validate.Length(max=10))
+    hubs_link = fields.Str(validate=validate.Length(max=50))
     youtube_link = fields.Str(validate=validate.Length(max=15))
 
     # gather_link = fields.Str(validate=validate.Length(max=10))    
@@ -90,7 +90,7 @@ class EventSchema(BaseSchema):
                 artist = User.get_by_id(data['artists'][index]['id'])
                 if not artist:
                     raise ValueError
-                d = UserSchema(only=('id', 'tags', 'firstName', 'lastName', 'bio', 'files', 'homepage', 'instagram', 'youtube', 'showChat', 'confirmed')).dump(artist).data
+                d = UserSchema(only=('id', 'tags', 'firstName', 'lastName', 'bio', 'files', 'homepage', 'instagram', 'youtube', 'showChat', 'confirmed', 'active')).dump(artist).data
                 data['artists'][index] = d
 
         if 'artworks' in data:
