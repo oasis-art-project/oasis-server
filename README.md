@@ -7,13 +7,13 @@ This is the server backend of the OASIS platform. Please, read REST API referenc
 The server can be run locally with the following steps:
 
 1. A few preliminary checks (usually only need to do once):
-* Make sure postgres server is running locally (you can download the official tools for macOS, Windows, and Linux from [here](https://www.postgresql.org/))
-* It is recommended to create a virtual environment for the server so specific packages requirements do not conflict with the system-wide install or other environments that might be in use. For example if you call this environment ```oasis-server-env```, then the steps for creating it and installing the packages would be: <br>
-`python -m venv oasis-server-env` <br>
-`source oasis-server-env/bin/activate` <br>
-`pip install -r requirements.txt` <br>
+    * Make sure postgres server is running locally (you can download the official tools for macOS, Windows, and Linux from [here](https://www.postgresql.org/)).
+    * It is recommended to create a virtual environment for the server so specific packages requirements do not conflict with the system-wide install or other environments that might be in use. For example if you call this environment ```oasis-server-env```, then the steps for creating it and installing the packages would be: <br>
+    `python -m venv oasis-server-env` <br>
+    `source oasis-server-env/bin/activate` <br>
+    `pip install -r requirements.txt` <br>
 
-2. Setup environmental variable pointing to the location where the images shuld be stored. Since we are running locally, including the OASIS webapp, then the image folder should be inside the webapp's public folder. So if the webapp is installed at `~/oasis-webapp` and the image folder is called `dev-images`, we would do (starting with the unset to make sure that the local server does not try to use an S3 bucket to store images): <br>
+2. Setup environmental variable pointing to the location where the images shuld be stored. Since we are running locally, including the [OASIS webapp](https://github.com/oasis-art-project/oasis-webapp/), then the image folder should be inside the webapp's public folder. So if the webapp is installed at `~/oasis-webapp` and the image folder is called `dev-images`, we would do (starting with the unset to make sure that the local server does not try to use an S3 bucket to store images): <br>
 `unset S3_BUCKET` <br>
 `export IMAGE_UPLOAD_FOLDER=~/oasis-webapp/public/dev-images/` <br>
 `rm -Rf $IMAGE_UPLOAD_FOLDER` <br>
