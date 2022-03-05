@@ -15,7 +15,6 @@ from flask_restplus import Api
 from flask_script import Manager
 from flask_sqlalchemy import SQLAlchemy, Model
 from flask_mail import Mail
-from twilio.rest import Client
 
 from os.path import exists, join, expanduser
 from os import listdir, remove, makedirs
@@ -23,7 +22,6 @@ from shutil import copy, rmtree
 from geopy.geocoders import Nominatim
 import boto3
 import botocore
-import json
 import os
 
 # Mixin adds CRUD operations to all models
@@ -236,19 +234,6 @@ class Storage(object):
             except Exception as e:
                 raise e
 
-# Conviniency class wrapping Twillio client
-class SMS(Client):
-    def __init__(self):
-        self.client = None
-        self.number = None
-
-    def init_app(self, app):
-        self.client = Client(app.config["TWILIO_ACCOUNT_SID"], app.config["TWILIO_AUTH_TOKEN"])
-        self.number = app.config["TWILIO_PHONE_NUMBER"]
-
-    def send(self, body_text, to_number):
-        message = self.client.messages.create(body=body_text, from_=self.number, to=to_number)
-
 # Create extension instances
 db = SQLAlchemy(model_class=CRUDMixin)
 ma = Marshmallow()
@@ -257,7 +242,6 @@ migrate = Migrate()
 manager = Manager()
 storage = Storage()
 mail = Mail()
-sms = SMS()
 geolocator = Nominatim(user_agent="OASIS server")
 
 # Create and register Api (Flask-Restplus)
