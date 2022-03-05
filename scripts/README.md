@@ -104,4 +104,47 @@ This table should contain the following columns describing each event:
 * tags (100 characters max, optional): A list of semicolon-separated tags words.
 * image (no character limit, required): File name of one representative image of the event (without path, how the path to the files is constructed is explained below).
 
+### Images 
 
+The images referred in the above tables must be provided inside a subdirectory called ```images``` inside the directory where all the csv files are located. This subdirectory has the following structure:
+
+```
+images
+│
+└───artworks
+│   │
+│   └───email1@mail.com
+│   │   artwork.jpg
+│   │   ...
+│   └───email2@mail.com
+│   │   another_artork_image.png 
+│   ...
+│
+└───events
+│   event1_img.jpg
+│   cover2.jpg
+│   ...
+│
+└───places
+│   │
+│   └───Place Name
+│   │   img1.jpg
+│   │   img2.jpg
+│   │   ...
+│   └───Another Place
+│   │   ...
+│   ...
+│
+└───users
+    │
+    └───artists
+    │   │
+    │   └───email1@mail.com
+    │   │   profile.png
+    │   ...
+    │
+    └───hosts
+        └───email2@mail.com
+        │   profile.png
+        ...
+```
