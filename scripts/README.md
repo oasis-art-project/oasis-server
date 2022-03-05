@@ -29,10 +29,21 @@ The structure of these files and the image folder is detailed below.
 
 ## user_list.csv
 
-This table should contain the following columns:
+This table should contain the following columns describing each user:
  
 | email	| password 	| first name | last name | phone | homepage | instagram | youtube | role | chat | bio | tags |
 | ------| --------- | ---------- | --------- | ----- | -------- | --------- | ------- | ---- | ---- | --- | ---- |
 
-
+* email (50 characters max, required): A valid email address for the user. This email address functions as the username in OASIS. 
+* password (64 characters max, required): The login password to access their account. 
+* first name (50 characters max, required): The first name of the user, although it could an acronym or collective name.
+* last name (50 characters max, optional): The last name of the user.
+* phone (10 characters max, optional): A phone number.
+* homepage (100 characters max, optional): The URL of a website.
+* instagram (30 characters max, optional): The handle of an Instagram account.
+* youtube (30 characters max, optional): The handle of a YouTube account.
+* role (integer number, required): The role of the user, either 2 (artist), 3 (host), or 4 (visitor)
+* chat (boolean value, optional): Whether this chat can be contacted by chat on the OASIS webapp, either TRUE or FALSE. If left empy, it defaults to FALSE.
+* bio (2000 characters max, optional): A biography of the user.
+* tags (100 characters max, optional): A list of semicolon-separated tags words.
 
