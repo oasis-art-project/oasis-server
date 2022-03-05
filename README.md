@@ -55,6 +55,8 @@ The server can be run locally with the following steps:
 9. You can populate the OASIS db with demo data provided in [this repo](https://github.com/oasis-art-project/demo-data) using one of the convenience scripts in the ```scripts``` folder. If you clone the demo-data repo to some location in your computer, for example ```~/demo-data``` then you could run (from the root of the server folder): <br>
 `python scripts/populate.py -u http://127.0.0.1:5000 -f ~/demo-data -d` <br>
 
+10. Once the local server is running and the database has been initialized with some data, you can install and run the [OASIS webapp](https://github.com/oasis-art-project/oasis-webapp/) locally.
+
 ### Contributors
 
 * The initial version of the OASIS server was developed by Maxim Tsybanov (oasis@tsybanov.com) during the X-Lab Spark practicum class at Boston University in Summer 2019.
