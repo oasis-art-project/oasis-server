@@ -31,7 +31,8 @@ The structure of these files and the image folder is detailed below.
 
 This table should contain the following columns:
  
-| email	| password 	| first name | last name | phone | homepage | instagram | youtube | role | chat | bio | tags
+| email	| password 	| first name | last name | phone | homepage | instagram | youtube | role | chat | bio | tags |
+| ------| --------- | ---------- | --------- | ----- | -------- | --------- | ------- | ---- | ---- | --- | ---- |
 
 
 
