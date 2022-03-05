@@ -2,6 +2,8 @@
 
 The scripts in this folder are meant to be load/edit/remove data from a local or remote OASIS database without having to rely on manual data entry using the webapp. This is useful when initializing a deployment of OASIS with a large number of entries.
 
+Please note that these scripts were added as the need arised, so they were never designed to be consistent or easy to use :-)
+
 ## Install dependencies
 
 All of of these scripts are written in Python and use the requests package to make REST requests to the OASIS server. Install all the dependencies required by the scripts with: 
@@ -148,3 +150,13 @@ images
         │   profile.png
         ...
 ```
+
+Here, the images of each artwork must be placed under ```images/artworks/<artist email>``` since the email should uniquely identify each artist, so for each artwork filename listed in the artworks csv, the full path ```images/artworks/<artist email>/<image filename>``` is constructed.
+
+Each event has its unique image indicated in the events csv, and all should be found under ```images/events```.
+
+The places csv does not include image filenames, so all the image files found under ```images/places/<Place Name>``` are assigned to that place.
+
+Finally, the users' profile images are loaded from wherever image files are found under ```images/users/artists/<artist email>``` and ```images/users/hosts/<host email>```, for artist and hosts, respectively.
+
+
