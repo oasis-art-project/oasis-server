@@ -52,7 +52,7 @@ The server can be run locally with the following steps:
 
 8. Server should be ready now, by default at http://127.0.0.1:5000
 
-9. You can populate the OASIS db with demo data provided in [this repo](https://github.com/oasis-art-project/demo-data) using one of the convenience scripts in the ```scripts``` folder. If you clone the demo-data repo to some location in your computer, for example ```~/demo-data``` then you could run (from the root of the server folder):
+9. You can populate the OASIS db with demo data provided in [this repo](https://github.com/oasis-art-project/demo-data) using one of the convenience scripts in the ```scripts``` folder. If you clone the demo-data repo to some location in your computer, for example ```~/demo-data``` then you could run (from the root of the server folder): <br>
 `python scripts/populate.py -u http://127.0.0.1:5000 -f ~/demo-data -d` <br>
 
 ### Contributors
