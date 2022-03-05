@@ -20,16 +20,17 @@ def auth_header(token):
 
 def artwork_json(row):
     year = None
-    if row[5]:
-        year = int(row[5])
+    if row[6]:
+        year = int(row[6])
     return {
         "name": row[1],
         "description": row[2],
         "medium": row[3],
         "size": row[4],
+        "duration": row[5],
         "year": year,
-        "link": row[6],
-        "tags": row[7]
+        "link": row[7],
+        "tags": row[8]
     }
 
 def upload_image(bdir, fn, rkind, rid, user):
@@ -118,7 +119,7 @@ for row in reader:
         raise Exception(r.status_code, r.content)
 
     pid = r.json()["id"]
-    artwork_images[pid] = row[8].split(";")
+    artwork_images[pid] = row[9].split(";")
 
     print("  Created artwork with id", pid)
 

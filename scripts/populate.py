@@ -63,17 +63,18 @@ def place_json(row, host):
 
 def artwork_json(row, artist):
     year = None
-    if row[5]:
-        year = int(row[5])
+    if row[6]:
+        year = int(row[6])
     return {
         "artist": artist,
         "name": row[1],
         "description": row[2],
         "medium": row[3],
         "size": row[4],
+        "duration": row[5],
         "year": year,
-        "link": row[6],
-        "tags": row[7]
+        "link": row[7],
+        "tags": row[8]
     }
 
 def event_json(place, artists, artworks, row):
@@ -251,7 +252,7 @@ for row in reader:
             raise Exception(r.status_code, r.content)
 
         pid = r.json()["id"]
-        artwork_images[pid] = row[8].split(";")
+        artwork_images[pid] = row[9].split(";")
 
         print("  Created artwork with id", pid)
 

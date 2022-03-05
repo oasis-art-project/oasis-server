@@ -21,6 +21,7 @@ class Artwork(SurrogatePK, db.Model):
     description = db.Column(db.String(1000), nullable=True)
     medium = db.Column(db.String(200), nullable=True)
     size = db.Column(db.String(200), nullable=True)
+    duration = db.Column(db.String(200), nullable=True)
     year = db.Column(db.Integer, nullable=True)
     link = db.Column(db.String(100), nullable=True)
     creation_date = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp(), nullable=False)
@@ -38,6 +39,7 @@ class ArtworkSchema(BaseSchema):
     description = fields.Str(validate=validate.Length(max=1000))
     medium = fields.Str(validate=validate.Length(max=200))
     size = fields.Str(validate=validate.Length(max=200))
+    duration = fields.Str(validate=validate.Length(max=200))
     year = fields.Integer(validate=validate.Range(min=1900, max=2100), allow_none=True)
     link = fields.Str(validate=validate.Length(max=100))
 

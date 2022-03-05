@@ -27,7 +27,7 @@ as well as an images folder containing all the image files referred to in the cs
 
 The structure of these files and the image folder is detailed below.
 
-## user_list.csv
+### user_list.csv
 
 This table should contain the following columns describing each user:
  
@@ -46,4 +46,7 @@ This table should contain the following columns describing each user:
 * chat (boolean value, optional): Whether this chat can be contacted by chat on the OASIS webapp, either TRUE or FALSE. If left empy, it defaults to FALSE.
 * bio (2000 characters max, optional): A biography of the user.
 * tags (100 characters max, optional): A list of semicolon-separated tags words.
+
+### artwork_list.csv
+
 
