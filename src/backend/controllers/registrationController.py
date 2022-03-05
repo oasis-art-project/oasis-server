@@ -56,7 +56,7 @@ class RegistrationResource(Resource):
             txt += "YouTube = " + user_json['youtube']
 
             # Email notification
-            reg_email = os.environ.get("REGISTRATION_EMAIL")
+            reg_email = os.environ.get("MAIL_NEW_USER_INBOX")
             msg = Message("NEW USER REGISTRATION", recipients=[reg_email])
             msg.body = txt
 
