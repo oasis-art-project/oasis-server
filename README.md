@@ -47,7 +47,7 @@ The server can be run locally with the following steps:
     `flask run` <br>
 
     - Using [gunicorn] webserver, which supports WebSocket. There are two possible launch commands, currently only the second one works due to [this issue](https://github.com/oasis-art-project/oasis-server/issues/102). <br>
-    `gunicorn --bind 127.0.0.1:5000 --worker-class eventlet -w 1 "run:create_app()"`
+    `gunicorn --bind 127.0.0.1:5000 --worker-class eventlet -w 1 "run:create_app()"` <br>
     `gunicorn --bind 127.0.0.1:5000 -k gevent "run:create_app()"`
 
 8. Server should be ready now, by default at http://127.0.0.1:5000
