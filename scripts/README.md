@@ -195,3 +195,34 @@ The new places are provided in the ```place_list.csv``` file as before, but now,
 In this case, in addition to the list of new events (in the ```event_list.csv```), the data folder must also contain the list of artists participating in the event (```user_list.csv```) and the list of hosts of those events (```event_hosts.csv```), all as described before as well as any necessary image files in the ```images``` subdirectory.
 
 ## Scripts to edit existing items
+
+Finally, existing entries in the OASIS db may need to be modified. This can be done in batch using a series of corresponding scripts for each data type:
+
+* edit_users.py: Edit existing users in the db.
+* edit_artworks.py: Edit existing artworks in the db.
+* edit_places.py: Edit existing places in the db.
+* edit_events.py: Edit existing events in the db.
+
+The usage details for each one of these scripts are presented below:
+
+### edit_users script
+
+`python edit_users.py -u <server url> -f <folder with data>` 
+
+The same as before, this script will read the ```user_list.csv``` file and update the user in each row. It also automatically sets the edited users to confirmed. An optional addition to the csv file is an extra column called ```active```. If this column contains the ```no``` values, then the user is marked as inactive, which only affects hosts. Inactive hosts are no longer listed in the hosts tab of the webapp, although they are still in the db and can be found by opening one of the places they hosted.
+
+### edit_artworks script
+
+`python edit_artworks.py -u <server url> -f <folder with data>`
+
+This script requires the ```artwork_list.csv``` file with the list of artworks to edit (which includes replacing artwork images) and ```user_list.csv``` with the artsits whose artworks are being modified (since the script logs into the db with the users' credentials to apply the edits). One extra piece of information that's required in the ```artwork_list.csv``` table is an additional column with the ```id``` of the artwork to be edited, because the name alone may not be sufficient to find the artwork in the db.
+
+### edit_places script
+
+`python edit_places.py -u <server url> -f <folder with data>`
+
+This script requires two files: ```place_list.csv```, the list of places to edit, and ```place_hosts.csv```, the list of hosts of those places. The list of places can also include an additional ```active``` column to mark places as inactive if the value in that column in ```no```. Inactive places are not shown on the map in the webapp, but are still listed.
+
+### edit_events script
+
+Finally, this script requires the file ```event_list.csv```, holding the list of events to modify, and then two more files: ```event_artists.csv```, the list of participating artists, and ```event_hosts.csv```, the list of hosts.
