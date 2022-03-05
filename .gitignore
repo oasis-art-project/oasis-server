@@ -13,7 +13,7 @@ src/public/imgs
 scripts/real_data/
 scripts/new_data/
 
-env/
+oasis-server-env/
 dist/
 build/
 *.egg-info/
