@@ -12,7 +12,7 @@ All of of these scripts are written in Python and use the requests package to ma
 
 ## Populate script
 
-The populate script will upload data to the OASIS db and copy artwork images to either the AWS bucket or to a local folder. This script can be used as follows:
+The populate script will upload an initial batch of data to the OASIS db and will also copy/upload artwork images to either the AWS bucket or to a local folder. This script can be used as follows:
 
 `python populate.py -u <server url> -f <folder with data> [-d]` 
 
@@ -159,4 +159,39 @@ The places csv does not include image filenames, so all the image files found un
 
 Finally, the users' profile images are loaded from wherever image files are found under ```images/users/artists/<artist email>``` and ```images/users/hosts/<host email>```, for artist and hosts, respectively.
 
+## Scripts to add new items
 
+Once the OASIS db has been initialized with an initial batch of data, we can still add new elements to it using the following scripts:
+
+* add_users.py: Add new users to the db.
+* add_artworks.py: Add new artworks to existing users in the db.
+* add_places.py: Add new places to existing hosts in the db.
+* add_events.py: Add new events using existing information in the db.
+
+All of these scripts use some or all of the csv files we already covered, with images stored in the similar tree structure. See details in the sections below:
+
+### add_users script
+
+`python add_users.py -u <server url> -f <folder with data> [-c]` 
+
+Same as with the populate script, we have to provide the URL of the local/remote server, and the folder containing the data to add. There is only one file needed in the data folder, which is ```user_list.csv``` and with the same columns as mentioned. However, the add_users script accepts an optional flag, ```-c``` or ```--confirmed```. If this argument is not provided, the user will not show up in the UI of the webapp, since it needs to be confirmed by the administrator. Adding this flag performs this confirmation upon creation.
+
+### add_artworks script
+
+`python add_artworks.py -u <server url> -f <folder with data>` 
+
+This script only needs the ```artwork_list.csv``` file to be present in the data folder, with all referred image files inside the ```images``` folder as previously explained.
+
+### add_places script
+
+`python add_places.py -u <server url> -f <folder with data>`
+
+The new places are provided in the ```place_list.csv``` file as before, but now, since we are adding new places for existing hosts, we need to provide a csv file with the hosts for the new places, named ```event_hosts.csv```, with the same columns as the user csv file described above. In particular, this table contains the password of the hosts, which are needed to login as each host and create a new place for them.
+
+### add_events script
+
+`python add_events.py -u <server url> -f <folder with data>`
+
+In this case, in addition to the list of new events (in the ```event_list.csv```), the data folder must also contain the list of artists participating in the event (```user_list.csv```) and the list of hosts of those events (```event_hosts.csv```), all as described before as well as any necessary image files in the ```images``` subdirectory.
+
+## Scripts to edit existing items
