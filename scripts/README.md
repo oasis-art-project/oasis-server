@@ -49,4 +49,59 @@ This table should contain the following columns describing each user:
 
 ### artwork_list.csv
 
+This table should contain the following columns describing each artwork:
+ 
+| artist | name | description | Medium | Size | duration | year | link | tags | images |
+| ------ | ---- | ----------- | ------ | ---- | -------- | ---- | ---- | ---- | ------ |
+
+* artist (required): Full name (first + last) of the artist who created this artwork.
+* name (100 characters max, required): Name (or title) of the artwork.
+* description (1000 characters max, optional): Description of the artwork.
+* medium (200 characters max, optional): Medium of the artwork.
+* size (200 characters max, optional): Size (dimensions) of the artwork.
+* duration (200 characters max, optional): Duration for time-based artworks.
+* year (integer number, optional): Year when the artwork was made.
+* link (100 characters max, optional): URL of external website about artwork.
+* tags (100 characters max, optional): A list of semicolon-separated tags words.
+* images (no character limit, required): A list of semicolon-separated image file names (without path, how the path to the files is constructed is explained below).
+
+### place_list.csv
+
+This table should contain the following columns describing each place:
+
+| host | name | address | description | homepage | instagram | facebook | matterport_link | tags |
+| ---- | ---- | ------- | ----------- | -------- | --------- | -------- | --------------- | ---- |
+
+* host (required): Full name (first + last) of the host of this place.
+* name (100 characters max, required): Name of the place.
+* address (300 characters max, required): Address of the place.
+* description (1000 characters max, optional): Description of the place.
+* homepage (100 characters max, optional): The URL of a website.
+* instagram (30 characters max, optional): The handle of an Instagram account.
+* facebook (30 characters max, optional): The handle of a Facebook page.
+* matterport_link (15 characters max, optional): The code of a Matterport scan of the place.
+* tags (100 characters max, optional): A list of semicolon-separated tags words.
+
+### event_list.csv
+
+This table should contain the following columns describing each event:
+
+| place | artists | artworks | name | description | alias | link | hub_link | gather_link | youtube_link | startTime | endTime | tags | image |
+| ----- | ------- | -------- | ---- | ----------- | ----- | ---- | -------- | ----------- | ------------ | --------- | ------- | ---- | ----- |
+
+* place (required): The name of the place where the event takes place.
+* artists (optional): The full name (first + last) of the artists participating in the event, semicolon-separated
+* artworks (optional): The list of artworks included in the event, either as semicolon-separated names (titles). If the artwork names are not unique, they can be uniquely identified by the string ```Artist Full Name:N``` where the full name is first + last of the artist who made that piece and N is the position of the artwork among all the artworks for the artists (as listed in the artwork table).
+* name (100 characters max, required): Name of the event.
+* description (1000 characters max, optional): Description of the event.
+* alias (50 characters max, optional): Alias of the event, it is used to generate a shortlink in the OASIS webapp of the form ```https://{OASIS URL}/alias```.
+* link (100 characters max, optional): URL of external website about event.
+* hub_link (50 characters max, optional): Code of virtual event on Mozilla Hubs, or full URL on a Hubs Cloud deployment.
+* gather_link (10 characters max, optional): Code of virtual event on Gather.Town.
+* youtube_link (15 characters max, optional): Code of live event on YouTube.
+* startTime (datetime valule, required): Starting date and time of the event, as an UTC string: ```YYYY-MM-DDTHH:MM:SS```.
+* endTime (datetime valule, optional): Ending date and time of the event, as an UTC string: ```YYYY-MM-DDTHH:MM:SS```. If none is provided, the event is permanently shown as current.
+* tags (100 characters max, optional): A list of semicolon-separated tags words.
+* image (no character limit, required): File name of one representative image of the event (without path, how the path to the files is constructed is explained below).
+
 
