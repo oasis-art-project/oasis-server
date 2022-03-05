@@ -6,112 +6,54 @@ This is the server backend of the OASIS platform. Please, read REST API referenc
 
 The server can be run locally with the following steps:
 
-1. Install python libraries used by Flask <br>
-`pip install -r requirements.txt`
+1. A few preliminary checks (usually only need to do once):
+* Make sure postgres server is running locally (you can download the official tools for macOS, Windows, and Linux from [here](https://www.postgresql.org/))
+* It is recommended to create a virtual environment for the server so specific packages requirements do not conflict with the system-wide install or other environments that might be in use. For example if you call this environment ```oasis-server-env```, then the steps for creating it and installing the packages would be: <br>
+`python -m venv oasis-server-env` <br>
+`source oasis-server-env/bin/activate` <br>
+`pip install -r requirements.txt` <br>
 
-2. Add environmental _DATABASE_URL_ variable <br>
-`export DATABASE_URL=postgresql://localhost/oasis`
+2. Setup environmental variable pointing to the location where the images shuld be stored. Since we are running locally, including the OASIS webapp, then the image folder should be inside the webapp's public folder. So if the webapp is installed at `~/oasis-webapp` and the image folder is called `dev-images`, we would do (starting with the unset to make sure that the local server does not try to use an S3 bucket to store images): <br>
+`unset S3_BUCKET` <br>
+`export IMAGE_UPLOAD_FOLDER=~/oasis-webapp/public/dev-images/` <br>
+`rm -Rf $IMAGE_UPLOAD_FOLDER` <br>
 
-3. Create PostgreSQL database <br>
-`psql postgres -c "CREATE DATABASE oasis"`
+3. Export the environmental variables required by the server.
 
-4. Image data can be stored locally as well, or in AWS S3 bucket <br>
+    - First group of variables contain the admin credentials, flask app to run, and URL of the webapp: <br>
+    `export ADMIN_EMAIL=admin@youroasis.art` <br>
+    `export ADMIN_PASSWORD=your_admin_password` <br>
+    `export DATABASE_URL=postgresql://localhost/oasis` <br>
+    `export FLASK_APP=run` <br>
+    `export WEBAPP_URL=http://localhost:3000/` <br>
 
-    - Add the location of the image upload folder AND unset the S3_BUCKET environmental variable if previously set <br>
-    `unset S3_BUCKET` <br>
-    `export IMAGE_UPLOAD_FOLDER=<path to local image storage folder>` <br>
+    - Second group of variables contain sendmail configuration (the server sends emails to users when there are new notifications, as well as a notification to a predefined inbox when a new user fills out the registration form): <br>
+    `export MAIL_USERNAME=info@youroasis.art` <br>
+    `export MAIL_DEFAULT_SENDER=info@youroasis.art` <br>
+    `export MAIL_NEW_USER_INBOX=register@youroasis.art` <br>
+    `export MAIL_PASSWORD=your_mail_password` <br>
+    `export MAIL_SERVER=mail.server.com` <br>
+    `export MAIL_PORT=587` <br>
 
-    - Add AWS credentials to environment <br>
-    `export S3_BUCKET=<name of S3 bucket>` <br>
-    `export AWS_ACCESS_KEY_ID=<ID of AWD access key>` <br>
-    `export AWS_SECRET_ACCESS_KEY=<AWS secret access key>`
+5. Recreate the postgres database: <br>
+`./clear-db.sh; psql postgres -c "CREATE DATABASE oasis"`
 
-5. Export he environmental variables for email and SMS support:
+6. Initialize db schema, load tables, updgrade db, creates the admin user (using the values set in the step before) 
+`flask db init; flask db migrate; flask db upgrade; flask seed` <br>
 
-    - Sendmail configuration: <br>
-    `export MAIL_USERNAME=info@oooasis.art` <br>
-    `export MAIL_DEFAULT_SENDER=info@oooasis.art` <br>
-    `export MAIL_PASSWORD=<email password>` <br>
+7. If all the previous steps run without errors, you are ready to launch the local server. This can be done in differnt ways.
+    
+    - Using Flask's development server, which does not support WebSocket (OASIS has a built-in chat system that requires WebSocket, so that would not work with this server): <br>
+    `flask run` <br>
 
-    - Twilio (SMS) configuration: <br>
-    `export TWILIO_ACCOUNT_SID=<Twilio account SID>` <br>
-    `export TWILIO_AUTH_TOKEN=<Twilio authorization token>` <br>
-    `export TWILIO_PHONE_NUMBER=+14012058293`
+    - Using [gunicorn] webserver, which supports WebSocket. There are two possible launch commands, currently only the second one works due to [this issue](https://github.com/oasis-art-project/oasis-server/issues/102). <br>
+    `gunicorn --bind 127.0.0.1:5000 --worker-class eventlet -w 1 "run:create_app()"`
+    `gunicorn --bind 127.0.0.1:5000 -k gevent "run:create_app()"`
 
-6. Add environmental _FLASK_ variable <br>
-`export FLASK_APP=run`
+8. Server should be ready now, by default at http://127.0.0.1:5000
 
-7. Initialize db schema <br>
-`flask db init`
-
-8. Load tables <br>
-`flask db migrate` 
-
-9. Create database <br>
-`flask db upgrade`
-
-10. Create a default admin user. _Read console output_ <br>
-`flask seed`
-
-11. Run tests <br>
-`flask test`
-
-12. Start server <br>
-`flask run`
-
-13. Server should be ready now, by default at http://127.0.0.1:5000
-
-14. Populate db with dummy data using the provided utility script <br>
-
-`python scripts/populate.py` <br>
-`python scripts/populate.py -url <server URL>` <br>
-
-### Quick db restart
-
-If it is needed to clear the db and images, and restart the server, run the following
-
-1. Recreate postgres db
-
-`./clear-db.sh; psql postgres -c "CREATE DATABASE oasis"` <br>
-
-2. Delete images (adding the local flag is using local storage)
-
-`python scripts/delete_images.py [--local]` <br>
-
-3. Repopulate the db
-
-`python scripts/populate.py -url <server URL>` <br>
-
-4. Restart server <br>
-`flask run`
-
-### Heroku installation
-
-The server has been tested on Heroku. General steps involve the following
-
-1. Create Heroku app <br>
-`heroku create server-oasis` <br>
-
-2. Set environment <br>
-`heroku addons:create heroku-postgresql:hobby-dev --app server-oasis` <br>
-`heroku config:set S3_BUCKET=oasis-storage` <br>
-`heroku config:set AWS_ACCESS_KEY_ID=<ID of AWD access key> AWS_SECRET_ACCESS_KEY=<AWS secret access key>` <br>
-`heroku config:set MAIL_USERNAME=info@oooasis.art MAIL_DEFAULT_SENDER=info@oooasis.art MAIL_PASSWORD=<email password>` <br>
-`heroku config:set TWILIO_ACCOUNT_SID=A<Twilio account SID> TWILIO_AUTH_TOKEN=<Twilio authorization token> TWILIO_PHONE_NUMBER=+14012058293` <br>
-
-3. Push changes <br>
-`git push heroku` <br>
-
-4. Populate DB and AWS <br>
-`python scripts/populate.py` <br>
-
-For more information, check the [wiki entry](https://github.com/codeanticode/oasis-server/wiki/Server-deployment).
-
-### Stand-alone WSGI server
-
-The OASIS server can be run as a stand-alone WSGI application using a Python WSGI HTTP Serve like Gunicorn (listed in the requirements):
-
-`gunicorn --bind 127.0.0.1:5000  "run:create_app()"`
+9. You can populate the OASIS db with demo data provided in [this repo](https://github.com/oasis-art-project/demo-data) using one of the convenience scripts in the ```scripts``` folder. If you clone the demo-data repo to some location in your computer, for example ```~/demo-data``` then you could run (from the root of the server folder):
+`python scripts/populate.py -u http://127.0.0.1:5000 -f ~/demo-data -d` <br>
 
 ### Contributors
 
