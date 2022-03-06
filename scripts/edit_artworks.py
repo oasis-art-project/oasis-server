@@ -121,7 +121,7 @@ for row in reader:
     if r.status_code != 200:
         raise Exception(r.status_code, r.content)
 
-    pid = row[9]
+    pid = row[10]
     images = row[9].split(";")
 
     if images:
