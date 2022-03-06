@@ -13,6 +13,8 @@ src/public/imgs
 scripts/real_data/
 scripts/new_data/
 
+migrations
+
 oasis-server-env/
 dist/
 build/
