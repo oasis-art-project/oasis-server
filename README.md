@@ -57,6 +57,35 @@ The server can be run locally with the following steps:
 
 10. Once the local server is running and the database has been initialized with some data, you can install and run the [OASIS webapp](https://github.com/oasis-art-project/oasis-webapp/) locally.
 
+### Installation on Heroku and AWS
+
+The OASIS server can be installed on Heroku, with an AWS S3 bucket to store images. Once your Heroku and AWS accounts are ready, the deployment of the sever can be performed with the following steps (where we assume the Heroku app is called ```my-oasis-server```, the S3 bucket is ```my-oasis-storage```, and we install it on the ```prod``` remote):
+
+1. Delete previous data and destroy server (optional) to start from scratch: <br>
+`python scripts/delete_all.py -u https://my-oasis-server.herokuapp.com/ -e <admin email> -p <admin password>` <br>
+`heroku apps:destroy my-oasis-server --confirm=my-oasis-server`
+
+2. Create server: <br>
+`heroku create my-oasis-server --remote prod` <br>
+
+3. Create database: <br>
+`heroku addons:create heroku-postgresql:hobby-dev --app my-oasis-server` <br>
+
+4. Set S3 bucket: <br>
+```heroku config:set S3_BUCKET=my-oasis-storage` --remote prod```
+
+5. Set environmental variables: <br>
+`heroku config:set WEBAPP_URL=https://myoasis.art/ --remote prod` <br>
+`heroku config:set ADMIN_EMAIL=<admin email> ADMIN_PASSWORD=<admin password> --remote prod` <br>
+`heroku config:set AWS_ACCESS_KEY_ID=<access key> AWS_SECRET_ACCESS_KEY=<secret access key> --remote prod` <br>
+`heroku config:set MAIL_USERNAME=<mail username> MAIL_DEFAULT_SENDER=<outbox address> MAIL_NEW_USER_INBOX=<new user inbox> MAIL_PASSWORD=<mail password> MAIL_SERVER=<mail server> MAIL_PORT=<mail port> --remote prod` <br>
+
+6. Push code in server's main branch to Heroku' main branch: <br>
+`git push staging main:main` <br>
+
+7. If all the previous steps were succesful, then the server db can be initialized with some data: <br>
+`python scripts/populate.py -u https://my-oasis-server.herokuapp.com/ -f <data folder>` <br>
+
 ### Contributors
 
 * The initial version of the OASIS server was developed by Maxim Tsybanov (oasis@tsybanov.com) during the X-Lab Spark practicum class at Boston University in Summer 2019.
