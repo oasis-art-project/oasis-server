@@ -56,26 +56,21 @@ class ArtistResource(Resource):
 
                 return {"status": 'success', 'user': all_data}, 200
 
-            # Get a specific artist(s) by (full) name
+            # Return the ID of a specific artist with a given (full) name
             if artist_name:
-
-                users = None
+                user = None
                 name_parts = artist_name.split('-')
                 if len(name_parts) == 1:
-                    users = User.query.filter_by(firstName=name_parts[0]).all()
+                    user = User.query.filter_by(firstName=name_parts[0]).first()
                 elif len(name_parts) == 2:
-                    users = User.query.filter_by(firstName=name_parts[0], lastName=name_parts[1]).all()
+                    user = User.query.filter_by(firstName=name_parts[0], lastName=name_parts[1]).first()
                 else:
                     return {'message': 'Malformed user name'}, 500
 
-                if not users:
+                if not user:
                     return {'message': 'Error retrieving artist by name'}, 500
 
-                if current_user and current_user.is_admin():
-                    data = UserSchema(many=True).dump(users).data                    
-                else:
-                    data = UserSchema(many=True, exclude=('email',)).dump(users).data
-                return {"status": 'success', 'users': data}, 200
+                return {"status": "success", 'artist_id': user.id}, 200
 
             # If no arguments passed, return all artists
             else:
