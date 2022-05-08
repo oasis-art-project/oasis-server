@@ -25,7 +25,7 @@ event_schema = EventSchema()
 
 class ArtistResource(Resource):
     @jwt_optional
-    def get(self, artist_id=None):
+    def get(self, artist_id=None, artist_name=None):
         """
         Gets a list of artists
         """
@@ -55,6 +55,27 @@ class ArtistResource(Resource):
                     all_data["artworks"] = artwork_data
 
                 return {"status": 'success', 'user': all_data}, 200
+
+            # Get a specific artist(s) by (full) name
+            if artist_name:
+
+                users = None
+                name_parts = artist_name.split('-')
+                if len(name_parts) == 1:
+                    users = User.query.filter_by(firstName=name_parts[0]).all()
+                elif len(name_parts) == 2:
+                    users = User.query.filter_by(firstName=name_parts[0], lastName=name_parts[1]).all()
+                else:
+                    return {'message': 'Malformed user name'}, 500
+
+                if not users:
+                    return {'message': 'Error retrieving artist by name'}, 500
+
+                if current_user and current_user.is_admin():
+                    data = UserSchema(many=True).dump(users).data                    
+                else:
+                    data = UserSchema(many=True, exclude=('email',)).dump(users).data
+                return {"status": 'success', 'users': data}, 200
 
             # If no arguments passed, return all artists
             else:
