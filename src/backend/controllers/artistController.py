@@ -12,6 +12,7 @@ from flask import request
 from flask_jwt_extended import jwt_required, jwt_optional, current_user
 from flask_restplus import Resource
 from sqlalchemy.exc import OperationalError
+from sqlalchemy import func
 from src.backend.controllers.controller import load_request
 from src.backend.models.userModel import User, UserSchema
 from src.backend.models.eventModel import EventSchema, Event
@@ -61,9 +62,12 @@ class ArtistResource(Resource):
                 user = None
                 name_parts = artist_name.split('-')
                 if len(name_parts) == 1:
-                    user = User.query.filter_by(firstName=name_parts[0]).first()
+                    first_name = name_parts[0]
+                    user = User.query.filter(func.lower(User.firstName) == func.lower(first_name)).first()
                 elif len(name_parts) == 2:
-                    user = User.query.filter_by(firstName=name_parts[0], lastName=name_parts[1]).first()
+                    first_name = name_parts[0]
+                    last_name = name_parts[1]
+                    user = User.query.filter(func.lower(User.firstName) == func.lower(first_name), func.lower(User.lastName) == func.lower(last_name)).first()
                 else:
                     return {'message': 'Malformed user name'}, 500
 
