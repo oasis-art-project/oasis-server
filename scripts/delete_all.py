@@ -12,6 +12,16 @@ def auth_header(token):
         'Authorization': 'Bearer {}'.format(token)
     }
 
+def try_post(path, data=None, files=None, headers=None):
+    count = 0
+    while count < 3:
+        try:
+            r = requests.post(path, data=data, files=files, headers=headers)
+            return r
+        except:
+            time.sleep(10 ** (count + 1)) 
+            count += 1 
+
 parser = argparse.ArgumentParser(description='Deletes all data in the DB.')
 parser.add_argument('-u', '--url', action='store', default='http://127.0.0.1:5000', help='set server url')
 parser.add_argument('-e', '--email', action='store', default='admin@oasis.com', help='admin email')
@@ -26,7 +36,8 @@ admin_passowrd = args.password
 # Need to login as admin to delete users
 print("Logging in as admin")
 d = make_data_request({'email': admin_email, 'password': admin_passowrd})
-r = requests.post(server_url + '/api/login/', data=d)
+# r = requests.post(server_url + '/api/login/', data=d)
+r = try_post(server_url + '/api/login/', data=d)
 if r.status_code != 200:
     raise Exception(r.status_code, r.content)
 host_token = r.json()['token']

@@ -40,6 +40,16 @@ def user_json(row):
         "confirmed": True
     }
 
+def try_post(path, data=None, files=None, headers=None):
+    count = 0
+    while count < 3:
+        try:
+            r = requests.post(path, data=data, files=files, headers=headers)
+            return r
+        except:
+            time.sleep(10 ** (count + 1)) 
+            count += 1    
+
 def upload_images_from_folder(bdir, rkind, rid, host_header):
     image_files = []
     all_files = [f for f in listdir(bdir) if isfile(join(bdir, f))]
@@ -48,7 +58,8 @@ def upload_images_from_folder(bdir, rkind, rid, host_header):
         mtype = mimetypes.guess_type(full_path)[0]
         if not mtype: continue
         image_files += [(fn, open(full_path, 'rb'))]
-    r = requests.post(server_url + '/api/media/'+ str(rid) + '?resource-kind=' + rkind, files=image_files, headers=host_header)
+    # r = requests.post(server_url + '/api/media/'+ str(rid) + '?resource-kind=' + rkind, files=image_files, headers=host_header)
+    r = try_post(server_url + '/api/media/'+ str(rid) + '?resource-kind=' + rkind, files=image_files, headers=host_header)
     if r.status_code != 200:
         print(r.content)
         raise Exception(r.status_code)
@@ -92,7 +103,8 @@ for row in reader:
     print("Editing user", fullName, "...")
 
     request_data = make_data_request({'email': email, 'password': password})
-    r = requests.post(server_url + '/api/login/', data=request_data)
+    # r = requests.post(server_url + '/api/login/', data=request_data)
+    r = try_post(server_url + '/api/login/', data=request_data)
     if r.status_code != 200:
         raise Exception(r.status_code, r.content)
     host_token = r.json()['token']
@@ -120,7 +132,8 @@ for fullName in user_extra:
         base_path = data_dir + "/images/users/artists/" + extra['email']
 
     login_data = make_data_request({'email': extra['email'], 'password': extra['password']})
-    r = requests.post(server_url + '/api/login/', data=login_data)
+    # r = requests.post(server_url + '/api/login/', data=login_data)
+    r = try_post(server_url + '/api/login/', data=login_data)
     if r.status_code != 200:
         raise Exception(r.status_code, r.content)
     host_token = r.json()['token']

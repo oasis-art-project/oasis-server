@@ -95,13 +95,24 @@ def event_json(place, artists, artworks, row):
         "id": row[14]
     }
 
+def try_post(path, data=None, files=None, headers=None):
+    count = 0
+    while count < 3:
+        try:
+            r = requests.post(path, data=data, files=files, headers=headers)
+            return r
+        except:
+            time.sleep(10 ** (count + 1)) 
+            count += 1
+
 def upload_image(bdir, fn, rkind, rid, user):
     upload_images_from_list(bdir, [fn], rkind, rid, user)
 
 def upload_images_from_folder(bdir, rkind, rid, user):
     # The user that owns the images needs to login
     user_data = make_data_request({'email': user['email'], 'password': user['password']})
-    r = requests.post(server_url + '/api/login/', data=user_data)
+    # r = requests.post(server_url + '/api/login/', data=user_data)
+    r = try_post(server_url + '/api/login/', data=user_data)
     if r.status_code != 200:
         raise Exception(r.status_code, r.content)
     host_token = r.json()['token']
@@ -114,7 +125,8 @@ def upload_images_from_folder(bdir, rkind, rid, user):
         mtype = mimetypes.guess_type(full_path)[0]
         if not mtype: continue
         image_files += [(fn, open(full_path, 'rb'))]
-    r = requests.post(server_url + '/api/media/'+ str(rid) + '?resource-kind=' + rkind, files=image_files, headers=host_header)
+    # r = requests.post(server_url + '/api/media/'+ str(rid) + '?resource-kind=' + rkind, files=image_files, headers=host_header)
+    r = try_post(server_url + '/api/media/'+ str(rid) + '?resource-kind=' + rkind, files=image_files, headers=host_header)
     if r.status_code != 200:
         raise Exception(r.status_code)
     j = r.json()
@@ -131,7 +143,8 @@ def upload_images_from_folder(bdir, rkind, rid, user):
 def upload_images_from_list(bdir, fnlist, rkind, rid, user):
     # The user that owns the images needs to login
     user_data = make_data_request({'email': user['email'], 'password': user['password']})
-    r = requests.post(server_url + '/api/login/', data=user_data)
+    # r = requests.post(server_url + '/api/login/', data=user_data)
+    r = try_post(server_url + '/api/login/', data=user_data)
     if r.status_code != 200:
         raise Exception(r.status_code, r.content)
     host_token = r.json()['token']
@@ -144,7 +157,8 @@ def upload_images_from_list(bdir, fnlist, rkind, rid, user):
         mtype = mimetypes.guess_type(full_path)[0]
         if not mtype: continue
         image_files += [(fn, open(full_path, 'rb'))]
-    r = requests.post(server_url + '/api/media/'+ str(rid) + '?resource-kind=' + rkind, files=image_files, headers=host_header)
+    # r = requests.post(server_url + '/api/media/'+ str(rid) + '?resource-kind=' + rkind, files=image_files, headers=host_header)
+    r = try_post(server_url + '/api/media/'+ str(rid) + '?resource-kind=' + rkind, files=image_files, headers=host_header)
     if r.status_code != 200:
         raise Exception(r.status_code)
     j = r.json()
@@ -302,7 +316,8 @@ for row in rows:
     # First the host user needs to login so we have the token to use in place creation
     print("  Logging host", hostFullName)        
     user_data = make_data_request({'email': hostEmail, 'password': hostPassword})
-    r = requests.post(server_url + '/api/login/', data=user_data)
+    # r = requests.post(server_url + '/api/login/', data=user_data)
+    r = try_post(server_url + '/api/login/', data=user_data)
     if r.status_code != 200:
         raise Exception(r.status_code, r.content)
     host_token = r.json()['token']

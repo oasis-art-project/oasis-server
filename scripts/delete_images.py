@@ -15,10 +15,21 @@ def auth_header(token):
         'Authorization': 'Bearer {}'.format(token)
     }
 
+def try_post(path, data=None, files=None, headers=None):
+    count = 0
+    while count < 3:
+        try:
+            r = requests.post(path, data=data, files=files, headers=headers)
+            return r
+        except:
+            time.sleep(10 ** (count + 1)) 
+            count += 1 
+
 def delete_image(rid, rkind, fn, user):
     # The user that owns the images needs to login
     d = make_data_request({'email': user['email'], 'password': user['password']})
-    r = requests.post(server_url + '/api/login/', data=d)
+    # r = requests.post(server_url + '/api/login/', data=d)
+    r = try_post(server_url + '/api/login/', data=d)
     if r.status_code != 200:
         raise Exception(r.status_code, r.content)
     host_token = r.json()['token']
