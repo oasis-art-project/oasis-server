@@ -69,7 +69,7 @@ The OASIS server can be installed on Heroku, with an AWS S3 bucket to store imag
 `heroku create my-oasis-server --remote prod` <br>
 
 3. Create database: <br>
-`heroku addons:create heroku-postgresql:hobby-dev --app my-oasis-server` <br>
+`heroku addons:create heroku-postgresql:mini --app my-oasis-server` <br>
 
 4. Set S3 bucket: <br>
 ```heroku config:set S3_BUCKET=my-oasis-storage` --remote prod```
