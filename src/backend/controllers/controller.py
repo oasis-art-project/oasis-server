@@ -68,7 +68,7 @@ def resize_image(img, max_res):
         else:
             h = max_res
             w = int(r * h)
-        resized_img = img.resize((w, h), Image.ANTIALIAS)
+        resized_img = img.resize((w, h), Image.Resampling.LANCZOS)
         fixed_image = ImageOps.exif_transpose(resized_img)
         return fixed_image
     else:
